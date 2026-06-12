@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<!--
+    Sidebar.fxml — Panel Navigasi Kiri (56px)
+    Berisi: logo/avatar, tombol nav vertikal, logout di bawah
+-->
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.plr.frontend.controller.SidebarController"
+      styleClass="sidebar"
+      prefWidth="56" minWidth="56" maxWidth="56"
+      fillWidth="true">
+
+    <!-- User Avatar (initial) -->
+    <Label fx:id="usernameInitialLabel"
+           text="U"
+           styleClass="sidebar-avatar"
+           alignment="CENTER">
+        <VBox.margin><Insets top="8" bottom="16"/></VBox.margin>
+        <tooltip><Tooltip text="Profil kamu"/></tooltip>
+    </Label>
+
+    <!-- Nav: Tasks -->
+    <Button fx:id="tasksNavBtn"
+            text="✓"
+            styleClass="sidebar-nav-btn"
+            onAction="#handleTasksNav">
+        <VBox.margin><Insets bottom="4"/></VBox.margin>
+        <tooltip><Tooltip text="To-Do List"/></tooltip>
+    </Button>
+
+    <!-- Nav: Timer -->
+    <Button fx:id="timerNavBtn"
+            text="⏱"
+            styleClass="sidebar-nav-btn"
+            onAction="#handleTimerNav">
+        <VBox.margin><Insets bottom="4"/></VBox.margin>
+        <tooltip><Tooltip text="Pomodoro Timer"/></tooltip>
+    </Button>
+
+    <!-- Nav: Audio -->
+    <Button fx:id="audioNavBtn"
+            text="🎵"
+            styleClass="sidebar-nav-btn"
+            onAction="#handleAudioNav">
+        <VBox.margin><Insets bottom="4"/></VBox.margin>
+        <tooltip><Tooltip text="Audio"/></tooltip>
+    </Button>
+
+    <!-- Nav: Settings -->
+    <Button fx:id="settingsNavBtn"
+            text="⚙"
+            styleClass="sidebar-nav-btn"
+            onAction="#handleSettings">
+        <tooltip><Tooltip text="Pengaturan"/></tooltip>
+    </Button>
+
+    <!-- Spacer -->
+    <Region VBox.vgrow="ALWAYS"/>
+
+    <!-- Logout Button -->
+    <Button text="⏻"
+            styleClass="sidebar-logout-btn"
+            onAction="#handleLogout">
+        <VBox.margin><Insets bottom="8"/></VBox.margin>
+        <tooltip><Tooltip text="Keluar"/></tooltip>
+    </Button>
+
+</VBox>

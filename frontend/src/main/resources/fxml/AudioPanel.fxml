@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<!--
+    AudioPanel.fxml — Panel Audio Kanan (220px)
+    Berisi: tab Noise/Playlist, grid noise, volume, audio player bar
+-->
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.plr.frontend.controller.AudioPanelController"
+      styleClass="audio-panel"
+      prefWidth="220" minWidth="220" maxWidth="220"
+      fillWidth="true">
+
+    <!-- Header -->
+    <Label text="Audio" styleClass="audio-header">
+        <VBox.margin><Insets bottom="10"/></VBox.margin>
+    </Label>
+
+    <!-- ===== TabPane: Noise | Playlist ===== -->
+    <TabPane styleClass="audio-tab-pane"
+             tabClosingPolicy="UNAVAILABLE"
+             VBox.vgrow="ALWAYS">
+
+        <!-- Noise Tab -->
+        <Tab text="Noise">
+            <VBox spacing="12" styleClass="audio-tab-content">
+                <padding><Insets top="12" right="0" bottom="8" left="0"/></padding>
+
+                <!-- 2x2 Grid of noise buttons -->
+                <GridPane hgap="8" vgap="8" alignment="CENTER">
+
+                    <!-- White Noise -->
+                    <Button fx:id="whiteNoiseBtn"
+                            styleClass="noise-btn"
+                            onAction="#playWhiteNoise"
+                            GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <graphic>
+                            <VBox alignment="CENTER" spacing="4">
+                                <Label text="🌧" style="-fx-font-size:22px; -fx-text-fill:#F0EAFF;"/>
+                                <Label text="White" style="-fx-font-size:10px; -fx-text-fill:#F0EAFF;"/>
+                            </VBox>
+                        </graphic>
+                    </Button>
+
+                    <!-- Brown Noise -->
+                    <Button fx:id="brownNoiseBtn"
+                            styleClass="noise-btn"
+                            onAction="#playBrownNoise"
+                            GridPane.columnIndex="1" GridPane.rowIndex="0">
+                        <graphic>
+                            <VBox alignment="CENTER" spacing="4">
+                                <Label text="☕" style="-fx-font-size:22px; -fx-text-fill:#F0EAFF;"/>
+                                <Label text="Brown" style="-fx-font-size:10px; -fx-text-fill:#F0EAFF;"/>
+                            </VBox>
+                        </graphic>
+                    </Button>
+
+                    <!-- Pink Noise -->
+                    <Button fx:id="pinkNoiseBtn"
+                            styleClass="noise-btn"
+                            onAction="#playPinkNoise"
+                            GridPane.columnIndex="0" GridPane.rowIndex="1">
+                        <graphic>
+                            <VBox alignment="CENTER" spacing="4">
+                                <Label text="🌿" style="-fx-font-size:22px; -fx-text-fill:#F0EAFF;"/>
+                                <Label text="Pink" style="-fx-font-size:10px; -fx-text-fill:#F0EAFF;"/>
+                            </VBox>
+                        </graphic>
+                    </Button>
+
+                    <!-- Blue Noise -->
+                    <Button fx:id="blueNoiseBtn"
+                            styleClass="noise-btn"
+                            onAction="#playBlueNoise"
+                            GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <graphic>
+                            <VBox alignment="CENTER" spacing="4">
+                                <Label text="⌨" style="-fx-font-size:22px; -fx-text-fill:#F0EAFF;"/>
+                                <Label text="Blue" style="-fx-font-size:10px; -fx-text-fill:#F0EAFF;"/>
+                            </VBox>
+                        </graphic>
+                    </Button>
+
+                </GridPane>
+
+                <!-- Volume Row -->
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <Label text="🔊" style="-fx-text-fill:#7C6E8A; -fx-font-size:12px;"/>
+                    <Slider fx:id="volumeSlider"
+                            min="0" max="1" value="0.7"
+                            HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="volumeLabel"
+                           text="70%"
+                           styleClass="volume-label"
+                           prefWidth="34"/>
+                </HBox>
+
+            </VBox>
+        </Tab>
+
+        <!-- Playlist Tab -->
+        <Tab text="Playlist">
+            <VBox spacing="10">
+                <padding><Insets top="12" right="0" bottom="8" left="0"/></padding>
+
+                <Label text="File Audio Lokal"
+                       style="-fx-font-size:11px; -fx-text-fill:#7C6E8A; -fx-font-weight:bold;"/>
+
+                <!-- File path + browse -->
+                <HBox spacing="6" alignment="CENTER_LEFT">
+                    <TextField fx:id="filePathField"
+                               promptText="Path file audio..."
+                               styleClass="playlist-file-field"
+                               HBox.hgrow="ALWAYS"
+                               editable="false"/>
+                    <Button text="📂"
+                            styleClass="browse-btn"
+                            onAction="#browseLocalFile"/>
+                </HBox>
+
+                <Label text="Klik tombol 📂 untuk memilih file MP3/WAV dari komputer kamu."
+                       wrapText="true"
+                       style="-fx-text-fill:#7C6E8A; -fx-font-size:10px;"/>
+
+                <!-- Volume Row (also in playlist) -->
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <Label text="🔊" style="-fx-text-fill:#7C6E8A; -fx-font-size:12px;"/>
+                    <Slider min="0" max="1" value="0.7"
+                            HBox.hgrow="ALWAYS"
+                            disable="true"/>
+                </HBox>
+
+            </VBox>
+        </Tab>
+
+    </TabPane>
+
+    <!-- Spacer -->
+    <Region VBox.vgrow="ALWAYS"/>
+
+    <!-- ===== Audio Player Bar (always visible at bottom) ===== -->
+    <VBox styleClass="audio-player-bar" spacing="6">
+
+        <!-- Now Playing Info -->
+        <Label fx:id="nowPlayingLabel"
+               text="Tidak ada audio"
+               styleClass="now-playing-label"/>
+
+        <!-- Progress Bar -->
+        <ProgressBar fx:id="audioProgressBar"
+                     progress="0"
+                     styleClass="audio-progress-bar"
+                     maxWidth="Infinity"/>
+
+        <!-- Controls Row -->
+        <HBox alignment="CENTER" spacing="8">
+
+            <!-- Stop -->
+            <Button text="⏹"
+                    styleClass="audio-ctrl-btn"
+                    onAction="#handleStop"/>
+
+            <!-- Play/Pause (main) -->
+            <Button fx:id="playPauseBtn"
+                    text="▶"
+                    styleClass="audio-play-btn"
+                    onAction="#handlePlayPause"
+                    disable="true"/>
+
+        </HBox>
+
+    </VBox>
+
+</VBox>

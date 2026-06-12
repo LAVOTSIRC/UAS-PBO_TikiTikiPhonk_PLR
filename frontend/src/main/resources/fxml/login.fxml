@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.plr.frontend.controller.LoginController"
+           styleClass="auth-root"
+           prefWidth="480" prefHeight="580">
+
+    <VBox styleClass="auth-card"
+          alignment="CENTER"
+          spacing="0"
+          maxWidth="400" maxHeight="520"
+          StackPane.alignment="CENTER">
+
+        <!-- Logo -->
+        <Label text="🎵" styleClass="auth-logo"/>
+        <VBox.margin><Insets bottom="8"/></VBox.margin>
+
+        <!-- Title -->
+        <Label text="TikiTikiPhonk" styleClass="auth-title">
+            <VBox.margin><Insets top="8" bottom="4"/></VBox.margin>
+        </Label>
+
+        <!-- Subtitle -->
+        <Label text="Fokus lebih dalam, produktif lebih tinggi." styleClass="auth-subtitle">
+            <VBox.margin><Insets bottom="28"/></VBox.margin>
+        </Label>
+
+        <!-- Username Field -->
+        <Label text="USERNAME" styleClass="auth-field-label"/>
+        <TextField fx:id="usernameField"
+                   promptText="Masukkan username kamu"
+                   styleClass="text-field, auth-input">
+            <VBox.margin><Insets bottom="14"/></VBox.margin>
+        </TextField>
+
+        <!-- Password Field -->
+        <Label text="PASSWORD" styleClass="auth-field-label"/>
+        <PasswordField fx:id="passwordField"
+                       promptText="Masukkan password kamu"
+                       styleClass="password-field, auth-input">
+            <VBox.margin><Insets bottom="20"/></VBox.margin>
+        </PasswordField>
+
+        <!-- Error Label -->
+        <Label fx:id="errorLabel"
+               text=""
+               styleClass="error-label"
+               visible="false"
+               wrapText="true">
+            <VBox.margin><Insets bottom="8"/></VBox.margin>
+        </Label>
+
+        <!-- Login Button -->
+        <Button fx:id="loginButton"
+                text="Masuk"
+                styleClass="button, button-primary, auth-btn"
+                onAction="#handleLogin"
+                defaultButton="true">
+            <VBox.margin><Insets bottom="16"/></VBox.margin>
+        </Button>
+
+        <!-- Loading Indicator -->
+        <ProgressIndicator fx:id="loadingIndicator"
+                           visible="false"
+                           styleClass="progress-indicator">
+            <VBox.margin><Insets bottom="8"/></VBox.margin>
+        </ProgressIndicator>
+
+        <!-- Register Link Row -->
+        <HBox alignment="CENTER" spacing="6">
+            <Label text="Belum punya akun?" styleClass="auth-subtitle"/>
+            <Button text="Daftar sekarang"
+                    styleClass="link-button"
+                    onAction="#goToRegister"/>
+        </HBox>
+
+    </VBox>
+
+</StackPane>

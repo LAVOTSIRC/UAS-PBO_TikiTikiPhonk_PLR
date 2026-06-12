@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<!--
+    TodoPanel.fxml — Panel Daftar Tugas (240px)
+    Berisi: header, input tambah tugas, list aktif, list selesai, ringkasan
+-->
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.plr.frontend.controller.TodoPanelController"
+      styleClass="todo-panel"
+      prefWidth="240" minWidth="240" maxWidth="240"
+      fillWidth="true" VBox.vgrow="ALWAYS">
+
+    <!-- Header Row -->
+    <HBox alignment="CENTER_LEFT" spacing="8">
+        <Label text="To-Do" styleClass="todo-header"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="statusLabel" text="" styleClass="section-label"/>
+    </HBox>
+
+    <!-- Input Row: add task -->
+    <HBox spacing="6" alignment="CENTER_LEFT">
+        <TextField fx:id="taskInputField"
+                   promptText="+ Tambah tugas baru..."
+                   styleClass="task-input"
+                   onAction="#handleAddTask"
+                   HBox.hgrow="ALWAYS"/>
+    </HBox>
+
+    <!-- Section: Aktif -->
+    <Label text="AKTIF" styleClass="section-label">
+        <VBox.margin><Insets top="4"/></VBox.margin>
+    </Label>
+
+    <!-- Active Tasks ListView -->
+    <ListView fx:id="activeTasksList"
+              styleClass="task-list-view"
+              VBox.vgrow="ALWAYS"
+              prefHeight="180"/>
+
+    <!-- Section: Selesai -->
+    <Label text="SELESAI" styleClass="section-label">
+        <VBox.margin><Insets top="6"/></VBox.margin>
+    </Label>
+
+    <!-- Completed Tasks ListView -->
+    <ListView fx:id="completedTasksList"
+              styleClass="task-list-view, completed-list-view"
+              VBox.vgrow="SOMETIMES"
+              prefHeight="100"/>
+
+    <!-- Delete Button -->
+    <Button text="🗑 Hapus yang dipilih"
+            styleClass="todo-delete-btn"
+            onAction="#handleDeleteSelected">
+        <VBox.margin><Insets top="8"/></VBox.margin>
+    </Button>
+
+    <!-- Spacer -->
+    <Region VBox.vgrow="ALWAYS"/>
+
+    <!-- Session Summary Card -->
+    <VBox styleClass="session-summary" spacing="4">
+        <VBox.margin><Insets top="8"/></VBox.margin>
+        <Label text="SESI HARI INI" styleClass="summary-title"/>
+        <Label fx:id="sessionCountLabel"
+               text="0 dari 0 selesai"
+               styleClass="summary-value"/>
+    </VBox>
+
+</VBox>

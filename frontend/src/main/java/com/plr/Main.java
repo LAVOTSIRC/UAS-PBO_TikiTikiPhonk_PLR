@@ -1,22 +1,13 @@
 package com.plr;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
 
-public class Main extends Application {
-    @Override
-    public void start(Stage stage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("hello-view.fxml"));
-
-        Scene scene = new Scene(loader.load(), 400, 300);
-        stage.setScene(scene);
-        stage.setTitle("Hello!");
-        stage.show();
-    }
-
+/**
+ * Launcher entry point for TikiTikiPhonk JavaFX app.
+ * Must be a non-Application class to avoid JavaFX module issues.
+ */
+public class Main {
     public static void main(String[] args) {
-        launch(args);
+        Application.launch(com.plr.frontend.JavaFXApp.class, args);
     }
 }

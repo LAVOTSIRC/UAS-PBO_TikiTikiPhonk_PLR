@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.HBox?>
+
+<!--
+    MainLayout.fxml — Shell Utama
+    Mengatur tata letak 4 panel via fx:include:
+      1. Sidebar   (56px  - nav kiri)
+      2. TodoPanel (240px - daftar tugas)
+      3. TimerPanel(fills - pomodoro timer)
+      4. AudioPanel(220px - audio companion)
+-->
+<HBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.plr.frontend.controller.MainLayoutController"
+      styleClass="main-layout"
+      prefWidth="1100" prefHeight="700"
+      fillHeight="true">
+
+    <!-- Sidebar: ikon navigasi kiri -->
+    <fx:include fx:id="sidebar" source="Sidebar.fxml"/>
+
+    <!-- Todo Panel: daftar tugas -->
+    <fx:include fx:id="todoPanel" source="TodoPanel.fxml"/>
+
+    <!-- Timer Panel: Pomodoro (mengisi sisa ruang) -->
+    <fx:include fx:id="timerPanel" source="TimerPanel.fxml"/>
+
+    <!-- Audio Panel: noise & playlist -->
+    <fx:include fx:id="audioPanel" source="AudioPanel.fxml"/>
+
+</HBox>
