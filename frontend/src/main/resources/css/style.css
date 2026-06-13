@@ -489,7 +489,7 @@
 
 .audio-panel {
     -fx-background-color: #0C0A0F;
-    -fx-border-color: #2D2936 transparent transparent transparent;
+    -fx-border-color: transparent transparent transparent #2D2936;
     -fx-border-width: 0 0 0 1;
     -fx-pref-width: 220;
     -fx-min-width: 220;
@@ -504,14 +504,15 @@
     -fx-text-fill: #F0EAFF;
 }
 
-/* TabPane for Noise/Playlist */
+/* ── TabPane Noise / Playlist ──────────────────────────── */
+
 .audio-tab-pane {
-    -fx-tab-min-height: 28;
-    -fx-tab-max-height: 28;
+    -fx-tab-min-height: 30;
+    -fx-tab-max-height: 30;
 }
 
 .audio-tab-pane .tab-header-area {
-    -fx-padding: 0;
+    -fx-padding: 0 0 0 0;
 }
 
 .audio-tab-pane .tab-header-area .tab-header-background {
@@ -522,8 +523,9 @@
 .audio-tab-pane .tab {
     -fx-background-color: transparent;
     -fx-text-fill: #7C6E8A;
-    -fx-padding: 4 16 4 16;
+    -fx-padding: 6 18 6 18;
     -fx-font-size: 12px;
+    -fx-font-weight: bold;
     -fx-cursor: hand;
     -fx-background-insets: 0;
     -fx-border-color: transparent;
@@ -531,49 +533,104 @@
 
 .audio-tab-pane .tab:selected {
     -fx-background-color: #2D2936;
-    -fx-text-fill: #F0EAFF;
+    -fx-text-fill: #C084FC;
     -fx-background-radius: 6 6 0 0;
+}
+
+.audio-tab-pane .tab:hover {
+    -fx-text-fill: #F0EAFF;
 }
 
 .audio-tab-pane .tab-content-area {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
+    -fx-padding: 0;
 }
 
-/* Noise buttons */
+.audio-tab-content {
+    -fx-padding: 10 0 8 0;
+}
+
+/* ── Noise Buttons ─────────────────────────────────────── */
+
 .noise-btn {
     -fx-background-color: #1A1722;
     -fx-border-color: #2D2936;
-    -fx-border-radius: 10;
-    -fx-background-radius: 10;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
     -fx-text-fill: #F0EAFF;
     -fx-cursor: hand;
-    -fx-pref-width: 85;
-    -fx-pref-height: 70;
-    -fx-font-size: 11px;
     -fx-alignment: center;
-    -fx-text-alignment: center;
-    -fx-wrap-text: true;
-    -fx-border-width: 1;
+    -fx-border-width: 1.5;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 0, 2);
 }
 
 .noise-btn:hover {
-    -fx-background-color: #2D2936;
-    -fx-border-color: #C084FC;
+    -fx-background-color: #231C2F;
+    -fx-border-color: #8B5CF6;
+    -fx-effect: dropshadow(gaussian, rgba(192,132,252,0.2), 8, 0, 0, 0);
 }
 
-.noise-btn.active {
+.noise-btn:pressed {
+    -fx-background-color: #1F1630;
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+}
+
+/* Active state (tombol noise yang sedang diputar) */
+.noise-btn-active {
     -fx-background-color: #1F1630;
     -fx-border-color: #C084FC;
-    -fx-text-fill: #C084FC;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(192,132,252,0.4), 12, 0, 0, 0);
 }
 
-/* Volume Slider */
+.noise-btn-active:hover {
+    -fx-background-color: #261A3C;
+    -fx-border-color: #D0A0FF;
+}
+
+/* ── Divider ────────────────────────────────────────────── */
+
+.audio-divider {
+    -fx-background-color: #2D2936;
+    -fx-pref-height: 1;
+    -fx-max-height: 1;
+    -fx-opacity: 0.6;
+}
+
+/* ── Volume Slider ──────────────────────────────────────── */
+
 .volume-label {
     -fx-text-fill: #7C6E8A;
-    -fx-font-size: 11px;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
 }
 
+.audio-volume-slider .track {
+    -fx-background-color: #2D2936;
+    -fx-pref-height: 3;
+    -fx-background-radius: 2;
+    -fx-border-radius: 2;
+}
+
+.audio-volume-slider .thumb {
+    -fx-background-color: #C084FC;
+    -fx-pref-width: 13;
+    -fx-pref-height: 13;
+    -fx-background-radius: 50%;
+    -fx-border-radius: 50%;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(192,132,252,0.3), 4, 0, 0, 0);
+}
+
+.audio-volume-slider .thumb:hover {
+    -fx-background-color: #D0A0FF;
+    -fx-effect: dropshadow(gaussian, rgba(192,132,252,0.5), 8, 0, 0, 0);
+}
+
+/* Generic slider fallback */
 .slider .track {
     -fx-background-color: #2D2936;
     -fx-pref-height: 4;
@@ -600,7 +657,73 @@
     -fx-tick-label-fill: #7C6E8A;
 }
 
-/* Playlist tab */
+/* ── Playlist Tab ──────────────────────────────────────── */
+
+/* Import Music Button */
+.import-music-btn {
+    -fx-background-color: #1F1630;
+    -fx-border-color: #C084FC;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-text-fill: #C084FC;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 8 12 8 12;
+    -fx-effect: dropshadow(gaussian, rgba(192,132,252,0.2), 6, 0, 0, 0);
+}
+
+.import-music-btn:hover {
+    -fx-background-color: #261A3C;
+    -fx-border-color: #D0A0FF;
+    -fx-text-fill: #D0A0FF;
+    -fx-effect: dropshadow(gaussian, rgba(192,132,252,0.35), 10, 0, 0, 0);
+}
+
+.import-music-btn:pressed {
+    -fx-background-color: #1A1030;
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* Playlist ListView */
+.playlist-list-view {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.playlist-list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #C8BFD8;
+    -fx-padding: 7 8 7 8;
+    -fx-font-size: 11px;
+    -fx-border-color: transparent transparent #1A1722 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-cursor: hand;
+}
+
+.playlist-list-view .list-cell:hover {
+    -fx-background-color: #1A1722;
+    -fx-background-radius: 6;
+    -fx-text-fill: #F0EAFF;
+}
+
+.playlist-list-view .list-cell:selected {
+    -fx-background-color: #1F1630;
+    -fx-background-radius: 6;
+    -fx-text-fill: #C084FC;
+    -fx-border-color: transparent;
+}
+
+.playlist-list-view .list-cell:empty {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+/* Legacy fields kept for backward compat */
 .playlist-file-field {
     -fx-background-color: #1A1722;
     -fx-border-color: #2D2936;
@@ -627,10 +750,11 @@
     -fx-background-color: #3D3748;
 }
 
-/* Audio Player Bar (bottom fixed) */
+/* ── Audio Player Bar (bottom, always visible) ─────────── */
+
 .audio-player-bar {
-    -fx-background-color: #140F1C;
-    -fx-border-color: #2D2936;
+    -fx-background-color: #120D1B;
+    -fx-border-color: #2D2936 transparent transparent transparent;
     -fx-border-width: 1 0 0 0;
     -fx-padding: 10 12 14 12;
     -fx-spacing: 6;
@@ -639,8 +763,9 @@
 .now-playing-label {
     -fx-text-fill: #F0EAFF;
     -fx-font-size: 11px;
+    -fx-font-weight: bold;
     -fx-wrap-text: true;
-    -fx-max-width: 180;
+    -fx-max-width: 170;
 }
 
 .now-playing-sub {
@@ -648,9 +773,12 @@
     -fx-font-size: 10px;
 }
 
+/* Progress Bar */
 .audio-progress-bar {
     -fx-pref-width: Infinity;
     -fx-pref-height: 4;
+    -fx-min-height: 4;
+    -fx-max-height: 4;
 }
 
 .audio-progress-bar .track {
@@ -660,17 +788,27 @@
 }
 
 .audio-progress-bar .bar {
-    -fx-background-color: #C084FC;
+    -fx-background-color: linear-gradient(to right, #9B59F5, #C084FC);
     -fx-background-radius: 2;
 }
 
+/* Time Labels */
+.time-label {
+    -fx-text-fill: #7C6E8A;
+    -fx-font-size: 9px;
+    -fx-font-family: 'JetBrains Mono', 'Consolas', monospace;
+}
+
+/* Control Buttons */
 .audio-ctrl-btn {
     -fx-background-color: transparent;
     -fx-text-fill: #7C6E8A;
-    -fx-font-size: 14px;
+    -fx-font-size: 11px;
     -fx-cursor: hand;
-    -fx-pref-width: 32;
-    -fx-pref-height: 32;
+    -fx-pref-width: 30;
+    -fx-pref-height: 30;
+    -fx-min-width: 30;
+    -fx-min-height: 30;
     -fx-border-radius: 50%;
     -fx-background-radius: 50%;
     -fx-border-color: transparent;
@@ -682,20 +820,43 @@
     -fx-text-fill: #C084FC;
 }
 
+.audio-ctrl-btn:pressed {
+    -fx-background-color: #3D3748;
+}
+
+/* Main Play/Pause Button */
 .audio-play-btn {
     -fx-background-color: #C084FC;
     -fx-text-fill: #0E0C10;
-    -fx-font-size: 14px;
-    -fx-pref-width: 36;
-    -fx-pref-height: 36;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-pref-width: 38;
+    -fx-pref-height: 38;
+    -fx-min-width: 38;
+    -fx-min-height: 38;
     -fx-border-radius: 50%;
     -fx-background-radius: 50%;
     -fx-border-color: transparent;
-    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(192,132,252,0.4), 8, 0, 0, 0);
 }
 
 .audio-play-btn:hover {
     -fx-background-color: #D0A0FF;
+    -fx-effect: dropshadow(gaussian, rgba(192,132,252,0.6), 12, 0, 0, 0);
+}
+
+.audio-play-btn:pressed {
+    -fx-background-color: #A86EDE;
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+}
+
+.audio-play-btn:disabled {
+    -fx-background-color: #3D3748;
+    -fx-text-fill: #7C6E8A;
+    -fx-effect: none;
+    -fx-opacity: 0.6;
 }
 
 /* ============================================================
