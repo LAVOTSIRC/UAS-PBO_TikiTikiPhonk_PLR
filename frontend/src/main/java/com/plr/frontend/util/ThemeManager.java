@@ -2,10 +2,14 @@ package com.plr.frontend.util;
 
 import javafx.scene.Scene;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ThemeManager {
 
     private static ThemeManager instance;
     private boolean lightMode = false;
+    private List<Runnable> changeListeners = new ArrayList<>();
 
     private ThemeManager() {}
 
@@ -26,6 +30,10 @@ public class ThemeManager {
         this.lightMode = light;
     }
 
+    public void addChangeListener(Runnable listener) {
+        changeListeners.add(listener);
+    }
+
     public void applyToScene(Scene scene) {
         if (scene == null) return;
         if (lightMode) {
@@ -33,5 +41,6 @@ public class ThemeManager {
         } else {
             scene.getRoot().getStyleClass().remove("light-mode");
         }
+        changeListeners.forEach(Runnable::run);
     }
 }

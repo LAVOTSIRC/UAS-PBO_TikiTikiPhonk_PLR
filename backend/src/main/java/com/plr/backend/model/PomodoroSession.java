@@ -24,7 +24,7 @@ public class PomodoroSession extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String notes;
 
-    @Column(name = "points", nullable = false)
+    @Column(name = "points")
     private int points = 0;
 
     @ManyToOne(fetch = FetchType.LAZY)

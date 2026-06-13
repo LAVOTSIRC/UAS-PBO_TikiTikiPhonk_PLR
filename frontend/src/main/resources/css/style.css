@@ -1057,7 +1057,7 @@
 }
 
 .timer-progress-ring {
-    -fx-stroke: #C084FC;
+    /* stroke dikontrol oleh Java (updateTimerDisplay) */
 }
 
 /* ── Audio misc labels ───────────────────────────────────── */
@@ -1293,7 +1293,7 @@
 /* ── Timer session dots ─────────────────────────────────── */
 
 .timer-dot-filled {
-    -fx-fill: #C084FC;
+    /* fill dikontrol oleh Java (updateSessionDots) */
 }
 
 .timer-dot-empty {
@@ -1525,6 +1525,10 @@
 
 .light-mode .timer-bg-ring {
     -fx-stroke: #C8BED8;
+}
+
+.light-mode .timer-progress-ring {
+    /* stroke dikontrol oleh Java (updateTimerDisplay) */
 }
 
 .light-mode .timer-progress-ring {
@@ -2000,7 +2004,7 @@
 }
 
 .light-mode .timer-dot-filled {
-    -fx-fill: #7C3AED;
+    /* fill dikontrol oleh Java (updateSessionDots) */
 }
 
 .light-mode .timer-dot-empty {
