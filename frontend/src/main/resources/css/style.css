@@ -1112,7 +1112,7 @@
             text=#1E1A29 secondary=#6B5E7E
    ============================================================ */
 
-.light-mode .root {
+.light-mode.root {
     -fx-background-color: #EDE8F4;
     -fx-text-fill: #1E1A29;
 }
@@ -1178,7 +1178,7 @@
     -fx-border-color: #C8BED8;
 }
 
-.light-mode .auth-root {
+.light-mode.auth-root {
     -fx-background-color: #EDE8F4;
 }
 
@@ -1208,7 +1208,7 @@
     -fx-text-fill: #DC2626;
 }
 
-.light-mode .main-layout {
+.light-mode.main-layout {
     -fx-background-color: #EDE8F4;
 }
 
