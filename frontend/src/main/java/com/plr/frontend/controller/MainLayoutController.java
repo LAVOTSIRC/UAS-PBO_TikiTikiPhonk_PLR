@@ -3,7 +3,9 @@ package com.plr.frontend.controller;
 import com.plr.frontend.util.SessionManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 
 public class MainLayoutController {
 
@@ -11,17 +13,22 @@ public class MainLayoutController {
     @FXML private TodoPanelController todoPanelController;
     @FXML private TimerPanelController timerPanelController;
     @FXML private AudioPanelController audioPanelController;
-    
+    @FXML private StatsController statsPanelController;
+
+    @FXML private HBox taskView;
+    @FXML private Node statsPanel;
+
     @FXML private Label globalStatusLabel;
     private static MainLayoutController instance;
 
     @FXML
     public void initialize() {
         instance = this;
-        // Pass username to sidebar for display
         String username = SessionManager.getInstance().getUsername();
         if (sidebarController != null) {
             sidebarController.setUsername(username);
+            sidebarController.setOnNavigateTasks(this::showTasksView);
+            sidebarController.setOnNavigateStats(this::showStatsView);
         }
 
         if (timerPanelController != null) {
@@ -29,12 +36,10 @@ public class MainLayoutController {
         }
         if (todoPanelController != null) {
             todoPanelController.setOnTasksChanged(() -> {
-                // Jangan otomatis set active task lagi, biarkan user yang milih manual via focusBtn
             });
             todoPanelController.loadTasks(() -> {
-                // Kosongkan
             });
-            
+
             todoPanelController.setOnFocusTaskRequested(taskDto -> {
                 if (timerPanelController != null) {
                     timerPanelController.setActiveTask(taskDto.getTitle());
@@ -42,6 +47,30 @@ public class MainLayoutController {
                 }
             });
         }
+    }
+
+    private void showTasksView() {
+        setViewVisible(taskView, true);
+        setViewVisible(statsPanel, false);
+    }
+
+    private void showStatsView() {
+        setViewVisible(taskView, false);
+        setViewVisible(statsPanel, true);
+        if (statsPanelController != null) {
+            statsPanelController.loadStats();
+        }
+    }
+
+    private void setViewVisible(Node node, boolean visible) {
+        if (node != null) {
+            node.setManaged(visible);
+            node.setVisible(visible);
+        }
+    }
+
+    public static MainLayoutController getInstance() {
+        return instance;
     }
 
     public static void showGlobalNotification(String text, boolean isUndoOption, Runnable undoAction) {

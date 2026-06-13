@@ -11,9 +11,16 @@ public class SidebarController {
 
     @FXML private Label usernameInitialLabel;
     @FXML private Button tasksNavBtn;
+    @FXML private Button statsNavBtn;
     @FXML private Button themeToggleBtn;
     @FXML private Label themeIconLabel;
     @FXML private Button logoutBtn;
+
+    private Runnable onNavigateTasks;
+    private Runnable onNavigateStats;
+
+    public void setOnNavigateTasks(Runnable r) { this.onNavigateTasks = r; }
+    public void setOnNavigateStats(Runnable r) { this.onNavigateStats = r; }
 
     @FXML
     public void initialize() {
@@ -44,8 +51,14 @@ public class SidebarController {
     @FXML
     public void handleTasksNav() {
         setActiveButton(tasksNavBtn);
+        if (onNavigateTasks != null) onNavigateTasks.run();
     }
 
+    @FXML
+    public void handleStatsNav() {
+        setActiveButton(statsNavBtn);
+        if (onNavigateStats != null) onNavigateStats.run();
+    }
 
 
     @FXML
@@ -55,7 +68,7 @@ public class SidebarController {
     }
 
     private void setActiveButton(Button active) {
-        Button[] allBtns = {tasksNavBtn};
+        Button[] allBtns = {tasksNavBtn, statsNavBtn};
         for (Button btn : allBtns) {
             if (btn != null) {
                 btn.getStyleClass().remove("active");

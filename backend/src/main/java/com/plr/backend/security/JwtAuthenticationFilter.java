@@ -39,20 +39,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String jwt = getJwtFromRequest(request);
 
-            if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-                String username = tokenProvider.getUsernameFromToken(jwt);
-                UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
-                UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities()
+            if (StringUtils.hasText(jwt)) {
+                if (tokenProvider.validateToken(jwt)) {
+                    String username = tokenProvider.getUsernameFromToken(jwt);
+                    logger.debug("[JWT] Token valid for user: {}", username);
+
+                    UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+                    UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities()
+                        );
+                    authentication.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request)
                     );
-                authentication.setDetails(
-                    new WebAuthenticationDetailsSource().buildDetails(request)
-                );
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    logger.debug("[JWT] Authentication set for user: {}", username);
+                } else {
+                    logger.warn("[JWT] Token validation failed for URI: {}", request.getRequestURI());
+                }
+            } else {
+                logger.debug("[JWT] No token in Authorization header for {} {}", request.getMethod(), request.getRequestURI());
             }
         } catch (Exception ex) {
-            logger.error("Could not set user authentication in security context", ex);
+            logger.error("[JWT] Could not set user authentication in security context", ex);
         }
 
         filterChain.doFilter(request, response);
@@ -61,8 +70,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
+            String jwt = bearerToken.substring(7).trim();
+            logger.debug("[JWT] Raw token extracted, length={}", jwt.length());
+            return jwt;
         }
+        logger.debug("[JWT] No Authorization header or invalid format");
         return null;
     }
 }

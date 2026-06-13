@@ -2466,3 +2466,181 @@
 .light-mode .menu-item:hover {
     -fx-background-color: #F0ECF5;
 }
+
+/* ============================================================
+   Statistik Panel
+   ============================================================ */
+.stats-panel {
+    -fx-background-color: #0E0C10;
+    -fx-padding: 24 28;
+    -fx-spacing: 16;
+}
+
+.light-mode .stats-panel {
+    -fx-background-color: #F5F0FF;
+}
+
+.stats-header {
+    -fx-padding: 0 0 4 0;
+}
+
+.stats-header-icon {
+    -fx-font-size: 28px;
+}
+
+.stats-header-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F0EAFF;
+}
+
+.light-mode .stats-header-title {
+    -fx-text-fill: #1E1A29;
+}
+
+/* Summary Cards */
+.stats-cards-row {
+    -fx-padding: 0;
+}
+
+.stats-card {
+    -fx-background-color: #1A1722;
+    -fx-border-color: #2D2936;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 16 12;
+    -fx-spacing: 4;
+    -fx-min-height: 80;
+}
+
+.light-mode .stats-card {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #C8BED8;
+}
+
+.stats-card-number {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #C084FC;
+}
+
+.light-mode .stats-card-number {
+    -fx-text-fill: #7C3AED;
+}
+
+.stats-card-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #7C6E8A;
+    -fx-font-weight: 600;
+}
+
+.light-mode .stats-card-label {
+    -fx-text-fill: #6B5E7E;
+}
+
+/* Charts Area */
+.stats-charts-area {
+    -fx-padding: 0;
+}
+
+.stats-chart-box {
+    -fx-background-color: #1A1722;
+    -fx-border-color: #2D2936;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 16 20 12 12;
+}
+
+.light-mode .stats-chart-box {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #C8BED8;
+}
+
+.stats-chart-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F0EAFF;
+}
+
+.light-mode .stats-chart-title {
+    -fx-text-fill: #1E1A29;
+}
+
+/* BarChart styling */
+.stats-bar-chart {
+    -fx-background-color: transparent;
+}
+
+.stats-bar-chart .chart-plot-background {
+    -fx-background-color: transparent;
+}
+
+.stats-bar-chart .chart-vertical-grid-lines {
+    -fx-stroke: #2D2936;
+}
+
+.stats-bar-chart .chart-horizontal-grid-lines {
+    -fx-stroke: #2D2936;
+}
+
+.light-mode .stats-bar-chart .chart-vertical-grid-lines {
+    -fx-stroke: #D4C4EC;
+}
+
+.light-mode .stats-bar-chart .chart-horizontal-grid-lines {
+    -fx-stroke: #D4C4EC;
+}
+
+.stats-bar-chart .chart-bar {
+    -fx-bar-fill: #C084FC;
+}
+
+.light-mode .stats-bar-chart .chart-bar {
+    -fx-bar-fill: #7C3AED;
+}
+
+/* Axis styling */
+.stats-axis {
+    -fx-tick-label-fill: #7C6E8A;
+    -fx-tick-label-font-size: 11px;
+}
+
+.light-mode .stats-axis {
+    -fx-tick-label-fill: #6B5E7E;
+}
+
+.stats-axis .axis-label {
+    -fx-text-fill: #7C6E8A;
+    -fx-font-size: 11px;
+}
+
+.light-mode .stats-axis .axis-label {
+    -fx-text-fill: #6B5E7E;
+}
+
+/* PieChart styling */
+.stats-pie-chart {
+    -fx-background-color: transparent;
+}
+
+.stats-pie-chart .chart-legend {
+    -fx-background-color: transparent;
+}
+
+.stats-pie-chart .chart-legend-item {
+    -fx-text-fill: #F0EAFF;
+    -fx-font-size: 12px;
+}
+
+.light-mode .stats-pie-chart .chart-legend-item {
+    -fx-text-fill: #1E1A29;
+}
+
+.stats-pie-chart .chart-pie-label {
+    -fx-text-fill: #7C6E8A;
+    -fx-font-size: 11px;
+}
+
+.light-mode .stats-pie-chart .chart-pie-label {
+    -fx-text-fill: #6B5E7E;
+}
