@@ -13,7 +13,6 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.media.AudioClip;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Arc;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
@@ -31,6 +30,7 @@ public class TimerPanelController {
     private static final int CYCLE_LENGTH = 4;
     private static final String ACCENT_RED = "timer-accent-red";
     private static final String ACCENT_BLUE = "timer-accent-blue";
+    private static final double CIRCUMFERENCE = 2 * Math.PI * 120;
 
     @FXML private Label timerLabel;
     @FXML private Label sessionTypeLabel;
@@ -39,7 +39,7 @@ public class TimerPanelController {
     @FXML private Label pointsLabel;
     @FXML private Label activeTaskLabel;
     @FXML private Label cycleLabel;
-    @FXML private Arc timerArc;
+    @FXML private Circle timerArc;
     @FXML private Button playPauseBtn;
     @FXML private Button skipBtn;
     @FXML private HBox sessionDots;
@@ -109,8 +109,38 @@ public class TimerPanelController {
     @FXML
     public void handleSkip() {
         if (clickSound != null) clickSound.play();
+        if (completeSound != null) completeSound.play();
         stopTimer();
-        onTimerComplete();
+        if (remainingSeconds < 0) remainingSeconds = 0;
+        updateTimerDisplay();
+        statusLabel.setText("\u23ED Sesi dilewati");
+
+        if ("FOCUS".equals(currentMode)) {
+            completedFocusSessions++;
+            focusCountInCycle++;
+            updateSessionDots();
+        }
+        advanceToNextMode();
+        saveSkippedSession();
+    }
+
+    private void saveSkippedSession() {
+        Map<String, Object> sessionData = new HashMap<>();
+        sessionData.put("durationMinutes", 0);
+        sessionData.put("sessionType", currentMode);
+        sessionData.put("startTime", sessionStartTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
+        Task<Map<String, Object>> saveTask = new Task<>() {
+            @Override
+            protected Map<String, Object> call() throws Exception {
+                return ApiClient.getInstance().logPomodoroSession(sessionData);
+            }
+        };
+
+        saveTask.setOnSucceeded(e -> Platform.runLater(this::loadSessionHistory));
+        saveTask.setOnFailed(e -> {});
+
+        new Thread(saveTask).start();
     }
 
     private void applyFocusMode() {
@@ -324,8 +354,9 @@ public class TimerPanelController {
         timerLabel.setText(String.format("%02d:%02d", minutes, seconds));
 
         if (totalSeconds > 0) {
-            double progress = (double) remainingSeconds / totalSeconds;
-            timerArc.setLength(360.0 * progress);
+            double progress = Math.max(0, Math.min(1, (double) remainingSeconds / totalSeconds));
+            double dashLength = CIRCUMFERENCE * progress;
+            timerArc.getStrokeDashArray().setAll(dashLength, CIRCUMFERENCE);
             timerArc.setStroke(Color.web(getCurrentAccentColor()));
         }
     }

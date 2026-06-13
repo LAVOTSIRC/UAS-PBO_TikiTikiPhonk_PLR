@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Table(name = "pomodoro_sessions")
 public class PomodoroSession extends BaseEntity {
 
-    @Min(value = 1, message = "Durasi minimal 1 menit")
+    @Min(value = 0, message = "Durasi minimal 0 menit")
     @Column(name = "duration_minutes", nullable = false)
     private int durationMinutes;
 
