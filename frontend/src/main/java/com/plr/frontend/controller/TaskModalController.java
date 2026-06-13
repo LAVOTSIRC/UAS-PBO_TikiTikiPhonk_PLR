@@ -94,6 +94,8 @@ public class TaskModalController {
                 };
             }
         });
+
+        // Ukuran TextArea deskripsi diatur langsung di FXML (prefRowCount=4, prefHeight=95)
     }
 
     public void setDialogStage(Stage dialogStage) {

@@ -16,7 +16,7 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.plr.frontend.controller.TaskModalController"
       styleClass="task-modal"
-      spacing="16" prefWidth="480">
+      spacing="16" prefWidth="500" prefHeight="520">
 
     <Label fx:id="modalTitleLabel" text="Detail Tugas" styleClass="task-modal-title"/>
 
@@ -41,9 +41,11 @@
         </HBox>
     </VBox>
 
-    <VBox spacing="5">
+    <VBox spacing="5" VBox.vgrow="ALWAYS">
         <Label text="Deskripsi" styleClass="task-modal-label"/>
-        <TextArea fx:id="descriptionArea" promptText="Tulis deskripsi detail (opsional)" prefRowCount="4" wrapText="true" styleClass="task-input"/>
+        <TextArea fx:id="descriptionArea" promptText="Tulis deskripsi detail (opsional)"
+                  prefRowCount="4" prefHeight="95"
+                  wrapText="true" styleClass="task-input" VBox.vgrow="ALWAYS"/>
     </VBox>
 
     <Label fx:id="errorLabel" text="" styleClass="task-modal-error"/>

@@ -490,10 +490,12 @@ public class TodoPanelController {
                     }
                 });
                 
-                // Jika baris (HBox) diklik 2x, buka edit modal
-                root.setOnMouseClicked(e -> {
-                    if (e.getClickCount() == 2 && taskId != null) {
-                        openEditModal(taskId, isCompletedList);
+                // Buka detail jika diklik 2x, ATAU jika diklik 1x tapi baris sudah dalam keadaan terpilih
+                root.setOnMousePressed(e -> {
+                    if (taskId != null) {
+                        if (e.getClickCount() >= 2 || (e.getClickCount() == 1 && isSelected())) {
+                            openEditModal(taskId, isCompletedList);
+                        }
                     }
                 });
 
