@@ -1101,6 +1101,140 @@
     -fx-text-fill: #7C6E8A;
 }
 
+/* ── Audio playlist action buttons ──────────────────────── */
+
+.audio-back-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #C084FC;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 2 0;
+    -fx-border-color: transparent;
+}
+
+.audio-track-title {
+    -fx-font-size: 11px;
+    -fx-text-fill: #F0EAFF;
+    -fx-font-weight: bold;
+}
+
+.audio-play-all-btn {
+    -fx-background-color: #C084FC;
+    -fx-text-fill: #0E0C10;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 4 10;
+    -fx-border-color: transparent;
+}
+
+.audio-shuffle-btn {
+    -fx-background-color: #1F1630;
+    -fx-text-fill: #C084FC;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-border-color: #C084FC;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 4 10;
+    -fx-border-width: 1;
+}
+
+.audio-add-track-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #7C6E8A;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-border-color: #2D2936;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 4 8;
+}
+
+.audio-section-title {
+    -fx-font-size: 9px;
+    -fx-text-fill: #7C6E8A;
+    -fx-font-weight: bold;
+}
+
+.audio-form-label {
+    -fx-font-size: 9px;
+    -fx-text-fill: #C084FC;
+    -fx-font-weight: bold;
+}
+
+.audio-form-field {
+    -fx-background-color: #1A1722;
+    -fx-border-color: #2D2936;
+    -fx-text-fill: #F0EAFF;
+    -fx-prompt-text-fill: #7C6E8A;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 6 10;
+    -fx-font-size: 12px;
+}
+
+.audio-form-textarea {
+    -fx-background-color: #1A1722;
+    -fx-border-color: #2D2936;
+    -fx-text-fill: #F0EAFF;
+    -fx-prompt-text-fill: #7C6E8A;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 6 10;
+    -fx-font-size: 12px;
+    -fx-control-inner-background: #1A1722;
+}
+
+.audio-file-pick-btn {
+    -fx-background-color: #2D2936;
+    -fx-text-fill: #C084FC;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-padding: 6 10;
+    -fx-border-color: #2D2936;
+}
+
+.audio-save-btn {
+    -fx-background-color: #C084FC;
+    -fx-text-fill: #0E0C10;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-padding: 6 10;
+}
+
+.audio-cancel-btn {
+    -fx-background-color: #2D2936;
+    -fx-text-fill: #F0EAFF;
+    -fx-font-size: 12px;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-padding: 6 10;
+}
+
+.audio-volume-section-label {
+    -fx-font-size: 9px;
+    -fx-text-fill: #7C6E8A;
+    -fx-font-weight: bold;
+}
+
+.speaker-label {
+    -fx-text-fill: #7C6E8A;
+    -fx-font-size: 12px;
+}
+
 /* ── Empty playlist ──────────────────────────────────────── */
 
 .empty-playlist-icon {
@@ -1453,6 +1587,32 @@
     -fx-text-fill: #7C3AED;
 }
 
+.light-mode .timer-play-btn.timer-accent-red {
+    -fx-background-color: #d06a84;
+}
+.light-mode .timer-play-btn.timer-accent-red:hover {
+    -fx-background-color: #d88096;
+}
+.light-mode .timer-points.timer-accent-red {
+    -fx-text-fill: #d06a84;
+}
+.light-mode .timer-active-task.timer-accent-red {
+    -fx-text-fill: #d06a84;
+}
+
+.light-mode .timer-play-btn.timer-accent-blue {
+    -fx-background-color: #5a7fc8;
+}
+.light-mode .timer-play-btn.timer-accent-blue:hover {
+    -fx-background-color: #6d8fcf;
+}
+.light-mode .timer-points.timer-accent-blue {
+    -fx-text-fill: #5a7fc8;
+}
+.light-mode .timer-active-task.timer-accent-blue {
+    -fx-text-fill: #5a7fc8;
+}
+
 .light-mode .audio-panel {
     -fx-background-color: #E2D9EE;
     -fx-border-color: transparent transparent transparent #D4CCE0;
@@ -1463,6 +1623,25 @@
 }
 
 .light-mode .audio-header-icon {
+    -fx-text-fill: #7C3AED;
+}
+
+.light-mode .audio-tab-bar {
+    -fx-background-color: #F8F6FA;
+    -fx-border-color: #C8BED8;
+}
+
+.light-mode .audio-tab-btn {
+    -fx-text-fill: #6B5E7E;
+}
+
+.light-mode .audio-tab-btn:hover {
+    -fx-background-color: #D6CDE4;
+    -fx-text-fill: #1E1A29;
+}
+
+.light-mode .audio-tab-btn.active {
+    -fx-background-color: #DED6EA;
     -fx-text-fill: #7C3AED;
 }
 
@@ -1481,6 +1660,22 @@
 
 .light-mode .audio-tab-pane .tab:hover {
     -fx-text-fill: #1E1A29;
+}
+
+.light-mode .audio-toggle-btn {
+    -fx-text-fill: #6B5E7E;
+    -fx-border-color: #C8BED8;
+}
+
+.light-mode .audio-toggle-btn:hover {
+    -fx-background-color: #C8BED8;
+    -fx-text-fill: #1E1A29;
+}
+
+.light-mode .audio-toggle-btn.active {
+    -fx-background-color: #F0ECF5;
+    -fx-text-fill: #7C3AED;
+    -fx-border-color: #7C3AED;
 }
 
 .light-mode .noise-btn {
@@ -1579,6 +1774,103 @@
 
 .light-mode .import-music-btn:pressed {
     -fx-background-color: #E4DCEE;
+}
+
+.light-mode .audio-back-btn {
+    -fx-text-fill: #7C3AED;
+}
+
+.light-mode .audio-track-title {
+    -fx-text-fill: #1E1A29;
+}
+
+.light-mode .audio-play-all-btn {
+    -fx-background-color: #7C3AED;
+    -fx-text-fill: #FFFFFF;
+}
+
+.light-mode .audio-play-all-btn:hover {
+    -fx-background-color: #6D28D9;
+}
+
+.light-mode .audio-shuffle-btn {
+    -fx-background-color: #F0ECF5;
+    -fx-text-fill: #7C3AED;
+    -fx-border-color: #7C3AED;
+}
+
+.light-mode .audio-shuffle-btn:hover {
+    -fx-background-color: #E4DCEE;
+    -fx-border-color: #6D28D9;
+    -fx-text-fill: #6D28D9;
+}
+
+.light-mode .audio-add-track-btn {
+    -fx-text-fill: #6B5E7E;
+    -fx-border-color: #C8BED8;
+}
+
+.light-mode .audio-add-track-btn:hover {
+    -fx-background-color: #F0ECF5;
+}
+
+.light-mode .audio-section-title {
+    -fx-text-fill: #6B5E7E;
+}
+
+.light-mode .audio-form-label {
+    -fx-text-fill: #7C3AED;
+}
+
+.light-mode .audio-form-field {
+    -fx-background-color: #F8F6FA;
+    -fx-border-color: #C8BED8;
+    -fx-text-fill: #1E1A29;
+    -fx-prompt-text-fill: #9A8AAA;
+}
+
+.light-mode .audio-form-textarea {
+    -fx-background-color: #F8F6FA;
+    -fx-border-color: #C8BED8;
+    -fx-text-fill: #1E1A29;
+    -fx-prompt-text-fill: #9A8AAA;
+    -fx-control-inner-background: #F8F6FA;
+}
+
+.light-mode .audio-file-pick-btn {
+    -fx-background-color: #DED6EA;
+    -fx-text-fill: #7C3AED;
+    -fx-border-color: #C8BED8;
+}
+
+.light-mode .audio-file-pick-btn:hover {
+    -fx-background-color: #CEC4DC;
+}
+
+.light-mode .audio-save-btn {
+    -fx-background-color: #7C3AED;
+    -fx-text-fill: #FFFFFF;
+}
+
+.light-mode .audio-save-btn:hover {
+    -fx-background-color: #6D28D9;
+}
+
+.light-mode .audio-cancel-btn {
+    -fx-background-color: #DED6EA;
+    -fx-text-fill: #1E1A29;
+}
+
+.light-mode .audio-cancel-btn:hover {
+    -fx-background-color: #CEC4DC;
+}
+
+.light-mode .audio-volume-section-label {
+    -fx-text-fill: #6B5E7E;
+}
+
+.light-mode .speaker-label {
+    -fx-text-fill: #6B5E7E;
 }
 
 .light-mode .empty-playlist-icon {

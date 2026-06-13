@@ -47,7 +47,6 @@
              type="OPEN"
              fill="transparent"
              styleClass="timer-progress-ring"
-             stroke="#f38ba8"
              strokeWidth="10"
              strokeLineCap="ROUND"/>
 
