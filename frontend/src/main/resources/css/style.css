@@ -483,6 +483,38 @@
     -fx-background-color: #A86EDE;
 }
 
+.timer-play-btn.timer-accent-red {
+    -fx-background-color: #f38ba8;
+}
+
+.timer-play-btn.timer-accent-red:hover {
+    -fx-background-color: #f5a5b8;
+}
+
+.timer-play-btn.timer-accent-blue {
+    -fx-background-color: #7aa2f7;
+}
+
+.timer-play-btn.timer-accent-blue:hover {
+    -fx-background-color: #94b8f9;
+}
+
+.timer-points.timer-accent-red {
+    -fx-text-fill: #f38ba8;
+}
+
+.timer-points.timer-accent-blue {
+    -fx-text-fill: #7aa2f7;
+}
+
+.timer-active-task.timer-accent-red {
+    -fx-text-fill: #f38ba8;
+}
+
+.timer-active-task.timer-accent-blue {
+    -fx-text-fill: #7aa2f7;
+}
+
 .timer-cycle-label {
     -fx-font-size: 13px;
     -fx-text-fill: #7C6E8A;
