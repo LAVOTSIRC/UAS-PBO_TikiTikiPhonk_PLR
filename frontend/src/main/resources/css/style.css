@@ -483,6 +483,12 @@
     -fx-background-color: #A86EDE;
 }
 
+.timer-cycle-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #7C6E8A;
+    -fx-font-weight: bold;
+}
+
 .timer-active-task {
     -fx-font-size: 12px;
     -fx-text-fill: #C084FC;

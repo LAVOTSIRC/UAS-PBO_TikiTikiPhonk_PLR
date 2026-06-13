@@ -25,6 +25,7 @@ public class TimerPanelController {
     private static final int FOCUS_MINUTES = 25;
     private static final int SHORT_BREAK_MINUTES = 5;
     private static final int LONG_BREAK_MINUTES = 15;
+    private static final int CYCLE_LENGTH = 5;
 
     @FXML private Label timerLabel;
     @FXML private Label sessionTypeLabel;
@@ -32,12 +33,10 @@ public class TimerPanelController {
     @FXML private Label statusLabel;
     @FXML private Label pointsLabel;
     @FXML private Label activeTaskLabel;
+    @FXML private Label cycleLabel;
     @FXML private Arc timerArc;
     @FXML private Button playPauseBtn;
     @FXML private Button skipBtn;
-    @FXML private Button focusTabBtn;
-    @FXML private Button breakTabBtn;
-    @FXML private Button longBreakTabBtn;
     @FXML private HBox sessionDots;
 
     private Timeline pomodoroTimeline;
@@ -48,49 +47,24 @@ public class TimerPanelController {
     private String currentMode = "FOCUS";
     private LocalDateTime sessionStartTime;
     private int completedFocusSessions = 0;
+    private int focusCountInCycle = 0;
+    private boolean modeInitialized = false;
 
     @FXML
     public void initialize() {
-        setFocusMode();
+        loadSessionHistory();
     }
 
     public void setActiveTask(String taskTitle) {
         Platform.runLater(() -> {
             if (activeTaskLabel == null) return;
             if (taskTitle != null && !taskTitle.isEmpty()) {
-                activeTaskLabel.setText("► " + taskTitle);
+                activeTaskLabel.setText("\u25B6 " + taskTitle);
                 activeTaskLabel.setVisible(true);
             } else {
                 activeTaskLabel.setVisible(false);
             }
         });
-    }
-
-    @FXML
-    public void handleFocusTab() {
-        if (currentMode.equals("FOCUS")) return;
-        stopTimer();
-        currentMode = "FOCUS";
-        setFocusMode();
-        updateTabStyles();
-    }
-
-    @FXML
-    public void handleBreakTab() {
-        if (currentMode.equals("SHORT_BREAK")) return;
-        stopTimer();
-        currentMode = "SHORT_BREAK";
-        setShortBreakMode();
-        updateTabStyles();
-    }
-
-    @FXML
-    public void handleLongBreakTab() {
-        if (currentMode.equals("LONG_BREAK")) return;
-        stopTimer();
-        currentMode = "LONG_BREAK";
-        setLongBreakMode();
-        updateTabStyles();
     }
 
     @FXML
@@ -110,28 +84,31 @@ public class TimerPanelController {
         onTimerComplete();
     }
 
-    private void setFocusMode() {
+    private void applyFocusMode() {
+        currentMode = "FOCUS";
         totalSeconds = FOCUS_MINUTES * 60;
         remainingSeconds = totalSeconds;
         updateTimerDisplay();
         sessionTypeLabel.setText("Sesi Fokus");
-        updateTabStyles();
+        updateCycleLabel();
     }
 
-    private void setShortBreakMode() {
+    private void applyShortBreakMode() {
+        currentMode = "SHORT_BREAK";
         totalSeconds = SHORT_BREAK_MINUTES * 60;
         remainingSeconds = totalSeconds;
         updateTimerDisplay();
         sessionTypeLabel.setText("Istirahat Pendek");
-        updateTabStyles();
+        updateCycleLabel();
     }
 
-    private void setLongBreakMode() {
+    private void applyLongBreakMode() {
+        currentMode = "LONG_BREAK";
         totalSeconds = LONG_BREAK_MINUTES * 60;
         remainingSeconds = totalSeconds;
         updateTimerDisplay();
         sessionTypeLabel.setText("Istirahat Panjang");
-        updateTabStyles();
+        updateCycleLabel();
     }
 
     private void startTimer() {
@@ -206,14 +183,19 @@ public class TimerPanelController {
             Map<String, Object> result = saveTask.getValue();
             Platform.runLater(() -> {
                 statusLabel.setText("\u2705 Sesi tersimpan!");
+
                 if ("FOCUS".equals(sessionType)) {
                     completedFocusSessions++;
+                    focusCountInCycle++;
                     updateSessionDots();
                 }
+
                 if (result != null && result.containsKey("points")) {
                     int points = ((Number) result.get("points")).intValue();
                     pointsLabel.setText("+ " + points + " poin");
                 }
+
+                advanceToNextMode();
                 loadSessionHistory();
             });
         });
@@ -223,6 +205,37 @@ public class TimerPanelController {
         }));
 
         new Thread(saveTask).start();
+    }
+
+    private void advanceToNextMode() {
+        switch (currentMode) {
+            case "FOCUS":
+                if (focusCountInCycle >= CYCLE_LENGTH) {
+                    focusCountInCycle = 0;
+                    applyLongBreakMode();
+                } else {
+                    applyShortBreakMode();
+                }
+                break;
+            case "SHORT_BREAK":
+            case "LONG_BREAK":
+                applyFocusMode();
+                break;
+        }
+        sessionTypeLabel.setText("Selanjutnya: " + getModeLabel());
+    }
+
+    private String getModeLabel() {
+        switch (currentMode) {
+            case "FOCUS":
+                return "Sesi Fokus";
+            case "SHORT_BREAK":
+                return "Istirahat Pendek";
+            case "LONG_BREAK":
+                return "Istirahat Panjang";
+            default:
+                return "";
+        }
     }
 
     private int getDurationForMode() {
@@ -252,20 +265,17 @@ public class TimerPanelController {
         }
     }
 
-    private void updateTabStyles() {
-        focusTabBtn.getStyleClass().remove("active");
-        breakTabBtn.getStyleClass().remove("active");
-        longBreakTabBtn.getStyleClass().remove("active");
-
+    private void updateCycleLabel() {
+        if (cycleLabel == null) return;
         switch (currentMode) {
             case "FOCUS":
-                focusTabBtn.getStyleClass().add("active");
+                cycleLabel.setText("Sesi Fokus ke-" + (focusCountInCycle + 1) + " dari " + CYCLE_LENGTH);
                 break;
             case "SHORT_BREAK":
-                breakTabBtn.getStyleClass().add("active");
+                cycleLabel.setText("Istirahat ke-" + focusCountInCycle + " dari " + CYCLE_LENGTH);
                 break;
             case "LONG_BREAK":
-                longBreakTabBtn.getStyleClass().add("active");
+                cycleLabel.setText("Istirahat Panjang");
                 break;
         }
     }
@@ -287,7 +297,12 @@ public class TimerPanelController {
                     .count();
                 sessionCountLabel.setText(focusCount + " fokus \u00B7 " + totalSessions + " total sesi");
                 completedFocusSessions = (int) focusCount;
+                focusCountInCycle = (int) (focusCount % CYCLE_LENGTH);
                 updateSessionDots();
+                if (!modeInitialized) {
+                    modeInitialized = true;
+                    applyFocusMode();
+                }
             });
         });
 
@@ -298,9 +313,9 @@ public class TimerPanelController {
     private void updateSessionDots() {
         if (sessionDots == null) return;
         sessionDots.getChildren().clear();
-        int filled = completedFocusSessions % 4;
-        if (completedFocusSessions > 0 && filled == 0) filled = 4;
-        for (int i = 0; i < 4; i++) {
+        int filled = focusCountInCycle;
+        if (filled > CYCLE_LENGTH) filled = CYCLE_LENGTH;
+        for (int i = 0; i < CYCLE_LENGTH; i++) {
             Circle dot = new Circle(5);
             if (i < filled) {
                 dot.setFill(Color.web("#C084FC"));

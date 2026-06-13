@@ -18,26 +18,12 @@
       HBox.hgrow="ALWAYS"
       fillWidth="true">
 
-    <HBox styleClass="timer-tab-bar"
-          alignment="CENTER"
-          spacing="2">
-        <VBox.margin><Insets bottom="16"/></VBox.margin>
-
-        <Button fx:id="focusTabBtn"
-                text="Fokus"
-                styleClass="timer-tab-btn, active"
-                onAction="#handleFocusTab"/>
-
-        <Button fx:id="breakTabBtn"
-                text="Istirahat"
-                styleClass="timer-tab-btn"
-                onAction="#handleBreakTab"/>
-
-        <Button fx:id="longBreakTabBtn"
-                text="Istirahat Panjang"
-                styleClass="timer-tab-btn"
-                onAction="#handleLongBreakTab"/>
-    </HBox>
+    <Label fx:id="cycleLabel"
+           text="Sesi Fokus ke-1"
+           styleClass="timer-cycle-label"
+           alignment="CENTER">
+        <VBox.margin><Insets bottom="8"/></VBox.margin>
+    </Label>
 
     <Label fx:id="activeTaskLabel"
            text=""
