@@ -17,7 +17,8 @@ import java.util.Map;
  */
 public class ApiClient {
 
-    private static ApiClient instance;
+    // Eager initialization — thread-safe tanpa synchronized
+    private static final ApiClient instance = new ApiClient();
     private static final String BASE_URL = "http://localhost:8080";
 
     private final HttpClient httpClient;
@@ -35,9 +36,6 @@ public class ApiClient {
     }
 
     public static ApiClient getInstance() {
-        if (instance == null) {
-            instance = new ApiClient();
-        }
         return instance;
     }
 

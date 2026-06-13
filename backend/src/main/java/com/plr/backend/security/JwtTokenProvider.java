@@ -2,6 +2,7 @@ package com.plr.backend.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +23,17 @@ public class JwtTokenProvider {
 
     @Value("${app.jwt.expiration}")
     private long jwtExpiration;
+
+    // BUG-08 FIX: Validasi panjang key saat startup (fail-fast)
+    @PostConstruct
+    public void init() {
+        if (jwtSecret == null || jwtSecret.getBytes().length < 32) {
+            throw new IllegalStateException(
+                "[JWT Config] 'app.jwt.secret' terlalu pendek! Minimal 32 karakter diperlukan untuk HMAC-SHA256."
+            );
+        }
+        logger.info("[JWT Config] JWT configuration validated. Expiration: {}ms", jwtExpiration);
+    }
 
     private SecretKey getSigningKey() {
         byte[] keyBytes = jwtSecret.getBytes();

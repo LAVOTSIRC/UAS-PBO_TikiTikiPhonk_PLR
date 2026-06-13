@@ -24,6 +24,9 @@ public class PomodoroSession extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String notes;
 
+    @Column(name = "points", nullable = false)
+    private int points = 0;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -47,11 +50,13 @@ public class PomodoroSession extends BaseEntity {
     public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
+    public int getPoints() { return points; }
+    public void setPoints(int points) { this.points = points; }
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
 
     @Override
     public String getEntityDescription() {
-        return "PomodoroSession[id=" + getId() + ", type=" + sessionType + ", duration=" + durationMinutes + "min]";
+        return "PomodoroSession[id=" + getId() + ", type=" + sessionType + ", duration=" + durationMinutes + "min, points=" + points + "]";
     }
 }

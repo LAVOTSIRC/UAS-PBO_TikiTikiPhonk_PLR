@@ -5,7 +5,8 @@ package com.plr.frontend.util;
  */
 public class SessionManager {
 
-    private static SessionManager instance;
+    // Eager initialization — thread-safe tanpa synchronized
+    private static final SessionManager instance = new SessionManager();
 
     private String jwtToken;
     private String username;
@@ -14,9 +15,6 @@ public class SessionManager {
     private SessionManager() {}
 
     public static SessionManager getInstance() {
-        if (instance == null) {
-            instance = new SessionManager();
-        }
         return instance;
     }
 

@@ -9,6 +9,7 @@ public class PomodoroResponse {
     private SessionType sessionType;
     private LocalDateTime startTime;
     private String notes;
+    private int points;
     private LocalDateTime createdAt;
 
     public PomodoroResponse() {}
@@ -23,6 +24,8 @@ public class PomodoroResponse {
     public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
+    public int getPoints() { return points; }
+    public void setPoints(int points) { this.points = points; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

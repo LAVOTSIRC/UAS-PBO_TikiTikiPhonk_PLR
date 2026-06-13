@@ -8,6 +8,7 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,15 +23,77 @@ public class TodoPanelController {
 
     private final ObservableList<String> activeTasks = FXCollections.observableArrayList();
     private final ObservableList<String> completedTasks = FXCollections.observableArrayList();
-    // Map to store task title -> id mapping for deletion/update
-    private final Map<String, Long> taskIdMap = new HashMap<>();
+    private Runnable onTasksChanged;
+
+    // BUG-07 FIX: Ganti Map<String, Long> (title→id, rawan duplikat) dengan
+    // cache bertipe Map<Long, Map<String,Object>> (id→fullData).
+    // ID di-encode ke display string sebagai "title|id" agar selalu unik.
+    private final Map<Long, Map<String, Object>> taskCache = new HashMap<>();
 
     @FXML
     public void initialize() {
         activeTasksList.setItems(activeTasks);
         completedTasksList.setItems(completedTasks);
 
-        // Double-click active task to mark as done
+        // Gunakan CellFactory kustom untuk merender checkbox lingkaran + teks seperti desain referensi
+        activeTasksList.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    javafx.scene.layout.HBox root = new javafx.scene.layout.HBox(8);
+                    root.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+                    
+                    javafx.scene.shape.Circle check = new javafx.scene.shape.Circle(8);
+                    check.setFill(javafx.scene.paint.Color.TRANSPARENT);
+                    check.setStroke(javafx.scene.paint.Color.web("#4A4055"));
+                    check.setStrokeWidth(1.5);
+                    
+                    Label text = new Label(extractTitle(item));
+                    text.setStyle("-fx-text-fill: #D4C8E8; -fx-font-size: 13px;");
+                    
+                    root.getChildren().addAll(check, text);
+                    setGraphic(root);
+                    setText(null);
+                }
+            }
+        });
+
+        completedTasksList.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    // Hapus prefix "✓ " karena kita merender GUI kustom
+                    String displayTitle = extractTitle(item);
+                    if (displayTitle.startsWith("✓ ")) {
+                        displayTitle = displayTitle.substring(2);
+                    }
+
+                    javafx.scene.layout.HBox root = new javafx.scene.layout.HBox(8);
+                    root.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+                    
+                    javafx.scene.shape.Circle check = new javafx.scene.shape.Circle(8);
+                    check.setFill(javafx.scene.paint.Color.web("#C084FC"));
+                    check.setStroke(javafx.scene.paint.Color.TRANSPARENT);
+                    
+                    Label text = new Label(displayTitle);
+                    text.setStyle("-fx-text-fill: #4A4055; -fx-font-size: 13px; -fx-strikethrough: true;");
+                    
+                    root.getChildren().addAll(check, text);
+                    setGraphic(root);
+                    setText(null);
+                }
+            }
+        });
+
+        // Double-click active task untuk menandai selesai
         activeTasksList.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 String selected = activeTasksList.getSelectionModel().getSelectedItem();
@@ -53,20 +116,25 @@ public class TodoPanelController {
             List<Map<String, Object>> tasks = fetchTask.getValue();
             activeTasks.clear();
             completedTasks.clear();
-            taskIdMap.clear();
+            taskCache.clear();
 
             int doneCount = 0;
             for (Map<String, Object> t : tasks) {
                 String title = (String) t.get("title");
                 String status = (String) t.get("status");
                 Long id = ((Number) t.get("id")).longValue();
-                taskIdMap.put(title, id);
+
+                // BUG-07 FIX: Simpan full task data di cache dengan key = id (unik)
+                taskCache.put(id, t);
+
+                // Encode id ke display string: "title|id" — dijamin unik walau judul sama
+                String displayKey = title + "|" + id;
 
                 if ("DONE".equals(status)) {
-                    completedTasks.add("✓ " + title);
+                    completedTasks.add("✓ " + displayKey);
                     doneCount++;
                 } else {
-                    activeTasks.add(title);
+                    activeTasks.add(displayKey);
                 }
             }
 
@@ -75,12 +143,15 @@ public class TodoPanelController {
                 if (sessionCountLabel != null) {
                     sessionCountLabel.setText(finalDone + " dari " + tasks.size() + " selesai");
                 }
+                if (onTasksChanged != null) onTasksChanged.run();
             });
         });
 
         fetchTask.setOnFailed(e -> {
+            // BUG-19 FIX: Tampilkan error yang informatif, bukan silent fail
             Platform.runLater(() -> {
-                if (statusLabel != null) statusLabel.setText("Gagal memuat tugas");
+                if (statusLabel != null)
+                    statusLabel.setText("⚠ Gagal memuat tugas: " + fetchTask.getException().getMessage());
             });
         });
 
@@ -90,7 +161,14 @@ public class TodoPanelController {
     @FXML
     public void handleAddTask() {
         String title = taskInputField.getText().trim();
-        if (title.isEmpty()) return;
+        if (title.isEmpty()) {
+            // Feedback visual: beritahu user bahwa nama tugas harus diisi
+            if (statusLabel != null) {
+                statusLabel.setText("⚠ Ketik nama tugas dulu!");
+            }
+            taskInputField.requestFocus();
+            return;
+        }
 
         Map<String, Object> data = new HashMap<>();
         data.put("title", title);
@@ -106,27 +184,37 @@ public class TodoPanelController {
         createTask.setOnSucceeded(e -> {
             Platform.runLater(() -> {
                 taskInputField.clear();
+                if (statusLabel != null) statusLabel.setText("");
                 loadTasks();
             });
         });
 
         createTask.setOnFailed(e -> {
+            // BUG-19 FIX: Tampilkan error yang informatif
             Platform.runLater(() -> {
                 if (statusLabel != null)
-                    statusLabel.setText("Gagal: " + createTask.getException().getMessage());
+                    statusLabel.setText("⚠ Gagal tambah: " + createTask.getException().getMessage());
             });
         });
 
         new Thread(createTask).start();
     }
 
-    private void markTaskDone(String taskTitle) {
-        Long id = taskIdMap.get(taskTitle);
+    private void markTaskDone(String displayString) {
+        Long id = extractId(displayString);
         if (id == null) return;
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("title", taskTitle);
+        // BUG-07 + BUG-11 FIX: Ambil full data dari cache, update status tanpa kehilangan field lain
+        Map<String, Object> existingData = taskCache.get(id);
+        if (existingData == null) return;
+
+        // Salin semua field existing agar description & dueDate tidak hilang
+        Map<String, Object> data = new HashMap<>(existingData);
         data.put("status", "DONE");
+        // Hapus field yang tidak dikenali backend dari response object (id, createdAt, updatedAt)
+        data.remove("id");
+        data.remove("createdAt");
+        data.remove("updatedAt");
 
         Task<Map<String, Object>> updateTask = new Task<>() {
             @Override
@@ -135,8 +223,19 @@ public class TodoPanelController {
             }
         };
 
-        updateTask.setOnSucceeded(e -> Platform.runLater(this::loadTasks));
-        updateTask.setOnFailed(e -> {});
+        updateTask.setOnSucceeded(e -> Platform.runLater(() -> {
+            if (statusLabel != null) statusLabel.setText("✓ Tugas diselesaikan!");
+            loadTasks();
+        }));
+
+        updateTask.setOnFailed(e -> {
+            // BUG-19 FIX: Tampilkan error yang informatif
+            Platform.runLater(() -> {
+                if (statusLabel != null)
+                    statusLabel.setText("⚠ Gagal selesaikan: " + updateTask.getException().getMessage());
+            });
+        });
+
         new Thread(updateTask).start();
     }
 
@@ -146,8 +245,9 @@ public class TodoPanelController {
         if (selected == null) selected = completedTasksList.getSelectionModel().getSelectedItem();
         if (selected == null) return;
 
-        String cleanTitle = selected.startsWith("✓ ") ? selected.substring(2) : selected;
-        Long id = taskIdMap.get(cleanTitle);
+        // BUG-07 FIX: Ekstrak id dari display string "title|id" atau "✓ title|id"
+        String cleanDisplayKey = selected.startsWith("✓ ") ? selected.substring(2) : selected;
+        Long id = extractId(cleanDisplayKey);
         if (id == null) return;
 
         final Long taskId = id;
@@ -159,8 +259,65 @@ public class TodoPanelController {
             }
         };
 
-        deleteTask.setOnSucceeded(e -> Platform.runLater(this::loadTasks));
-        deleteTask.setOnFailed(e -> {});
+        deleteTask.setOnSucceeded(e -> Platform.runLater(() -> {
+            if (statusLabel != null) statusLabel.setText("🗑 Tugas dihapus.");
+            loadTasks();
+        }));
+
+        deleteTask.setOnFailed(e -> {
+            // BUG-19 FIX: Tampilkan error yang informatif
+            Platform.runLater(() -> {
+                if (statusLabel != null)
+                    statusLabel.setText("⚠ Gagal hapus: " + deleteTask.getException().getMessage());
+            });
+        });
+
         new Thread(deleteTask).start();
+    }
+
+    public void setOnTasksChanged(Runnable callback) {
+        this.onTasksChanged = callback;
+    }
+
+    public String getFirstActiveTask() {
+        if (activeTasks.isEmpty()) return null;
+        return extractTitle(activeTasks.get(0));
+    }
+
+    public void loadTasks(Runnable callback) {
+        loadTasks();
+        if (callback != null) {
+            new Thread(() -> {
+                try { Thread.sleep(100); } catch (InterruptedException ignored) {}
+                javafx.application.Platform.runLater(callback);
+            }).start();
+        }
+    }
+
+    // ========== HELPER METHODS ==========
+
+    /**
+     * Ekstrak ID dari display string format "judulTugas|123".
+     * Format ini menjamin keunikan walau ada 2 tugas dengan judul sama (BUG-07 FIX).
+     */
+    private Long extractId(String displayString) {
+        if (displayString == null) return null;
+        int idx = displayString.lastIndexOf("|");
+        if (idx < 0 || idx == displayString.length() - 1) return null;
+        try {
+            return Long.parseLong(displayString.substring(idx + 1));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Ekstrak judul task dari display string format "judulTugas|123".
+     * Digunakan oleh CellFactory agar ListView hanya menampilkan judul.
+     */
+    private String extractTitle(String displayString) {
+        if (displayString == null) return "";
+        int idx = displayString.lastIndexOf("|");
+        return idx >= 0 ? displayString.substring(0, idx) : displayString;
     }
 }

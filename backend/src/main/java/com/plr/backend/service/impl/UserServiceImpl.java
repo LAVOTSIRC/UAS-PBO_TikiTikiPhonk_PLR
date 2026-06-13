@@ -5,6 +5,7 @@ import com.plr.backend.model.User;
 import com.plr.backend.repository.UserRepository;
 import com.plr.backend.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +32,12 @@ public class UserServiceImpl implements IUserService {
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        return userRepository.save(user);
+        // BUG-13 FIX: Tangkap race condition jika 2 request register bersamaan
+        try {
+            return userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalArgumentException("Username atau email sudah digunakan oleh akun lain");
+        }
     }
 
     @Override
