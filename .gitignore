@@ -67,18 +67,16 @@ logs/
 **/logs/
 
 # ========================
-# Audio Files (binary, gede, gak perlu di-versioning)
-# ========================
-*.mp3
-*.wav
-*.aac
-*.ogg
-*.flac
-frontend/src/main/resources/audio/*.mp3
-frontend/src/main/resources/audio/*.wav
-frontend/src/main/resources/audio/*.aac
-frontend/src/main/resources/audio/*.ogg
-frontend/src/main/resources/audio/README.md
+#*.mp3
+#*.wav
+#*.aac
+#*.ogg
+#*.flac
+#frontend/src/main/resources/audio/*.mp3
+#frontend/src/main/resources/audio/*.wav
+#frontend/src/main/resources/audio/*.aac
+#frontend/src/main/resources/audio/*.ogg
+#frontend/src/main/resources/audio/README.md
 
 # ========================
 # Unused Default Template

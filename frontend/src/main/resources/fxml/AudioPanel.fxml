@@ -42,7 +42,7 @@
     <!-- ===== Header ===== -->
     <HBox alignment="CENTER_LEFT" spacing="8">
         <VBox.margin><Insets bottom="10"/></VBox.margin>
-        <Label text="&#127911;" style="-fx-font-size:14px; -fx-text-fill:#C084FC;"/>
+        <Label text="&#127911;" styleClass="audio-header-icon"/>
         <Label text="Audio" styleClass="audio-header"/>
     </HBox>
 
@@ -58,7 +58,7 @@
                 <padding><Insets top="12" right="0" bottom="8" left="0"/></padding>
 
                 <Label text="PILIH SUARA AMBIENT"
-                       style="-fx-font-size:9px; -fx-text-fill:#7C6E8A; -fx-font-weight:bold;"/>
+                       styleClass="audio-section-label"/>
 
                 <!-- 2×2 Grid noise buttons menggunakan nested HBox -->
                 <VBox spacing="8">
@@ -71,11 +71,11 @@
                             <graphic>
                                 <VBox alignment="CENTER" spacing="4">
                                     <Label text="&#128267;"
-                                           style="-fx-font-size:22px; -fx-text-fill:#F0EAFF;"/>
+                                           styleClass="noise-icon-label"/>
                                     <Label text="White"
-                                           style="-fx-font-size:10px; -fx-text-fill:#F0EAFF; -fx-font-weight:bold;"/>
+                                           styleClass="noise-title-label"/>
                                     <Label text="Noise"
-                                           style="-fx-font-size:9px; -fx-text-fill:#7C6E8A;"/>
+                                           styleClass="noise-sub-label"/>
                                 </VBox>
                             </graphic>
                         </Button>
@@ -88,11 +88,11 @@
                             <graphic>
                                 <VBox alignment="CENTER" spacing="4">
                                     <Label text="&#9749;"
-                                           style="-fx-font-size:22px; -fx-text-fill:#F0EAFF;"/>
+                                            styleClass="noise-icon-label"/>
                                     <Label text="Brown"
-                                           style="-fx-font-size:10px; -fx-text-fill:#F0EAFF; -fx-font-weight:bold;"/>
+                                           styleClass="noise-title-label"/>
                                     <Label text="Noise"
-                                           style="-fx-font-size:9px; -fx-text-fill:#7C6E8A;"/>
+                                           styleClass="noise-sub-label"/>
                                 </VBox>
                             </graphic>
                         </Button>
@@ -107,11 +107,11 @@
                             <graphic>
                                 <VBox alignment="CENTER" spacing="4">
                                     <Label text="&#127783;"
-                                           style="-fx-font-size:22px; -fx-text-fill:#F0EAFF;"/>
+                                           styleClass="noise-icon-label"/>
                                     <Label text="Rain"
-                                           style="-fx-font-size:10px; -fx-text-fill:#F0EAFF; -fx-font-weight:bold;"/>
+                                           styleClass="noise-title-label"/>
                                     <Label text="Hujan"
-                                           style="-fx-font-size:9px; -fx-text-fill:#7C6E8A;"/>
+                                           styleClass="noise-sub-label"/>
                                 </VBox>
                             </graphic>
                         </Button>
@@ -124,11 +124,11 @@
                             <graphic>
                                 <VBox alignment="CENTER" spacing="4">
                                     <Label text="&#127807;"
-                                           style="-fx-font-size:22px; -fx-text-fill:#F0EAFF;"/>
+                                           styleClass="noise-icon-label"/>
                                     <Label text="Forest"
-                                           style="-fx-font-size:10px; -fx-text-fill:#F0EAFF; -fx-font-weight:bold;"/>
+                                           styleClass="noise-title-label"/>
                                     <Label text="Hutan"
-                                           style="-fx-font-size:9px; -fx-text-fill:#7C6E8A;"/>
+                                           styleClass="noise-sub-label"/>
                                 </VBox>
                             </graphic>
                         </Button>
@@ -140,10 +140,10 @@
 
                 <!-- Volume Row -->
                 <Label text="VOLUME"
-                       style="-fx-font-size:9px; -fx-text-fill:#7C6E8A; -fx-font-weight:bold;"/>
+                       styleClass="audio-section-label"/>
                 <HBox alignment="CENTER_LEFT" spacing="8">
                     <Label text="&#128264;"
-                           style="-fx-text-fill:#7C6E8A; -fx-font-size:12px;"/>
+                            styleClass="speaker-icon-label"/>
                     <Slider fx:id="volumeSlider"
                             min="0" max="1" value="0.7"
                             styleClass="audio-volume-slider"
@@ -169,7 +169,7 @@
                         maxWidth="Infinity"/>
 
                 <Label text="ANTRIAN LAGU"
-                       style="-fx-font-size:9px; -fx-text-fill:#7C6E8A; -fx-font-weight:bold;"/>
+                       styleClass="audio-section-label"/>
 
                 <!-- Playlist ListView -->
                 <StackPane VBox.vgrow="ALWAYS" minHeight="120">
@@ -182,12 +182,12 @@
                           alignment="CENTER" spacing="6"
                           style="-fx-opacity:0.5;">
                         <Label text="&#127925;"
-                               style="-fx-font-size:28px; -fx-text-fill:#7C6E8A;"/>
+                               styleClass="empty-playlist-icon"/>
                         <Label text="Belum ada lagu"
-                               style="-fx-font-size:11px; -fx-text-fill:#7C6E8A;"/>
+                               styleClass="empty-playlist-title"/>
                         <Label text="Klik + Import untuk menambahkan"
                                wrapText="true"
-                               style="-fx-font-size:9px; -fx-text-fill:#7C6E8A; -fx-text-alignment:center;"
+                               styleClass="empty-playlist-hint"
                                prefWidth="160"/>
                     </VBox>
                 </StackPane>
@@ -206,7 +206,7 @@
         <!-- Now Playing Info -->
         <HBox alignment="CENTER_LEFT" spacing="6">
             <Label text="&#9654;"
-                   style="-fx-text-fill:#C084FC; -fx-font-size:9px;"/>
+                   styleClass="now-playing-icon"/>
             <Label fx:id="nowPlayingLabel"
                    text="Tidak ada audio"
                    styleClass="now-playing-label"

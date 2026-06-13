@@ -35,7 +35,7 @@
                 prefWidth="24" prefHeight="24">
             <graphic>
                 <Label text="+"
-                       style="-fx-font-size:16px; -fx-font-weight:bold; -fx-text-fill:#C084FC; -fx-background-color:transparent; -fx-padding:0;"/>
+                       styleClass="add-task-icon"/>
             </graphic>
         </Button>
     </HBox>

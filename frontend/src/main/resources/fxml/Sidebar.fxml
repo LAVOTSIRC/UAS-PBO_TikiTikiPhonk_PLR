@@ -76,6 +76,18 @@
         <tooltip><Tooltip text="Pengaturan"/></tooltip>
     </Button>
 
+    <!-- Theme Toggle -->
+    <Button fx:id="themeToggleBtn"
+            styleClass="sidebar-nav-btn"
+            onAction="#handleThemeToggle">
+        <graphic>
+            <Label fx:id="themeIconLabel"
+                   text="☾"
+                   style="-fx-font-size:18px; -fx-background-color:transparent; -fx-padding:0;"/>
+        </graphic>
+        <tooltip><Tooltip text="Ganti tema"/></tooltip>
+    </Button>
+
     <!-- Spacer -->
     <Region VBox.vgrow="ALWAYS"/>
 

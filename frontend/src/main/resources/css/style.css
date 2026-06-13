@@ -118,7 +118,7 @@
     -fx-background-radius: 16;
     -fx-border-width: 1;
     -fx-padding: 40 48 40 48;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 30, 0, 0, 8);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 40, 0, 0, 10);
 }
 
 .auth-logo {
@@ -177,9 +177,7 @@
    ============================================================ */
 
 .sidebar {
-    -fx-background-color: #0C0A0F;
-    -fx-border-color: transparent #2D2936 transparent transparent;
-    -fx-border-width: 0 1 0 0;
+    -fx-background-color: #09070C;
     -fx-pref-width: 56;
     -fx-min-width: 56;
     -fx-max-width: 56;
@@ -221,11 +219,13 @@
 
 .sidebar-nav-btn:hover {
     -fx-background-color: #1A1722;
-    -fx-text-fill: #C084FC;
 }
 
 .sidebar-nav-btn.active {
     -fx-background-color: #2D2936;
+}
+
+.sidebar-nav-btn.active .label {
     -fx-text-fill: #C084FC;
 }
 
@@ -253,9 +253,7 @@
    ============================================================ */
 
 .todo-panel {
-    -fx-background-color: #0E0C10;
-    -fx-border-color: transparent #2D2936 transparent transparent;
-    -fx-border-width: 0 1 0 0;
+    -fx-background-color: #0C0A10;
     -fx-pref-width: 240;
     -fx-min-width: 240;
     -fx-max-width: 240;
@@ -404,6 +402,8 @@
     -fx-alignment: center;
     -fx-padding: 24 24 24 24;
     -fx-spacing: 20;
+    -fx-border-color: transparent transparent transparent #1A1722;
+    -fx-border-width: 0 0 0 1;
 }
 
 .timer-tab-bar {
@@ -414,6 +414,7 @@
     -fx-border-width: 1;
     -fx-padding: 4 4 4 4;
     -fx-spacing: 2;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 4);
 }
 
 .timer-tab-btn {
@@ -483,10 +484,14 @@
     -fx-min-height: 48;
     -fx-alignment: center;
     -fx-border-color: transparent;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 6, 0, 0, 2);
 }
 
 .timer-control-btn:hover {
     -fx-background-color: #3D3748;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(gaussian, rgba(192,132,252,0.15), 10, 0, 0, 2);
 }
 
 .timer-play-btn {
@@ -501,14 +506,20 @@
     -fx-background-radius: 50%;
     -fx-font-weight: bold;
     -fx-border-color: transparent;
+    -fx-effect: dropshadow(gaussian, rgba(192,132,252,0.4), 12, 0, 0, 4);
 }
 
 .timer-play-btn:hover {
     -fx-background-color: #D0A0FF;
+    -fx-scale-x: 1.06;
+    -fx-scale-y: 1.06;
+    -fx-effect: dropshadow(gaussian, rgba(192,132,252,0.6), 18, 0, 0, 4);
 }
 
 .timer-play-btn:pressed {
     -fx-background-color: #A86EDE;
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
 }
 
 .timer-cycle-label {
@@ -543,9 +554,8 @@
    ============================================================ */
 
 .audio-panel {
-    -fx-background-color: #0C0A0F;
-    /* FIX: border-color dan border-width harus konsisten (kiri = 1px) */
-    -fx-border-color: transparent transparent transparent #2D2936;
+    -fx-background-color: #0C0A10;
+    -fx-border-color: transparent transparent transparent #1A1722;
     -fx-border-width: 0 0 0 1;
     -fx-pref-width: 220;
     -fx-min-width: 220;
@@ -979,4 +989,684 @@
     -fx-border-color: #3D3748;
     -fx-border-width: 1;
     -fx-border-radius: 6;
+}
+
+/* ── Timer Rings ─────────────────────────────────────────── */
+
+.timer-bg-ring {
+    -fx-stroke: #2D2936;
+}
+
+.timer-progress-ring {
+    -fx-stroke: #C084FC;
+}
+
+/* ── Audio misc labels ───────────────────────────────────── */
+
+.audio-section-label {
+    -fx-font-size: 9px;
+    -fx-text-fill: #7C6E8A;
+    -fx-font-weight: bold;
+}
+
+.speaker-icon-label {
+    -fx-text-fill: #7C6E8A;
+    -fx-font-size: 12px;
+}
+
+.audio-header-icon {
+    -fx-font-size: 14px;
+    -fx-text-fill: #C084FC;
+}
+
+.now-playing-icon {
+    -fx-text-fill: #C084FC;
+    -fx-font-size: 9px;
+}
+
+/* ── Noise button label variants ─────────────────────────── */
+
+.noise-icon-label {
+    -fx-font-size: 22px;
+    -fx-text-fill: #F0EAFF;
+}
+
+.noise-title-label {
+    -fx-font-size: 10px;
+    -fx-text-fill: #F0EAFF;
+    -fx-font-weight: bold;
+}
+
+.noise-sub-label {
+    -fx-font-size: 9px;
+    -fx-text-fill: #7C6E8A;
+}
+
+/* ── Empty playlist ──────────────────────────────────────── */
+
+.empty-playlist-icon {
+    -fx-font-size: 28px;
+    -fx-text-fill: #7C6E8A;
+}
+
+.empty-playlist-title {
+    -fx-font-size: 11px;
+    -fx-text-fill: #7C6E8A;
+}
+
+.empty-playlist-hint {
+    -fx-font-size: 9px;
+    -fx-text-fill: #7C6E8A;
+    -fx-text-alignment: center;
+}
+
+/* ── Add task icon ───────────────────────────────────────── */
+
+.add-task-icon {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #C084FC;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+/* ── Task list item: checkbox circle ────────────────────── */
+
+.todo-check-circle {
+    -fx-fill: transparent;
+    -fx-stroke: #4A4055;
+    -fx-stroke-width: 1.5;
+}
+
+.todo-check-circle.todo-checked {
+    -fx-fill: #C084FC;
+    -fx-stroke: transparent;
+}
+
+/* ── Task list item: label ──────────────────────────────── */
+
+.todo-text {
+    -fx-text-fill: #D4C8E8;
+    -fx-font-size: 13px;
+}
+
+.todo-text.todo-text-done {
+    -fx-text-fill: #4A4055;
+    -fx-strikethrough: true;
+    -fx-font-size: 13px;
+}
+
+/* ── Timer session dots ─────────────────────────────────── */
+
+.timer-dot-filled {
+    -fx-fill: #C084FC;
+}
+
+.timer-dot-empty {
+    -fx-fill: #2D2936;
+}
+
+/* ============================================================
+   LIGHT MODE — semua override dengan prefix .light-mode
+   Palette: bg=#EDE8F4 accent=#7C3AED border=#C8BED8
+            text=#1E1A29 secondary=#6B5E7E
+   ============================================================ */
+
+.light-mode .root {
+    -fx-background-color: #EDE8F4;
+    -fx-text-fill: #1E1A29;
+}
+
+.light-mode .label {
+    -fx-text-fill: #1E1A29;
+}
+
+.light-mode .text-field,
+.light-mode .password-field,
+.light-mode .text-area {
+    -fx-background-color: #F8F6FA;
+    -fx-border-color: #C8BED8;
+    -fx-text-fill: #1E1A29;
+    -fx-prompt-text-fill: #9A8AAA;
+    -fx-highlight-fill: #7C3AED;
+    -fx-highlight-text-fill: #FFFFFF;
+}
+
+.light-mode .text-field:focused,
+.light-mode .password-field:focused,
+.light-mode .text-area:focused {
+    -fx-border-color: #7C3AED;
+    -fx-background-color: #F8F6FA;
+}
+
+.light-mode .button {
+    -fx-background-color: #DED6EA;
+    -fx-text-fill: #1E1A29;
+}
+
+.light-mode .button:hover {
+    -fx-background-color: #CEC4DC;
+}
+
+.light-mode .button:pressed {
+    -fx-background-color: #BEB2CC;
+}
+
+.light-mode .button-primary {
+    -fx-background-color: #7C3AED;
+    -fx-text-fill: #FFFFFF;
+}
+
+.light-mode .button-primary:hover {
+    -fx-background-color: #6D28D9;
+}
+
+.light-mode .button-primary:pressed {
+    -fx-background-color: #5B21B6;
+}
+
+.light-mode .link-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #7C3AED;
+}
+
+.light-mode .link-button:hover {
+    -fx-text-fill: #6D28D9;
+}
+
+.light-mode .separator .line {
+    -fx-border-color: #C8BED8;
+}
+
+.light-mode .auth-root {
+    -fx-background-color: #EDE8F4;
+}
+
+.light-mode .auth-card {
+    -fx-background-color: #F8F6FA;
+    -fx-border-color: #C8BED8;
+    -fx-effect: dropshadow(gaussian, rgba(80,60,120,0.10), 30, 0, 0, 8);
+}
+
+.light-mode .auth-logo {
+    -fx-text-fill: #7C3AED;
+}
+
+.light-mode .auth-title {
+    -fx-text-fill: #1E1A29;
+}
+
+.light-mode .auth-subtitle {
+    -fx-text-fill: #6B5E7E;
+}
+
+.light-mode .auth-field-label {
+    -fx-text-fill: #6B5E7E;
+}
+
+.light-mode .error-label {
+    -fx-text-fill: #DC2626;
+}
+
+.light-mode .main-layout {
+    -fx-background-color: #EDE8F4;
+}
+
+.light-mode .sidebar {
+    -fx-background-color: #D6CDE4;
+}
+
+.light-mode .sidebar-avatar {
+    -fx-background-color: #7C3AED;
+    -fx-text-fill: #FFFFFF;
+}
+
+.light-mode .sidebar-nav-btn:hover {
+    -fx-background-color: #C8BDD8;
+}
+
+.light-mode .sidebar-nav-btn.active {
+    -fx-background-color: #F8F6FA;
+}
+
+.light-mode .sidebar-nav-btn.active .label {
+    -fx-text-fill: #7C3AED;
+}
+
+.light-mode .sidebar-logout-btn:hover {
+    -fx-background-color: #E8CCCC;
+}
+
+.light-mode .todo-panel {
+    -fx-background-color: #E2D9EE;
+}
+
+.light-mode .panel-label {
+    -fx-text-fill: #6B5E7E;
+}
+
+.light-mode .task-input {
+    -fx-background-color: #F8F6FA;
+    -fx-border-color: #C8BED8;
+    -fx-text-fill: #1E1A29;
+    -fx-prompt-text-fill: #9A8AAA;
+}
+
+.light-mode .task-input:focused {
+    -fx-border-color: #7C3AED;
+}
+
+.light-mode .add-task-btn {
+    -fx-background-color: #DED6EA;
+}
+
+.light-mode .add-task-btn:hover {
+    -fx-background-color: #CEC4DC;
+}
+
+.light-mode .add-task-btn:pressed {
+    -fx-background-color: #BEB2CC;
+}
+
+.light-mode .section-label {
+    -fx-text-fill: #6B5E7E;
+}
+
+.light-mode .task-list-view .list-cell:hover {
+    -fx-background-color: #D6CDE4;
+}
+
+.light-mode .task-list-view .list-cell:selected {
+    -fx-background-color: #D6CDE4;
+    -fx-border-color: #B8A8D0;
+}
+
+.light-mode .session-history {
+    -fx-border-color: #C8BED8 transparent transparent transparent;
+}
+
+.light-mode .dot-purple {
+    -fx-background-color: #7C3AED;
+}
+
+.light-mode .session-stat {
+    -fx-text-fill: #6B5E7E;
+}
+
+.light-mode .todo-delete-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #7C3AED;
+    -fx-border-color: #B8A8D0;
+}
+
+.light-mode .todo-delete-btn:hover {
+    -fx-background-color: #E8CCCC;
+    -fx-text-fill: #DC2626;
+    -fx-border-color: #DC2626;
+}
+
+.light-mode .timer-panel {
+    -fx-background-color: #EDE8F4;
+    -fx-border-color: transparent transparent transparent #D4CCE0;
+}
+
+.light-mode .timer-tab-bar {
+    -fx-background-color: #F8F6FA;
+    -fx-border-color: #C8BED8;
+}
+
+.light-mode .timer-tab-btn {
+    -fx-text-fill: #6B5E7E;
+}
+
+.light-mode .timer-tab-btn:hover {
+    -fx-background-color: #D6CDE4;
+    -fx-text-fill: #1E1A29;
+}
+
+.light-mode .timer-tab-btn.active {
+    -fx-background-color: #DED6EA;
+    -fx-text-fill: #1E1A29;
+}
+
+.light-mode .timer-bg-ring {
+    -fx-stroke: #C8BED8;
+}
+
+.light-mode .timer-progress-ring {
+    -fx-stroke: #7C3AED;
+}
+
+.light-mode .timer-display {
+    -fx-text-fill: #1E1A29;
+}
+
+.light-mode .timer-session-type {
+    -fx-text-fill: #6B5E7E;
+}
+
+.light-mode .timer-session-count {
+    -fx-text-fill: #6B5E7E;
+}
+
+.light-mode .timer-status {
+    -fx-text-fill: #6B5E7E;
+}
+
+.light-mode .timer-control-btn {
+    -fx-background-color: #DED6EA;
+    -fx-text-fill: #1E1A29;
+}
+
+.light-mode .timer-control-btn:hover {
+    -fx-background-color: #CEC4DC;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.light-mode .timer-play-btn {
+    -fx-background-color: #7C3AED;
+    -fx-text-fill: #FFFFFF;
+}
+
+.light-mode .timer-play-btn:hover {
+    -fx-background-color: #6D28D9;
+    -fx-scale-x: 1.06;
+    -fx-scale-y: 1.06;
+}
+
+.light-mode .timer-play-btn:pressed {
+    -fx-background-color: #5B21B6;
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+}
+
+.light-mode .timer-cycle-label {
+    -fx-text-fill: #6B5E7E;
+}
+
+.light-mode .timer-active-task {
+    -fx-text-fill: #7C3AED;
+}
+
+.light-mode .timer-points {
+    -fx-text-fill: #7C3AED;
+}
+
+.light-mode .audio-panel {
+    -fx-background-color: #E2D9EE;
+    -fx-border-color: transparent transparent transparent #D4CCE0;
+}
+
+.light-mode .audio-header {
+    -fx-text-fill: #1E1A29;
+}
+
+.light-mode .audio-header-icon {
+    -fx-text-fill: #7C3AED;
+}
+
+.light-mode .audio-tab-pane .tab-header-background {
+    -fx-background-color: #F8F6FA;
+}
+
+.light-mode .audio-tab-pane .tab {
+    -fx-text-fill: #6B5E7E;
+}
+
+.light-mode .audio-tab-pane .tab:selected {
+    -fx-background-color: #DED6EA;
+    -fx-text-fill: #7C3AED;
+}
+
+.light-mode .audio-tab-pane .tab:hover {
+    -fx-text-fill: #1E1A29;
+}
+
+.light-mode .noise-btn {
+    -fx-background-color: #F8F6FA;
+    -fx-border-color: #C8BED8;
+}
+
+.light-mode .noise-btn:hover {
+    -fx-background-color: #F0ECF5;
+    -fx-border-color: #7C3AED;
+}
+
+.light-mode .noise-btn:pressed {
+    -fx-background-color: #E4DCEE;
+}
+
+.light-mode .noise-btn-active {
+    -fx-background-color: #F8F6FA;
+    -fx-border-color: #7C3AED;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(124,58,237,0.20), 12, 0, 0, 0);
+}
+
+.light-mode .noise-btn-active:hover {
+    -fx-background-color: #F0ECF5;
+    -fx-border-color: #6D28D9;
+}
+
+.light-mode .noise-icon-label {
+    -fx-text-fill: #3D2E52;
+}
+
+.light-mode .noise-title-label {
+    -fx-text-fill: #3D2E52;
+}
+
+.light-mode .noise-sub-label {
+    -fx-text-fill: #6B5E7E;
+}
+
+.light-mode .audio-section-label {
+    -fx-text-fill: #6B5E7E;
+}
+
+.light-mode .speaker-icon-label {
+    -fx-text-fill: #6B5E7E;
+}
+
+.light-mode .audio-divider {
+    -fx-background-color: #C8BED8;
+}
+
+.light-mode .volume-label {
+    -fx-text-fill: #6B5E7E;
+}
+
+.light-mode .audio-volume-slider .track {
+    -fx-background-color: #C8BED8;
+}
+
+.light-mode .audio-volume-slider .thumb {
+    -fx-background-color: #7C3AED;
+}
+
+.light-mode .audio-volume-slider .thumb:hover {
+    -fx-background-color: #6D28D9;
+}
+
+.light-mode .slider .track {
+    -fx-background-color: #C8BED8;
+}
+
+.light-mode .slider .thumb {
+    -fx-background-color: #7C3AED;
+}
+
+.light-mode .slider .thumb:hover {
+    -fx-background-color: #6D28D9;
+}
+
+.light-mode .slider .axis {
+    -fx-tick-label-fill: #6B5E7E;
+}
+
+.light-mode .import-music-btn {
+    -fx-background-color: #F8F6FA;
+    -fx-border-color: #7C3AED;
+    -fx-text-fill: #7C3AED;
+}
+
+.light-mode .import-music-btn:hover {
+    -fx-background-color: #F0ECF5;
+    -fx-border-color: #6D28D9;
+    -fx-text-fill: #6D28D9;
+}
+
+.light-mode .import-music-btn:pressed {
+    -fx-background-color: #E4DCEE;
+}
+
+.light-mode .empty-playlist-icon {
+    -fx-text-fill: #6B5E7E;
+}
+
+.light-mode .empty-playlist-title {
+    -fx-text-fill: #6B5E7E;
+}
+
+.light-mode .empty-playlist-hint {
+    -fx-text-fill: #6B5E7E;
+}
+
+.light-mode .playlist-list-view .list-cell {
+    -fx-text-fill: #4A4055;
+    -fx-border-color: transparent transparent #DED6EA transparent;
+}
+
+.light-mode .playlist-list-view .list-cell:hover {
+    -fx-background-color: #E2D9EE;
+    -fx-text-fill: #1E1A29;
+}
+
+.light-mode .playlist-list-view .list-cell:selected {
+    -fx-background-color: #F0ECF5;
+    -fx-text-fill: #7C3AED;
+}
+
+.light-mode .playlist-file-field {
+    -fx-background-color: #F8F6FA;
+    -fx-border-color: #C8BED8;
+    -fx-text-fill: #1E1A29;
+    -fx-prompt-text-fill: #9A8AAA;
+}
+
+.light-mode .browse-btn {
+    -fx-background-color: #DED6EA;
+    -fx-text-fill: #1E1A29;
+}
+
+.light-mode .browse-btn:hover {
+    -fx-background-color: #CEC4DC;
+}
+
+.light-mode .audio-player-bar {
+    -fx-background-color: #F8F6FA;
+    -fx-border-color: #C8BED8 transparent transparent transparent;
+}
+
+.light-mode .now-playing-label {
+    -fx-text-fill: #1E1A29;
+}
+
+.light-mode .now-playing-sub {
+    -fx-text-fill: #6B5E7E;
+}
+
+.light-mode .now-playing-icon {
+    -fx-text-fill: #7C3AED;
+}
+
+.light-mode .audio-progress-bar .track {
+    -fx-background-color: #C8BED8;
+}
+
+.light-mode .audio-progress-bar .bar {
+    -fx-background-color: linear-gradient(to right, #7C3AED, #A78BFA);
+}
+
+.light-mode .time-label {
+    -fx-text-fill: #6B5E7E;
+}
+
+.light-mode .audio-ctrl-btn {
+    -fx-text-fill: #6B5E7E;
+}
+
+.light-mode .audio-ctrl-btn:hover {
+    -fx-background-color: #C8BED8;
+    -fx-text-fill: #7C3AED;
+}
+
+.light-mode .audio-ctrl-btn:pressed {
+    -fx-background-color: #B8A8D0;
+}
+
+.light-mode .audio-play-btn {
+    -fx-background-color: #7C3AED;
+    -fx-text-fill: #FFFFFF;
+    -fx-effect: dropshadow(gaussian, rgba(124,58,237,0.25), 8, 0, 0, 0);
+}
+
+.light-mode .audio-play-btn:hover {
+    -fx-background-color: #6D28D9;
+    -fx-effect: dropshadow(gaussian, rgba(124,58,237,0.40), 12, 0, 0, 0);
+}
+
+.light-mode .audio-play-btn:pressed {
+    -fx-background-color: #5B21B6;
+}
+
+.light-mode .audio-play-btn:disabled {
+    -fx-background-color: #C8BED8;
+    -fx-text-fill: #9A8AAA;
+    -fx-opacity: 0.7;
+}
+
+.light-mode .add-task-icon {
+    -fx-text-fill: #7C3AED;
+}
+
+.light-mode .todo-check-circle {
+    -fx-stroke: #8A7A9E;
+}
+
+.light-mode .todo-check-circle.todo-checked {
+    -fx-fill: #7C3AED;
+}
+
+.light-mode .todo-text {
+    -fx-text-fill: #3D2E52;
+}
+
+.light-mode .todo-text.todo-text-done {
+    -fx-text-fill: #8A7A9E;
+}
+
+.light-mode .timer-dot-filled {
+    -fx-fill: #7C3AED;
+}
+
+.light-mode .timer-dot-empty {
+    -fx-fill: #C8BED8;
+}
+
+.light-mode .scroll-bar:vertical .thumb,
+.light-mode .scroll-bar:horizontal .thumb {
+    -fx-background-color: #BEB2CC;
+}
+
+.light-mode .scroll-bar:vertical .thumb:hover,
+.light-mode .scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: #A89AB8;
+}
+
+.light-mode .tooltip {
+    -fx-background-color: #F8F6FA;
+    -fx-text-fill: #1E1A29;
+    -fx-border-color: #C8BED8;
 }

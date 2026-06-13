@@ -318,9 +318,9 @@ public class TimerPanelController {
         for (int i = 0; i < CYCLE_LENGTH; i++) {
             Circle dot = new Circle(5);
             if (i < filled) {
-                dot.setFill(Color.web("#C084FC"));
+                dot.getStyleClass().add("timer-dot-filled");
             } else {
-                dot.setFill(Color.web("#2D2936"));
+                dot.getStyleClass().add("timer-dot-empty");
             }
             sessionDots.getChildren().add(dot);
         }

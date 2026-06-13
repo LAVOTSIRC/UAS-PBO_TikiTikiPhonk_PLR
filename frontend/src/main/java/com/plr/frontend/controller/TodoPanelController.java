@@ -48,12 +48,10 @@ public class TodoPanelController {
                     root.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
                     
                     javafx.scene.shape.Circle check = new javafx.scene.shape.Circle(8);
-                    check.setFill(javafx.scene.paint.Color.TRANSPARENT);
-                    check.setStroke(javafx.scene.paint.Color.web("#4A4055"));
-                    check.setStrokeWidth(1.5);
+                    check.getStyleClass().add("todo-check-circle");
                     
                     Label text = new Label(extractTitle(item));
-                    text.setStyle("-fx-text-fill: #D4C8E8; -fx-font-size: 13px;");
+                    text.getStyleClass().add("todo-text");
                     
                     root.getChildren().addAll(check, text);
                     setGraphic(root);
@@ -80,11 +78,10 @@ public class TodoPanelController {
                     root.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
                     
                     javafx.scene.shape.Circle check = new javafx.scene.shape.Circle(8);
-                    check.setFill(javafx.scene.paint.Color.web("#C084FC"));
-                    check.setStroke(javafx.scene.paint.Color.TRANSPARENT);
+                    check.getStyleClass().addAll("todo-check-circle", "todo-checked");
                     
                     Label text = new Label(displayTitle);
-                    text.setStyle("-fx-text-fill: #4A4055; -fx-font-size: 13px; -fx-strikethrough: true;");
+                    text.getStyleClass().addAll("todo-text", "todo-text-done");
                     
                     root.getChildren().addAll(check, text);
                     setGraphic(root);

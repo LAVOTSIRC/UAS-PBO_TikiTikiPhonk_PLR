@@ -1,5 +1,6 @@
 package com.plr.frontend;
 
+import com.plr.frontend.util.ThemeManager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -44,6 +45,8 @@ public class JavaFXApp extends Application {
                 "Global stylesheet 'css/style.css' not found on classpath"
             ).toExternalForm();
             scene.getStylesheets().add(css);
+
+            ThemeManager.getInstance().applyToScene(scene);
 
             primaryStage.setTitle(title);
             primaryStage.setScene(scene);
