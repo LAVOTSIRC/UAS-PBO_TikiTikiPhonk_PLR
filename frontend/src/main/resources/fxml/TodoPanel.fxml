@@ -11,7 +11,10 @@
 
 <!--
     TodoPanel.fxml — Panel Daftar Tugas (240px)
-    Berisi: header, input tambah tugas, list aktif, list selesai, ringkasan
+    PERBAIKAN:
+    - Tombol "+" eksplisit dengan graphic label (bukan button text emoji)
+    - Hapus emoji dari tombol delete (ganti dengan teks biasa)
+    - Input field dengan border lebih terang agar terlihat
 -->
 <VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
@@ -22,23 +25,32 @@
 
     <!-- Header Row -->
     <HBox alignment="CENTER_LEFT" spacing="8">
-        <Label text="To-Do" styleClass="todo-header"/>
+        <Label text="TO-DO" styleClass="panel-label"/>
         <Region HBox.hgrow="ALWAYS"/>
         <Label fx:id="statusLabel" text="" styleClass="section-label"/>
+        <!-- Tombol "+" -->
+        <Button styleClass="add-task-btn"
+                onAction="#handleAddTask"
+                minWidth="24" minHeight="24"
+                prefWidth="24" prefHeight="24">
+            <graphic>
+                <Label text="+"
+                       style="-fx-font-size:16px; -fx-font-weight:bold; -fx-text-fill:#C084FC; -fx-background-color:transparent; -fx-padding:0;"/>
+            </graphic>
+        </Button>
     </HBox>
 
-    <!-- Input Row: add task -->
-    <HBox spacing="6" alignment="CENTER_LEFT">
-        <TextField fx:id="taskInputField"
-                   promptText="+ Tambah tugas baru..."
-                   styleClass="task-input"
-                   onAction="#handleAddTask"
-                   HBox.hgrow="ALWAYS"/>
-    </HBox>
+    <!-- Input Row: input field tanpa HBox agar tidak collapse -->
+    <TextField fx:id="taskInputField"
+               promptText="Tambah tugas baru..."
+               styleClass="task-input"
+               onAction="#handleAddTask">
+        <VBox.margin><Insets top="10" bottom="10"/></VBox.margin>
+    </TextField>
 
     <!-- Section: Aktif -->
-    <Label text="AKTIF" styleClass="section-label">
-        <VBox.margin><Insets top="4"/></VBox.margin>
+    <Label text="AKTIF" styleClass="panel-label">
+        <VBox.margin><Insets bottom="4"/></VBox.margin>
     </Label>
 
     <!-- Active Tasks ListView -->
@@ -48,8 +60,8 @@
               prefHeight="180"/>
 
     <!-- Section: Selesai -->
-    <Label text="SELESAI" styleClass="section-label">
-        <VBox.margin><Insets top="6"/></VBox.margin>
+    <Label text="SELESAI" styleClass="panel-label">
+        <VBox.margin><Insets top="6" bottom="4"/></VBox.margin>
     </Label>
 
     <!-- Completed Tasks ListView -->
@@ -58,8 +70,8 @@
               VBox.vgrow="SOMETIMES"
               prefHeight="100"/>
 
-    <!-- Delete Button -->
-    <Button text="🗑 Hapus yang dipilih"
+    <!-- Delete Button — teks biasa (tanpa emoji) agar selalu terbaca -->
+    <Button text="Hapus Tugas Dipilih"
             styleClass="todo-delete-btn"
             onAction="#handleDeleteSelected">
         <VBox.margin><Insets top="8"/></VBox.margin>
@@ -69,12 +81,18 @@
     <Region VBox.vgrow="ALWAYS"/>
 
     <!-- Session Summary Card -->
-    <VBox styleClass="session-summary" spacing="4">
+    <VBox styleClass="session-history">
         <VBox.margin><Insets top="8"/></VBox.margin>
-        <Label text="SESI HARI INI" styleClass="summary-title"/>
-        <Label fx:id="sessionCountLabel"
-               text="0 dari 0 selesai"
-               styleClass="summary-value"/>
+        <Label text="SESI HARI INI" styleClass="panel-label"/>
+        
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <VBox.margin><Insets top="8"/></VBox.margin>
+            
+            <HBox spacing="6" alignment="CENTER_LEFT">
+                <Region styleClass="session-dot, dot-purple"/>
+                <Label fx:id="sessionCountLabel" text="0 sesi" styleClass="session-stat"/>
+            </HBox>
+        </HBox>
     </VBox>
 
 </VBox>

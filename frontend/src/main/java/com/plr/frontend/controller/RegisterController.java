@@ -3,6 +3,8 @@ package com.plr.frontend.controller;
 import com.plr.frontend.JavaFXApp;
 import com.plr.frontend.util.ApiClient;
 import com.plr.frontend.util.SessionManager;
+
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -29,8 +31,9 @@ public class RegisterController {
     public void handleRegister() {
         String username = usernameField.getText().trim();
         String email = emailField.getText().trim();
-        String password = passwordField.getText().trim();
-        String confirmPassword = confirmPasswordField.getText().trim();
+        // BUG-16 FIX: Jangan trim() password — spasi di awal/akhir adalah bagian valid dari password
+        String password = passwordField.getText();
+        String confirmPassword = confirmPasswordField.getText();
 
         if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
             showError("Semua field harus diisi!");
@@ -60,8 +63,11 @@ public class RegisterController {
             String uname = (String) response.get("username");
             Long uid = ((Number) response.get("userId")).longValue();
             SessionManager.getInstance().setSession(token, uname, uid);
-            setLoading(false);
-            JavaFXApp.showScene("fxml/MainLayout.fxml", "TikiTikiPhonk - " + uname, 1100, 700);
+            // BUG-04 FIX: Eksplisit Platform.runLater() untuk semua UI update pasca async
+            Platform.runLater(() -> {
+                setLoading(false);
+                JavaFXApp.showScene("fxml/MainLayout.fxml", "TikiTikiPhonk - " + uname, 1100, 700);
+            });
         });
 
         registerTask.setOnFailed(event -> {
