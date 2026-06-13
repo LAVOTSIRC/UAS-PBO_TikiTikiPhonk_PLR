@@ -9,6 +9,7 @@ public class StatSummaryResponse {
     private int completedTasks;
     private int activeTasks;
     private int totalPoints;
+    private int currentStreak;
     private List<DaySummary> focusMinutesByDay;
 
     public StatSummaryResponse() {}
@@ -23,6 +24,8 @@ public class StatSummaryResponse {
     public void setActiveTasks(int activeTasks) { this.activeTasks = activeTasks; }
     public int getTotalPoints() { return totalPoints; }
     public void setTotalPoints(int totalPoints) { this.totalPoints = totalPoints; }
+    public int getCurrentStreak() { return currentStreak; }
+    public void setCurrentStreak(int currentStreak) { this.currentStreak = currentStreak; }
     public List<DaySummary> getFocusMinutesByDay() { return focusMinutesByDay; }
     public void setFocusMinutesByDay(List<DaySummary> focusMinutesByDay) { this.focusMinutesByDay = focusMinutesByDay; }
 

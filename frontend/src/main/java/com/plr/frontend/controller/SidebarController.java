@@ -16,13 +16,12 @@ public class SidebarController {
     @FXML private Label themeIconLabel;
     @FXML private Button logoutBtn;
 
-    private Runnable onTasksNav;
-    private Runnable onStatsNav;
+    private Runnable onNavigateTasks;
+    private Runnable onNavigateStats;
     private Runnable onProfileNav;
 
-    public void setOnTasksNav(Runnable r) { this.onTasksNav = r; }
-    public void setOnStatsNav(Runnable r) { this.onStatsNav = r; }
-    public void setOnProfileNav(Runnable r) { this.onProfileNav = r; }
+    public void setOnNavigateTasks(Runnable r) { this.onNavigateTasks = r; }
+    public void setOnNavigateStats(Runnable r) { this.onNavigateStats = r; }
 
     @FXML
     public void initialize() {
@@ -53,24 +52,24 @@ public class SidebarController {
     @FXML
     public void handleTasksNav() {
         setActiveButton(tasksNavBtn);
-        if (onTasksNav != null) {
-            onTasksNav.run();
-        }
+        if (onNavigateTasks != null) onNavigateTasks.run();
     }
 
     @FXML
     public void handleProfileNav() {
-        // remove active button styles or set profile btn active if it exists
+        setActiveButton(null);
+        if (usernameInitialLabel != null && !usernameInitialLabel.getStyleClass().contains("active")) {
+            usernameInitialLabel.getStyleClass().add("active");
+        }
         if (onProfileNav != null) {
             onProfileNav.run();
         }
-    }
     }
 
     @FXML
     public void handleStatsNav() {
         setActiveButton(statsNavBtn);
-        if (onStatsNav != null) onStatsNav.run();
+        if (onNavigateStats != null) onNavigateStats.run();
     }
 
 
@@ -81,6 +80,9 @@ public class SidebarController {
     }
 
     private void setActiveButton(Button active) {
+        if (usernameInitialLabel != null) {
+            usernameInitialLabel.getStyleClass().remove("active");
+        }
         Button[] allBtns = {tasksNavBtn, statsNavBtn};
         for (Button btn : allBtns) {
             if (btn != null) {
@@ -94,4 +96,7 @@ public class SidebarController {
         }
     }
 
+    public void setOnProfileNav(Runnable onProfileNav) {
+        this.onProfileNav = onProfileNav;
+    }
 }

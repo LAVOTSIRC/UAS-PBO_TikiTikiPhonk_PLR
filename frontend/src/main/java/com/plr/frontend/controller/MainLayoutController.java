@@ -17,7 +17,7 @@ public class MainLayoutController {
     @FXML private StatsController statsPanelController;
     @FXML private ProfilePanelController profilePanelController;
 
-    @FXML private HBox dashboardContent;
+    @FXML private HBox taskView;
     @FXML private Node statsPanel;
     @FXML private VBox profilePanel;
     @FXML private Label globalStatusLabel;
@@ -29,8 +29,8 @@ public class MainLayoutController {
         String username = SessionManager.getInstance().getUsername();
         if (sidebarController != null) {
             sidebarController.setUsername(username);
-            sidebarController.setOnTasksNav(this::showDashboard);
-            sidebarController.setOnStatsNav(this::showStatsView);
+            sidebarController.setOnNavigateTasks(this::showTasksView);
+            sidebarController.setOnNavigateStats(this::showStatsView);
             sidebarController.setOnProfileNav(this::showProfile);
         }
 
@@ -51,23 +51,27 @@ public class MainLayoutController {
             });
         }
 
-        showDashboard();
+        showTasksView();
     }
 
-    private void showDashboard() {
-        setViewVisible(dashboardContent, true);
+    private void showProfile() {
+        setViewVisible(taskView, false);
+        setViewVisible(statsPanel, false);
+        setViewVisible(profilePanel, true);
+        if (profilePanelController != null) {
+            profilePanelController.loadUserProfile();
+            profilePanelController.loadUserStatistics();
+        }
+    }
+
+    private void showTasksView() {
+        setViewVisible(taskView, true);
         setViewVisible(statsPanel, false);
         setViewVisible(profilePanel, false);
     }
 
-    private void showProfile() {
-        setViewVisible(dashboardContent, false);
-        setViewVisible(statsPanel, false);
-        setViewVisible(profilePanel, true);
-    }
-
     private void showStatsView() {
-        setViewVisible(dashboardContent, false);
+        setViewVisible(taskView, false);
         setViewVisible(statsPanel, true);
         setViewVisible(profilePanel, false);
         if (statsPanelController != null) {

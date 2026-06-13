@@ -57,14 +57,30 @@ public class StatServiceImpl implements IStatService {
 
         List<DaySummary> focusMinutesByDay = getDailyFocusMinutes(user);
 
+        int currentStreak = computeStreak(focusMinutesByDay);
+        System.out.println("[StatServiceImpl] currentStreak computed: " + currentStreak);
+
         StatSummaryResponse response = new StatSummaryResponse();
         response.setTotalFocusMinutes(totalFocusMinutes);
         response.setTotalSessions(totalSessions);
         response.setCompletedTasks((int) completedTasks);
         response.setActiveTasks((int) activeTasks);
         response.setTotalPoints(totalPoints);
+        response.setCurrentStreak(currentStreak);
         response.setFocusMinutesByDay(focusMinutesByDay);
         return response;
+    }
+
+    private int computeStreak(List<DaySummary> focusMinutesByDay) {
+        int streak = 0;
+        for (int i = focusMinutesByDay.size() - 1; i >= 0; i--) {
+            if (focusMinutesByDay.get(i).getMinutes() > 0) {
+                streak++;
+            } else {
+                break;
+            }
+        }
+        return streak;
     }
 
     private List<DaySummary> getDailyFocusMinutes(User user) {

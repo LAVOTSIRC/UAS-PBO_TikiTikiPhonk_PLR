@@ -52,11 +52,11 @@ public class ApiClient {
     // ========== GENERIC AUTH HELPERS ==========
 
     public static String get(String path) throws Exception {
-        HttpRequest request = HttpRequest.newBuilder()
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
             .uri(URI.create(BASE_URL + path))
-            .header("Authorization", SessionManager.getInstance().getAuthorizationHeader())
-            .GET()
-            .build();
+            .GET();
+        builder = instance.withAuth(builder);
+        HttpRequest request = builder.build();
 
         HttpResponse<String> response = instance.httpClient.send(request,
             HttpResponse.BodyHandlers.ofString());
@@ -68,12 +68,12 @@ public class ApiClient {
     }
 
     public static String put(String path, String jsonBody) throws Exception {
-        HttpRequest request = HttpRequest.newBuilder()
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
             .uri(URI.create(BASE_URL + path))
             .header("Content-Type", "application/json")
-            .header("Authorization", SessionManager.getInstance().getAuthorizationHeader())
-            .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
-            .build();
+            .PUT(HttpRequest.BodyPublishers.ofString(jsonBody));
+        builder = instance.withAuth(builder);
+        HttpRequest request = builder.build();
 
         HttpResponse<String> response = instance.httpClient.send(request,
             HttpResponse.BodyHandlers.ofString());
@@ -85,12 +85,12 @@ public class ApiClient {
     }
 
     public static String delete(String path, String jsonBody) throws Exception {
-        HttpRequest request = HttpRequest.newBuilder()
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
             .uri(URI.create(BASE_URL + path))
             .header("Content-Type", "application/json")
-            .header("Authorization", SessionManager.getInstance().getAuthorizationHeader())
-            .method("DELETE", HttpRequest.BodyPublishers.ofString(jsonBody))
-            .build();
+            .method("DELETE", HttpRequest.BodyPublishers.ofString(jsonBody));
+        builder = instance.withAuth(builder);
+        HttpRequest request = builder.build();
 
         HttpResponse<String> response = instance.httpClient.send(request,
             HttpResponse.BodyHandlers.ofString());
@@ -308,6 +308,92 @@ public class ApiClient {
         } else {
             throw new Exception("Gagal mengambil statistik: " + response.statusCode()
                 + " body=" + response.body());
+        }
+    }
+
+    // ========== USER PROFILE ENDPOINTS ==========
+
+    public Map<String, Object> getUserProfile() throws Exception {
+        HttpRequest.Builder rb = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/api/users/profile"));
+        rb = withAuth(rb);
+        HttpRequest request = rb.GET().build();
+
+        HttpResponse<String> response = httpClient.send(request,
+            HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200) {
+            return objectMapper.readValue(response.body(),
+                new TypeReference<Map<String, Object>>() {});
+        } else {
+            throw new Exception("Gagal mengambil profil: " + response.statusCode());
+        }
+    }
+
+    public Map<String, Object> updateUserProfile(String username, String email) throws Exception {
+        Map<String, String> body = Map.of("username", username, "email", email);
+        String json = objectMapper.writeValueAsString(body);
+
+        HttpRequest.Builder rb = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/api/users/profile"))
+            .header("Content-Type", "application/json");
+        rb = withAuth(rb);
+        HttpRequest request = rb.PUT(HttpRequest.BodyPublishers.ofString(json)).build();
+
+        HttpResponse<String> response = httpClient.send(request,
+            HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200) {
+            return objectMapper.readValue(response.body(),
+                new TypeReference<Map<String, Object>>() {});
+        } else {
+            throw new Exception("Gagal memperbarui profil: " + response.body());
+        }
+    }
+
+    public Map<String, Object> changePassword(String oldPassword, String newPassword) throws Exception {
+        Map<String, String> body = Map.of("oldPassword", oldPassword, "newPassword", newPassword);
+        String json = objectMapper.writeValueAsString(body);
+
+        HttpRequest.Builder rb = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/api/users/change-password"))
+            .header("Content-Type", "application/json");
+        rb = withAuth(rb);
+        HttpRequest request = rb.PUT(HttpRequest.BodyPublishers.ofString(json)).build();
+
+        HttpResponse<String> response = httpClient.send(request,
+            HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200) {
+            return objectMapper.readValue(response.body(),
+                new TypeReference<Map<String, Object>>() {});
+        } else {
+            Map<String, Object> err = objectMapper.readValue(response.body(),
+                new TypeReference<Map<String, Object>>() {});
+            throw new Exception((String) err.getOrDefault("error", "Gagal mengubah password"));
+        }
+    }
+
+    public Map<String, Object> deleteAccount(String password) throws Exception {
+        Map<String, String> body = Map.of("password", password);
+        String json = objectMapper.writeValueAsString(body);
+
+        HttpRequest.Builder rb = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/api/users/delete"))
+            .header("Content-Type", "application/json");
+        rb = withAuth(rb);
+        HttpRequest request = rb.method("DELETE", HttpRequest.BodyPublishers.ofString(json)).build();
+
+        HttpResponse<String> response = httpClient.send(request,
+            HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200) {
+            return objectMapper.readValue(response.body(),
+                new TypeReference<Map<String, Object>>() {});
+        } else {
+            Map<String, Object> err = objectMapper.readValue(response.body(),
+                new TypeReference<Map<String, Object>>() {});
+            throw new Exception((String) err.getOrDefault("error", "Gagal menghapus akun"));
         }
     }
 

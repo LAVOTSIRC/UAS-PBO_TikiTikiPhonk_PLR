@@ -58,4 +58,40 @@ public class UserServiceImpl implements IUserService {
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
+
+    @Override
+    public void updateProfile(String currentUsername, String newUsername, String newEmail) {
+        User user = findByUsername(currentUsername);
+        if (!user.getUsername().equals(newUsername) && existsByUsername(newUsername)) {
+            throw new IllegalArgumentException("Username sudah digunakan");
+        }
+        if (!user.getEmail().equals(newEmail) && existsByEmail(newEmail)) {
+            throw new IllegalArgumentException("Email sudah digunakan");
+        }
+        user.setUsername(newUsername);
+        user.setEmail(newEmail);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void changePassword(String username, String oldPassword, String newPassword) {
+        User user = findByUsername(username);
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new IllegalArgumentException("Password lama tidak cocok");
+        }
+        if (newPassword == null || newPassword.length() < 6) {
+            throw new IllegalArgumentException("Password baru minimal 6 karakter");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    @Override
+    public void deleteAccount(String username, String password) {
+        User user = findByUsername(username);
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new IllegalArgumentException("Password tidak cocok");
+        }
+        userRepository.delete(user);
+    }
 }

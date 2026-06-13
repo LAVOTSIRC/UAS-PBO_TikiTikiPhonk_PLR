@@ -8,4 +8,7 @@ public interface IUserService {
     User findByUsername(String username);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
+    void updateProfile(String currentUsername, String newUsername, String newEmail);
+    void changePassword(String username, String oldPassword, String newPassword);
+    void deleteAccount(String username, String password);
 }
