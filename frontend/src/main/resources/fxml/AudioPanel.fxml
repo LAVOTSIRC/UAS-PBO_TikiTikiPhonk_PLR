@@ -6,32 +6,14 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.Slider?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<!--
-    AudioPanel.fxml — Panel Audio Companion (220px, kanan)
-    Struktur:
-      ┌─ Header ───────────────────────────────────┐
-      ├─ TabPane: [Noise] [Playlist] ──────────────┤
-      │   Noise Tab:                               │
-      │     2×2 grid tombol noise bawaan           │
-      │     Slider volume                          │
-      │   Playlist Tab:                            │
-      │     Tombol Import Music                    │
-      │     ListView daftar lagu                   │
-      │     Slider volume                          │
-      ├─ [spacer] ──────────────────────────────── │
-      └─ Player Bar (selalu terlihat di bawah) ────┘
-           Now Playing label
-           ProgressBar + waktu
-           Kontrol: ⏮  ⏹  ▶/⏸  ⏭
--->
 <VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.plr.frontend.controller.AudioPanelController"
@@ -39,181 +21,237 @@
       prefWidth="220" minWidth="220" maxWidth="220"
       fillWidth="true">
 
-    <!-- ===== Header ===== -->
+    <!-- Header -->
     <HBox alignment="CENTER_LEFT" spacing="8">
         <VBox.margin><Insets bottom="10"/></VBox.margin>
-        <Label text="&#127911;" style="-fx-font-size:14px; -fx-text-fill:#C084FC;"/>
+        <Label text="&#x1F3A7;" style="-fx-font-size:14px; -fx-text-fill:#C084FC;"/>
         <Label text="Audio" styleClass="audio-header"/>
     </HBox>
 
-    <!-- ===== TabPane: Noise | Playlist ===== -->
-    <TabPane fx:id="audioTabPane"
-             styleClass="audio-tab-pane"
-             tabClosingPolicy="UNAVAILABLE"
-             VBox.vgrow="ALWAYS">
+    <!-- Toggle Buttons: Noise | Playlist -->
+    <HBox styleClass="audio-tab-bar" spacing="4">
+        <Button fx:id="noiseTabBtn"
+                text="Noise"
+                styleClass="audio-tab-btn, active"
+                onAction="#showNoiseTab"
+                maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+        <Button fx:id="playlistTabBtn"
+                text="Playlist"
+                styleClass="audio-tab-btn"
+                onAction="#showPlaylistTab"
+                maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+    </HBox>
 
-        <!-- ─── TAB: NOISE ─────────────────────────────── -->
-        <Tab text="Noise">
-            <VBox spacing="12" styleClass="audio-tab-content">
-                <padding><Insets top="12" right="0" bottom="8" left="0"/></padding>
+    <!-- Noise Content -->
+    <VBox fx:id="noiseContent" spacing="12" styleClass="audio-tab-content"
+          VBox.vgrow="ALWAYS">
+        <VBox.margin><Insets top="12" right="0" bottom="0" left="0"/></VBox.margin>
 
-                <Label text="PILIH SUARA AMBIENT"
-                       style="-fx-font-size:9px; -fx-text-fill:#7C6E8A; -fx-font-weight:bold;"/>
+        <Label text="PILIH SUARA AMBIENT"
+               style="-fx-font-size:9px; -fx-text-fill:#7C6E8A; -fx-font-weight:bold;"/>
 
-                <!-- 2×2 Grid noise buttons menggunakan nested HBox -->
-                <VBox spacing="8">
-                    <HBox spacing="8">
-                        <!-- White Noise -->
-                        <Button fx:id="whiteNoiseBtn"
-                                styleClass="noise-btn"
-                                onAction="#playWhiteNoise"
-                                prefWidth="90" prefHeight="72">
-                            <graphic>
-                                <VBox alignment="CENTER" spacing="4">
-                                    <Label text="&#128267;"
-                                           style="-fx-font-size:22px; -fx-text-fill:#F0EAFF;"/>
-                                    <Label text="White"
-                                           style="-fx-font-size:10px; -fx-text-fill:#F0EAFF; -fx-font-weight:bold;"/>
-                                    <Label text="Noise"
-                                           style="-fx-font-size:9px; -fx-text-fill:#7C6E8A;"/>
-                                </VBox>
-                            </graphic>
-                        </Button>
+        <VBox spacing="8">
+            <HBox spacing="8">
+                <Button fx:id="whiteNoiseBtn"
+                        styleClass="noise-btn"
+                        onAction="#playWhiteNoise"
+                        prefWidth="90" prefHeight="72">
+                    <graphic>
+                        <VBox alignment="CENTER" spacing="4">
+                            <Label text="~"
+                                   style="-fx-font-size:22px; -fx-text-fill:#F0EAFF; -fx-font-weight:bold;"/>
+                            <Label text="White"
+                                   style="-fx-font-size:10px; -fx-text-fill:#F0EAFF; -fx-font-weight:bold;"/>
+                            <Label text="Noise"
+                                   style="-fx-font-size:9px; -fx-text-fill:#C8BFD8;"/>
+                        </VBox>
+                    </graphic>
+                </Button>
+                <Button fx:id="brownNoiseBtn"
+                        styleClass="noise-btn"
+                        onAction="#playBrownNoise"
+                        prefWidth="90" prefHeight="72">
+                    <graphic>
+                        <VBox alignment="CENTER" spacing="4">
+                            <Label text="&#x2615;"
+                                   style="-fx-font-size:22px; -fx-text-fill:#F0EAFF;"/>
+                            <Label text="Brown"
+                                   style="-fx-font-size:10px; -fx-text-fill:#F0EAFF; -fx-font-weight:bold;"/>
+                            <Label text="Noise"
+                                   style="-fx-font-size:9px; -fx-text-fill:#C8BFD8;"/>
+                        </VBox>
+                    </graphic>
+                </Button>
+            </HBox>
+            <HBox spacing="8">
+                <Button fx:id="rainNoiseBtn"
+                        styleClass="noise-btn"
+                        onAction="#playRainNoise"
+                        prefWidth="90" prefHeight="72">
+                    <graphic>
+                        <VBox alignment="CENTER" spacing="4">
+                            <Label text="&#x1F327;"
+                                   style="-fx-font-size:22px; -fx-text-fill:#F0EAFF;"/>
+                            <Label text="Rain"
+                                   style="-fx-font-size:10px; -fx-text-fill:#F0EAFF; -fx-font-weight:bold;"/>
+                            <Label text="Hujan"
+                                   style="-fx-font-size:9px; -fx-text-fill:#C8BFD8;"/>
+                        </VBox>
+                    </graphic>
+                </Button>
+                <Button fx:id="forestNoiseBtn"
+                        styleClass="noise-btn"
+                        onAction="#playForestNoise"
+                        prefWidth="90" prefHeight="72">
+                    <graphic>
+                        <VBox alignment="CENTER" spacing="4">
+                            <Label text="&#x1F33F;"
+                                   style="-fx-font-size:22px; -fx-text-fill:#F0EAFF;"/>
+                            <Label text="Forest"
+                                   style="-fx-font-size:10px; -fx-text-fill:#F0EAFF; -fx-font-weight:bold;"/>
+                            <Label text="Hutan"
+                                   style="-fx-font-size:9px; -fx-text-fill:#C8BFD8;"/>
+                        </VBox>
+                    </graphic>
+                </Button>
+            </HBox>
+        </VBox>
 
-                        <!-- Brown Noise -->
-                        <Button fx:id="brownNoiseBtn"
-                                styleClass="noise-btn"
-                                onAction="#playBrownNoise"
-                                prefWidth="90" prefHeight="72">
-                            <graphic>
-                                <VBox alignment="CENTER" spacing="4">
-                                    <Label text="&#9749;"
-                                           style="-fx-font-size:22px; -fx-text-fill:#F0EAFF;"/>
-                                    <Label text="Brown"
-                                           style="-fx-font-size:10px; -fx-text-fill:#F0EAFF; -fx-font-weight:bold;"/>
-                                    <Label text="Noise"
-                                           style="-fx-font-size:9px; -fx-text-fill:#7C6E8A;"/>
-                                </VBox>
-                            </graphic>
-                        </Button>
-                    </HBox>
+    </VBox>
 
-                    <HBox spacing="8">
-                        <!-- Rain -->
-                        <Button fx:id="rainNoiseBtn"
-                                styleClass="noise-btn"
-                                onAction="#playRainNoise"
-                                prefWidth="90" prefHeight="72">
-                            <graphic>
-                                <VBox alignment="CENTER" spacing="4">
-                                    <Label text="&#127783;"
-                                           style="-fx-font-size:22px; -fx-text-fill:#F0EAFF;"/>
-                                    <Label text="Rain"
-                                           style="-fx-font-size:10px; -fx-text-fill:#F0EAFF; -fx-font-weight:bold;"/>
-                                    <Label text="Hujan"
-                                           style="-fx-font-size:9px; -fx-text-fill:#7C6E8A;"/>
-                                </VBox>
-                            </graphic>
-                        </Button>
+    <!-- Playlist Content -->
+    <VBox fx:id="playlistContent" spacing="10" styleClass="audio-tab-content"
+          VBox.vgrow="ALWAYS" managed="false" visible="false">
+        <VBox.margin><Insets top="12" right="0" bottom="0" left="0"/></VBox.margin>
 
-                        <!-- Forest -->
-                        <Button fx:id="forestNoiseBtn"
-                                styleClass="noise-btn"
-                                onAction="#playForestNoise"
-                                prefWidth="90" prefHeight="72">
-                            <graphic>
-                                <VBox alignment="CENTER" spacing="4">
-                                    <Label text="&#127807;"
-                                           style="-fx-font-size:22px; -fx-text-fill:#F0EAFF;"/>
-                                    <Label text="Forest"
-                                           style="-fx-font-size:10px; -fx-text-fill:#F0EAFF; -fx-font-weight:bold;"/>
-                                    <Label text="Hutan"
-                                           style="-fx-font-size:9px; -fx-text-fill:#7C6E8A;"/>
-                                </VBox>
-                            </graphic>
-                        </Button>
-                    </HBox>
-                </VBox>
+        <Button fx:id="createPlaylistBtn"
+                text="+ Buat Playlist"
+                styleClass="import-music-btn"
+                onAction="#handleCreatePlaylist"
+                maxWidth="Infinity"/>
 
-                <!-- Divider -->
-                <Region prefHeight="1" styleClass="audio-divider"/>
+        <HBox fx:id="backNavBar" spacing="8"
+              managed="false" visible="false">
+            <Button text="&#x2190; Kembali"
+                    style="-fx-background-color:transparent; -fx-text-fill:#C084FC; -fx-font-size:11px; -fx-font-weight:bold; -fx-cursor:hand; -fx-padding:2 0; -fx-border-color:transparent;"
+                    onAction="#handleBackToPlaylists"/>
+            <Label fx:id="trackListTitle"
+                   style="-fx-font-size:11px; -fx-text-fill:#F0EAFF; -fx-font-weight:bold;"/>
+        </HBox>
 
-                <!-- Volume Row -->
-                <Label text="VOLUME"
-                       style="-fx-font-size:9px; -fx-text-fill:#7C6E8A; -fx-font-weight:bold;"/>
-                <HBox alignment="CENTER_LEFT" spacing="8">
-                    <Label text="&#128264;"
-                           style="-fx-text-fill:#7C6E8A; -fx-font-size:12px;"/>
-                    <Slider fx:id="volumeSlider"
-                            min="0" max="1" value="0.7"
-                            styleClass="audio-volume-slider"
-                            HBox.hgrow="ALWAYS"/>
-                    <Label fx:id="volumeLabel"
-                           text="70%"
-                           styleClass="volume-label"
-                           prefWidth="32"/>
-                </HBox>
+        <HBox fx:id="playButtons" spacing="6"
+              managed="false" visible="false">
+            <Button text="&#x25B6; Putar"
+                    style="-fx-background-color:#C084FC; -fx-text-fill:#0E0C10; -fx-font-size:10px; -fx-font-weight:bold; -fx-cursor:hand; -fx-border-radius:6; -fx-background-radius:6; -fx-padding:4 10; -fx-border-color:transparent;"
+                    onAction="#handleSequentialPlay"
+                    HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+            <Button text="&#x1F500; Acak"
+                    style="-fx-background-color:#1F1630; -fx-text-fill:#C084FC; -fx-font-size:10px; -fx-font-weight:bold; -fx-cursor:hand; -fx-border-color:#C084FC; -fx-border-radius:6; -fx-background-radius:6; -fx-padding:4 10; -fx-border-width:1;"
+                    onAction="#handleShufflePlay"
+                    HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+        </HBox>
 
+        <Button fx:id="addTracksBtn"
+                text="+ Tambah Lagu"
+                style="-fx-background-color:transparent; -fx-text-fill:#7C6E8A; -fx-font-size:10px; -fx-font-weight:bold; -fx-cursor:hand; -fx-border-color:#2D2936; -fx-border-radius:6; -fx-background-radius:6; -fx-padding:4 8;"
+                onAction="#handleAddTracks"
+                maxWidth="Infinity"/>
+
+        <Label fx:id="playlistHeader"
+               text="DAFTAR PLAYLIST"
+               style="-fx-font-size:9px; -fx-text-fill:#7C6E8A; -fx-font-weight:bold;"/>
+
+        <StackPane VBox.vgrow="ALWAYS" minHeight="120">
+            <ListView fx:id="playlistView"
+                      styleClass="playlist-list-view"
+                      VBox.vgrow="ALWAYS"/>
+            <ListView fx:id="trackView"
+                      styleClass="playlist-list-view"
+                      VBox.vgrow="ALWAYS"
+                      managed="false" visible="false"/>
+            <VBox fx:id="emptyPlaylistLabel"
+                  alignment="CENTER" spacing="6"
+                  style="-fx-opacity:0.5;">
+                <Label text="&#x1F3B5;"
+                       style="-fx-font-size:28px; -fx-text-fill:#7C6E8A;"/>
+                <Label text="Belum ada playlist"
+                       style="-fx-font-size:11px; -fx-text-fill:#7C6E8A;"/>
+                <Label text="Klik + Buat Playlist untuk memulai"
+                       wrapText="true"
+                       style="-fx-font-size:9px; -fx-text-fill:#7C6E8A; -fx-text-alignment:center;"
+                       prefWidth="160"/>
             </VBox>
-        </Tab>
-
-        <!-- ─── TAB: PLAYLIST ──────────────────────────── -->
-        <Tab text="Playlist">
-            <VBox spacing="10">
-                <padding><Insets top="12" right="0" bottom="8" left="0"/></padding>
-
-                <!-- Import Button -->
-                <Button text="&#43; Import Music"
-                        styleClass="import-music-btn"
-                        onAction="#handleImportMusic"
+            <VBox fx:id="createForm" spacing="10"
+                  managed="false" visible="false"
+                  VBox.vgrow="ALWAYS">
+                <Label text="BUAT PLAYLIST BARU"
+                       style="-fx-font-size:9px; -fx-text-fill:#C084FC; -fx-font-weight:bold;"/>
+                <TextField fx:id="formNameField"
+                           promptText="Nama playlist"
+                           style="-fx-background-color:#1A1722; -fx-border-color:#2D2936; -fx-text-fill:#F0EAFF; -fx-prompt-text-fill:#7C6E8A; -fx-border-radius:6; -fx-background-radius:6; -fx-padding:6 10; -fx-font-size:12px;"/>
+                <TextArea fx:id="formDescField"
+                          promptText="Deskripsi (opsional)"
+                          wrapText="true"
+                          prefHeight="50"
+                          style="-fx-background-color:#1A1722; -fx-border-color:#2D2936; -fx-text-fill:#F0EAFF; -fx-prompt-text-fill:#7C6E8A; -fx-border-radius:6; -fx-background-radius:6; -fx-padding:6 10; -fx-font-size:12px; -fx-control-inner-background:#1A1722;"/>
+                <Button text="+ Pilih File Audio"
+                        style="-fx-background-color:#2D2936; -fx-text-fill:#C084FC; -fx-font-size:11px; -fx-font-weight:bold; -fx-border-radius:6; -fx-background-radius:6; -fx-cursor:hand; -fx-padding:6 10; -fx-border-color:#2D2936;"
+                        onAction="#handlePickFormFiles"
                         maxWidth="Infinity"/>
-
-                <Label text="ANTRIAN LAGU"
-                       style="-fx-font-size:9px; -fx-text-fill:#7C6E8A; -fx-font-weight:bold;"/>
-
-                <!-- Playlist ListView -->
-                <StackPane VBox.vgrow="ALWAYS" minHeight="120">
-                    <ListView fx:id="playlistView"
-                              styleClass="playlist-list-view"
-                              VBox.vgrow="ALWAYS"/>
-
-                    <!-- Placeholder saat playlist kosong -->
-                    <VBox fx:id="emptyPlaylistLabel"
-                          alignment="CENTER" spacing="6"
-                          style="-fx-opacity:0.5;">
-                        <Label text="&#127925;"
-                               style="-fx-font-size:28px; -fx-text-fill:#7C6E8A;"/>
-                        <Label text="Belum ada lagu"
-                               style="-fx-font-size:11px; -fx-text-fill:#7C6E8A;"/>
-                        <Label text="Klik + Import untuk menambahkan"
-                               wrapText="true"
-                               style="-fx-font-size:9px; -fx-text-fill:#7C6E8A; -fx-text-alignment:center;"
-                               prefWidth="160"/>
-                    </VBox>
-                </StackPane>
-
+                <ListView fx:id="formFileList"
+                          styleClass="playlist-list-view"
+                          prefHeight="80"
+                          style="-fx-background-color:transparent;"/>
+                <HBox spacing="6">
+                    <Button text="Simpan"
+                            style="-fx-background-color:#C084FC; -fx-text-fill:#0E0C10; -fx-font-weight:bold; -fx-font-size:12px; -fx-border-radius:6; -fx-background-radius:6; -fx-cursor:hand; -fx-padding:6 10;"
+                            onAction="#handleSavePlaylist"
+                            HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                    <Button text="Batal"
+                            style="-fx-background-color:#2D2936; -fx-text-fill:#F0EAFF; -fx-font-size:12px; -fx-border-radius:6; -fx-background-radius:6; -fx-cursor:hand; -fx-padding:6 10;"
+                            onAction="#handleCancelCreate"
+                            HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                </HBox>
             </VBox>
-        </Tab>
+        </StackPane>
+    </VBox>
 
-    </TabPane>
+    <!-- Shared Volume -->
+    <VBox spacing="6" styleClass="audio-tab-content">
+        <VBox.margin><Insets top="0" right="0" bottom="0" left="0"/></VBox.margin>
+        <Region prefHeight="1" styleClass="audio-divider"/>
+        <Label text="VOLUME"
+               style="-fx-font-size:9px; -fx-text-fill:#7C6E8A; -fx-font-weight:bold;"/>
+        <HBox alignment="CENTER_LEFT" spacing="8">
+            <Label text="&#x1F508;"
+                   style="-fx-text-fill:#7C6E8A; -fx-font-size:12px;"/>
+            <Slider fx:id="volumeSlider"
+                    min="0" max="1" value="0.7"
+                    styleClass="audio-volume-slider"
+                    HBox.hgrow="ALWAYS"/>
+            <Label fx:id="volumeLabel"
+                   text="70%"
+                   styleClass="volume-label"
+                   prefWidth="32"/>
+        </HBox>
+    </VBox>
 
     <!-- Spacer -->
     <Region VBox.vgrow="ALWAYS"/>
 
-    <!-- ===== PLAYER BAR (selalu terlihat di bawah) ===== -->
+    <!-- Player Bar -->
     <VBox styleClass="audio-player-bar" spacing="8">
 
-        <!-- Now Playing Info -->
         <HBox alignment="CENTER_LEFT" spacing="6">
-            <Label text="&#9654;"
-                   style="-fx-text-fill:#C084FC; -fx-font-size:9px;"/>
+            <Label fx:id="playStateIcon"
+                   text="&#x25B6;"
+                   style="-fx-text-fill:#C084FC; -fx-font-size:10px;"/>
             <Label fx:id="nowPlayingLabel"
                    text="Tidak ada audio"
                    styleClass="now-playing-label"
                    HBox.hgrow="ALWAYS"/>
         </HBox>
 
-        <!-- Progress Bar + Time Labels -->
         <VBox spacing="4">
             <ProgressBar fx:id="audioProgressBar"
                          progress="0"
@@ -230,30 +268,36 @@
             </HBox>
         </VBox>
 
-        <!-- Controls Row: ⏮  ⏹  ▶/⏸  ⏭ -->
-        <HBox alignment="CENTER" spacing="6">
-
+        <HBox alignment="CENTER" spacing="2">
             <Button fx:id="prevBtn"
-                    text="⏮"
+                    text="&#x23EE;"
                     styleClass="audio-ctrl-btn"
                     onAction="#handlePrevious"/>
-
             <Button fx:id="stopBtn"
-                    text="⏹"
+                    text="&#x23F9;"
                     styleClass="audio-ctrl-btn"
                     onAction="#handleStop"/>
-
             <Button fx:id="playPauseBtn"
-                    text="▶"
+                    text="&#x25B6;"
                     styleClass="audio-play-btn"
                     onAction="#handlePlayPause"
                     disable="true"/>
-
             <Button fx:id="nextBtn"
-                    text="⏭"
+                    text="&#x23ED;"
                     styleClass="audio-ctrl-btn"
                     onAction="#handleNext"/>
-
+            <Button fx:id="loopBtn"
+                    text="LP"
+                    styleClass="audio-toggle-btn"
+                    onAction="#handleToggleLoop">
+                <tooltip><Tooltip text="Loop: None \u2192 All \u2192 One \u2192 None"/></tooltip>
+            </Button>
+            <Button fx:id="shuffleBtn"
+                    text="SH"
+                    styleClass="audio-toggle-btn"
+                    onAction="#handleToggleShuffle">
+                <tooltip><Tooltip text="Acak: nyala/mati"/></tooltip>
+            </Button>
         </HBox>
 
     </VBox>

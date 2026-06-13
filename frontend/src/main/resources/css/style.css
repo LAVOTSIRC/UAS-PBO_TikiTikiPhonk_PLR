@@ -8,10 +8,11 @@
 
 /* ---- Root / Base ----------------------------------------- */
 .root {
-    /* Tambah 'Segoe UI Emoji' dan 'Segoe UI Symbol' sebagai fallback untuk emoji Unicode di Windows */
     -fx-font-family: 'Space Grotesk', 'Segoe UI', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Helvetica Neue', sans-serif;
     -fx-background-color: #0E0C10;
-    -fx-text-fill: #F0EAFF;
+    -fx-text-fill: #FFFFFF;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
 }
 
 /* ---- Global Labels --------------------------------------- */
@@ -37,6 +38,11 @@
 .text-field:focused, .password-field:focused, .text-area:focused {
     -fx-border-color: #C084FC;
     -fx-background-color: #1F1B2A;
+}
+
+.button:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
 }
 
 /* ---- Global Buttons -------------------------------------- */
@@ -130,7 +136,7 @@
 .auth-title {
     -fx-font-size: 22px;
     -fx-font-weight: bold;
-    -fx-text-fill: #F0EAFF;
+    -fx-text-fill: #FFFFFF;
 }
 
 .auth-subtitle {
@@ -560,47 +566,37 @@
     -fx-text-fill: #F0EAFF;
 }
 
-/* ── TabPane Noise / Playlist ──────────────────────────── */
+/* ── Audio Tab Bar (toggle buttons) ─────────────────────── */
 
-.audio-tab-pane {
-    -fx-tab-min-height: 30;
-    -fx-tab-max-height: 30;
-}
-
-.audio-tab-pane .tab-header-area {
-    -fx-padding: 0 0 0 0;
-}
-
-.audio-tab-pane .tab-header-area .tab-header-background {
+.audio-tab-bar {
     -fx-background-color: #140F1C;
-    -fx-background-radius: 8 8 0 0;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-border-color: #2D2936;
+    -fx-border-width: 1;
+    -fx-padding: 3;
 }
 
-.audio-tab-pane .tab {
+.audio-tab-btn {
     -fx-background-color: transparent;
     -fx-text-fill: #7C6E8A;
-    -fx-padding: 6 18 6 18;
     -fx-font-size: 12px;
     -fx-font-weight: bold;
     -fx-cursor: hand;
-    -fx-background-insets: 0;
+    -fx-padding: 6 10 6 10;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
     -fx-border-color: transparent;
 }
 
-.audio-tab-pane .tab:selected {
-    -fx-background-color: #2D2936;
-    -fx-text-fill: #C084FC;
-    -fx-background-radius: 6 6 0 0;
-}
-
-.audio-tab-pane .tab:hover {
+.audio-tab-btn:hover {
+    -fx-background-color: #1A1722;
     -fx-text-fill: #F0EAFF;
 }
 
-.audio-tab-pane .tab-content-area {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-padding: 0;
+.audio-tab-btn.active {
+    -fx-background-color: #2D2936;
+    -fx-text-fill: #C084FC;
 }
 
 .audio-tab-content {
@@ -644,6 +640,37 @@
 .noise-btn-active:hover {
     -fx-background-color: #261A3C;
     -fx-border-color: #D0A0FF;
+}
+
+/* ── Audio Toggle Buttons (Loop / Shuffle) ─────────────── */
+
+.audio-toggle-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #7C6E8A;
+    -fx-font-size: 8px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-pref-width: 22;
+    -fx-pref-height: 22;
+    -fx-min-width: 22;
+    -fx-min-height: 22;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-border-color: #2D2936;
+    -fx-border-width: 1;
+    -fx-alignment: center;
+    -fx-padding: 0;
+}
+
+.audio-toggle-btn:hover {
+    -fx-background-color: #2D2936;
+    -fx-text-fill: #F0EAFF;
+}
+
+.audio-toggle-btn.active {
+    -fx-background-color: #1F1630;
+    -fx-text-fill: #C084FC;
+    -fx-border-color: #C084FC;
 }
 
 /* ── Divider ────────────────────────────────────────────── */
@@ -861,12 +888,12 @@
 .audio-ctrl-btn {
     -fx-background-color: transparent;
     -fx-text-fill: #7C6E8A;
-    -fx-font-size: 12px;
+    -fx-font-size: 11px;
     -fx-cursor: hand;
-    -fx-pref-width: 32;
-    -fx-pref-height: 32;
-    -fx-min-width: 32;
-    -fx-min-height: 32;
+    -fx-pref-width: 26;
+    -fx-pref-height: 26;
+    -fx-min-width: 26;
+    -fx-min-height: 26;
     -fx-border-radius: 50%;
     -fx-background-radius: 50%;
     -fx-border-color: transparent;
@@ -888,12 +915,12 @@
 .audio-play-btn {
     -fx-background-color: #C084FC;
     -fx-text-fill: #0E0C10;
-    -fx-font-size: 15px;
+    -fx-font-size: 13px;
     -fx-font-weight: bold;
-    -fx-pref-width: 38;
-    -fx-pref-height: 38;
-    -fx-min-width: 38;
-    -fx-min-height: 38;
+    -fx-pref-width: 32;
+    -fx-pref-height: 32;
+    -fx-min-width: 32;
+    -fx-min-height: 32;
     -fx-border-radius: 50%;
     -fx-background-radius: 50%;
     -fx-border-color: transparent;
