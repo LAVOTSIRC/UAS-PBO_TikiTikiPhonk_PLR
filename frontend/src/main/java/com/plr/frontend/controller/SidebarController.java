@@ -11,9 +11,6 @@ public class SidebarController {
 
     @FXML private Label usernameInitialLabel;
     @FXML private Button tasksNavBtn;
-    @FXML private Button timerNavBtn;
-    @FXML private Button audioNavBtn;
-    @FXML private Button settingsNavBtn;
     @FXML private Button themeToggleBtn;
     @FXML private Label themeIconLabel;
     @FXML private Button logoutBtn;
@@ -49,20 +46,7 @@ public class SidebarController {
         setActiveButton(tasksNavBtn);
     }
 
-    @FXML
-    public void handleTimerNav() {
-        setActiveButton(timerNavBtn);
-    }
 
-    @FXML
-    public void handleAudioNav() {
-        setActiveButton(audioNavBtn);
-    }
-
-    @FXML
-    public void handleSettings() {
-        setActiveButton(settingsNavBtn);
-    }
 
     @FXML
     public void handleLogout() {
@@ -71,7 +55,7 @@ public class SidebarController {
     }
 
     private void setActiveButton(Button active) {
-        Button[] allBtns = {tasksNavBtn, timerNavBtn, audioNavBtn, settingsNavBtn};
+        Button[] allBtns = {tasksNavBtn};
         for (Button btn : allBtns) {
             if (btn != null) {
                 btn.getStyleClass().remove("active");

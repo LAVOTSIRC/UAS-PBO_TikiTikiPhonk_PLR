@@ -1,9 +1,10 @@
 package com.plr.backend.dto;
 
+import com.plr.backend.model.TaskCategory;
 import com.plr.backend.model.TaskStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class TaskRequest {
     @NotBlank(message = "Judul tidak boleh kosong")
@@ -14,7 +15,9 @@ public class TaskRequest {
     @NotNull(message = "Status tidak boleh null")
     private TaskStatus status;
 
-    private LocalDate dueDate;
+    private TaskCategory category;
+
+    private LocalDateTime dueDate;
 
     public TaskRequest() {}
 
@@ -24,6 +27,8 @@ public class TaskRequest {
     public void setDescription(String description) { this.description = description; }
     public TaskStatus getStatus() { return status; }
     public void setStatus(TaskStatus status) { this.status = status; }
-    public LocalDate getDueDate() { return dueDate; }
-    public void setDueDate(LocalDate dueDate) { this.dueDate = dueDate; }
+    public TaskCategory getCategory() { return category; }
+    public void setCategory(TaskCategory category) { this.category = category; }
+    public LocalDateTime getDueDate() { return dueDate; }
+    public void setDueDate(LocalDateTime dueDate) { this.dueDate = dueDate; }
 }

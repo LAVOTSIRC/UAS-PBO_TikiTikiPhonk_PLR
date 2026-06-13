@@ -14,6 +14,7 @@ public class PomodoroRequest {
 
     private LocalDateTime startTime;
     private String notes;
+    private Long taskId;
 
     public PomodoroRequest() {}
 
@@ -25,4 +26,6 @@ public class PomodoroRequest {
     public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
+    public Long getTaskId() { return taskId; }
+    public void setTaskId(Long taskId) { this.taskId = taskId; }
 }

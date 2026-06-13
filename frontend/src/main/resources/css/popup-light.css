@@ -1,0 +1,51 @@
+/* popup-light.css - Loaded dynamically for popups in Light Mode */
+
+/* ComboBox Popup */
+.combo-box-popup .list-view {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E2D9EE;
+}
+.combo-box-popup .list-cell {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #1E1A29;
+}
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: #F8F6FA;
+}
+
+/* DatePicker Popup */
+.date-picker-popup {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E2D9EE;
+}
+.date-picker-popup .month-year-pane {
+    -fx-background-color: #F8F6FA;
+}
+.date-picker-popup .month-year-pane .label {
+    -fx-text-fill: #1E1A29;
+}
+.date-picker-popup .spinner-label {
+    -fx-text-fill: #1E1A29;
+}
+.date-picker-popup .day-cell {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #1E1A29;
+}
+.date-picker-popup .day-cell:hover {
+    -fx-background-color: #F3E8FF;
+}
+.date-picker-popup .day-cell:selected {
+    -fx-background-color: #7C3AED;
+    -fx-text-fill: #FFFFFF;
+}
+.date-picker-popup .day-name-cell {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #7C6E8A;
+}
+.date-picker-popup .week-number-cell {
+    -fx-text-fill: #7C6E8A;
+}
+.date-picker-popup .left-button:hover,
+.date-picker-popup .right-button:hover {
+    -fx-background-color: #E2D9EE;
+}

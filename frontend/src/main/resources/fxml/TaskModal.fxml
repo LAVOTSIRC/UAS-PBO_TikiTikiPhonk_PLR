@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.plr.frontend.controller.TaskModalController"
+      styleClass="task-modal"
+      spacing="16" prefWidth="480">
+
+    <Label fx:id="modalTitleLabel" text="Detail Tugas" styleClass="task-modal-title"/>
+
+    <VBox spacing="5">
+        <Label text="Judul Tugas" styleClass="task-modal-label"/>
+        <TextField fx:id="titleField" promptText="Masukkan judul tugas" styleClass="task-input"/>
+    </VBox>
+
+    <VBox spacing="5">
+        <Label text="Kategori" styleClass="task-modal-label"/>
+        <ComboBox fx:id="categoryComboBox" maxWidth="Infinity" styleClass="todo-combo-box"/>
+    </VBox>
+
+    <VBox spacing="5">
+        <Label text="Tenggat Waktu (Tanggal &amp; Jam)" styleClass="task-modal-label"/>
+        <DatePicker fx:id="dueDatePicker" maxWidth="Infinity" styleClass="task-input"/>
+        <HBox spacing="12" alignment="CENTER_LEFT">
+            <VBox.margin><Insets top="5"/></VBox.margin>
+            <ComboBox fx:id="hourComboBox" prefWidth="100" styleClass="todo-combo-box" promptText="Jam"/>
+            <Label text=":" styleClass="task-modal-colon"/>
+            <ComboBox fx:id="minuteComboBox" prefWidth="100" styleClass="todo-combo-box" promptText="Mnt"/>
+        </HBox>
+    </VBox>
+
+    <VBox spacing="5">
+        <Label text="Deskripsi" styleClass="task-modal-label"/>
+        <TextArea fx:id="descriptionArea" promptText="Tulis deskripsi detail (opsional)" prefRowCount="4" wrapText="true" styleClass="task-input"/>
+    </VBox>
+
+    <Label fx:id="errorLabel" text="" styleClass="task-modal-error"/>
+
+    <HBox spacing="12" alignment="CENTER_RIGHT">
+        <Button fx:id="deleteBtn" text="Hapus Tugas" styleClass="task-modal-btn-delete" onAction="#handleDelete" visible="false"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button fx:id="cancelCompleteBtn" text="Batal Selesai" styleClass="task-modal-btn-cancel-complete" onAction="#handleCancelComplete" visible="false"/>
+        <Button fx:id="cancelBtn" text="Batal" styleClass="task-modal-btn-cancel" onAction="#handleCancel"/>
+        <Button fx:id="saveBtn" text="Simpan" styleClass="task-modal-btn-save" onAction="#handleSave"/>
+    </HBox>
+</VBox>

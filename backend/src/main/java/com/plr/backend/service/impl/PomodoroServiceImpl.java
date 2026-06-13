@@ -6,6 +6,7 @@ import com.plr.backend.model.PomodoroSession;
 import com.plr.backend.model.SessionType;
 import com.plr.backend.model.User;
 import com.plr.backend.repository.PomodoroSessionRepository;
+import com.plr.backend.repository.TaskRepository;
 import com.plr.backend.repository.UserRepository;
 import com.plr.backend.service.IPomodoroService;
 import com.plr.backend.service.score.BreakSessionScore;
@@ -30,6 +31,9 @@ public class PomodoroServiceImpl implements IPomodoroService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private TaskRepository taskRepository;
+
     @Override
     public PomodoroResponse logSession(PomodoroRequest request, String username) {
         User user = findUser(username);
@@ -41,6 +45,13 @@ public class PomodoroServiceImpl implements IPomodoroService {
             : LocalDateTime.now());
         session.setNotes(request.getNotes());
         session.setUser(user);
+
+        if (request.getTaskId() != null) {
+            taskRepository.findByIdAndUser(request.getTaskId(), user).ifPresent(task -> {
+                task.setTotalSessions(task.getTotalSessions() + 1);
+                taskRepository.save(task);
+            });
+        }
 
         SessionScoreCalculator calculator = getCalculator(session.getSessionType());
         int points = calculator.calculatePoints(session.getDurationMinutes());

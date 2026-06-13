@@ -31,6 +31,7 @@ public class TaskServiceImpl implements ITaskService {
         task.setTitle(request.getTitle());
         task.setDescription(request.getDescription());
         task.setStatus(request.getStatus());
+        task.setCategory(request.getCategory());
         task.setDueDate(request.getDueDate());
         task.setUser(user);
         Task saved = taskRepository.save(task);
@@ -55,6 +56,7 @@ public class TaskServiceImpl implements ITaskService {
         task.setTitle(request.getTitle());
         task.setDescription(request.getDescription());
         task.setStatus(request.getStatus());
+        task.setCategory(request.getCategory());
         task.setDueDate(request.getDueDate());
         Task updated = taskRepository.save(task);
         return toResponse(updated);
@@ -88,7 +90,9 @@ public class TaskServiceImpl implements ITaskService {
         response.setTitle(task.getTitle());
         response.setDescription(task.getDescription());
         response.setStatus(task.getStatus());
+        response.setCategory(task.getCategory());
         response.setDueDate(task.getDueDate());
+        response.setTotalSessions(task.getTotalSessions());
         response.setCreatedAt(task.getCreatedAt());
         response.setUpdatedAt(task.getUpdatedAt());
         return response;

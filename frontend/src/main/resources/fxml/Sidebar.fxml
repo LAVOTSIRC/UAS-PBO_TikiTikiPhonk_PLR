@@ -41,40 +41,6 @@
         <tooltip><Tooltip text="To-Do List"/></tooltip>
     </Button>
 
-    <!-- Nav: Timer -->
-    <Button fx:id="timerNavBtn"
-            styleClass="sidebar-nav-btn"
-            onAction="#handleTimerNav">
-        <graphic>
-            <Label text="⏱"
-                   style="-fx-font-size:20px; -fx-background-color:transparent; -fx-padding:0;"/>
-        </graphic>
-        <VBox.margin><Insets bottom="4"/></VBox.margin>
-        <tooltip><Tooltip text="Pomodoro Timer"/></tooltip>
-    </Button>
-
-    <!-- Nav: Audio -->
-    <Button fx:id="audioNavBtn"
-            styleClass="sidebar-nav-btn"
-            onAction="#handleAudioNav">
-        <graphic>
-            <Label text="🎵"
-                   style="-fx-font-size:20px; -fx-background-color:transparent; -fx-padding:0;"/>
-        </graphic>
-        <VBox.margin><Insets bottom="4"/></VBox.margin>
-        <tooltip><Tooltip text="Audio"/></tooltip>
-    </Button>
-
-    <!-- Nav: Settings -->
-    <Button fx:id="settingsNavBtn"
-            styleClass="sidebar-nav-btn"
-            onAction="#handleSettings">
-        <graphic>
-            <Label text="⚙"
-                   style="-fx-font-size:20px; -fx-background-color:transparent; -fx-padding:0;"/>
-        </graphic>
-        <tooltip><Tooltip text="Pengaturan"/></tooltip>
-    </Button>
 
     <!-- Theme Toggle -->
     <Button fx:id="themeToggleBtn"
