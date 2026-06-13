@@ -59,3 +59,20 @@
 .date-picker-popup .right-button:hover {
     -fx-background-color: #E2D9EE !important;
 }
+
+/* Tanggal bulan lalu/berikutnya — Light Mode Popup */
+.date-picker-popup .day-cell.previous-month {
+    -fx-background-color: #EEE9F7 !important;
+    -fx-text-fill: #B8A8D4 !important;
+    -fx-font-style: italic !important;
+}
+.date-picker-popup .day-cell.next-month {
+    -fx-background-color: #EEE9F7 !important;
+    -fx-text-fill: #B8A8D4 !important;
+    -fx-font-style: italic !important;
+}
+.date-picker-popup .day-cell.previous-month:hover,
+.date-picker-popup .day-cell.next-month:hover {
+    -fx-background-color: #DDD4F0 !important;
+    -fx-text-fill: #9880BE !important;
+}
