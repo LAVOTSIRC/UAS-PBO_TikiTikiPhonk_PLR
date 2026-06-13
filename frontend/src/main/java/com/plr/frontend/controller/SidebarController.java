@@ -15,6 +15,9 @@ public class SidebarController {
     @FXML private Label themeIconLabel;
     @FXML private Button logoutBtn;
 
+    private Runnable onTasksNav;
+    private Runnable onProfileNav;
+
     @FXML
     public void initialize() {
         setActiveButton(tasksNavBtn);
@@ -44,6 +47,16 @@ public class SidebarController {
     @FXML
     public void handleTasksNav() {
         setActiveButton(tasksNavBtn);
+        if (onTasksNav != null) {
+            onTasksNav.run();
+        }
+    }
+
+    @FXML
+    public void handleProfileNav() {
+        if (onProfileNav != null) {
+            onProfileNav.run();
+        }
     }
 
 
@@ -66,5 +79,13 @@ public class SidebarController {
                 active.getStyleClass().add("active");
             }
         }
+    }
+
+    public void setOnTasksNav(Runnable onTasksNav) {
+        this.onTasksNav = onTasksNav;
+    }
+
+    public void setOnProfileNav(Runnable onProfileNav) {
+        this.onProfileNav = onProfileNav;
     }
 }

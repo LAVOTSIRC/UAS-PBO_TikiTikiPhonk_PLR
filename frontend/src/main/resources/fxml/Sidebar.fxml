@@ -24,7 +24,8 @@
     <Label fx:id="usernameInitialLabel"
            text="U"
            styleClass="sidebar-avatar"
-           alignment="CENTER">
+            alignment="CENTER"
+            onMouseClicked="#handleProfileNav">
         <VBox.margin><Insets top="8" bottom="16"/></VBox.margin>
         <tooltip><Tooltip text="Profil kamu"/></tooltip>
     </Label>
