@@ -2,46 +2,53 @@ package com.plr.frontend.controller;
 
 import com.plr.frontend.model.AudioTrack;
 import com.plr.frontend.model.NoiseType;
+import com.plr.frontend.model.Playlist;
 import com.plr.frontend.service.AudioPlayerService;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
-/**
- * AudioPanelController — Controller Layer (MVC).
- *
- * Tanggung jawab:
- * - Menginisialisasi binding antara komponen UI dan AudioPlayerService
- * - Menangani event dari tombol / slider
- * - Memperbarui UI sebagai respons terhadap callback dari service
- *
- * TIDAK boleh mengandung logika MediaPlayer secara langsung.
- * Semua operasi audio didelegasikan ke {@link AudioPlayerService}.
- */
 public class AudioPanelController {
 
-    // ── FXML Injections ────────────────────────────────────────────────────
+    @FXML private Button noiseTabBtn;
+    @FXML private Button playlistTabBtn;
 
-    // --- Noise Tab ---
+    @FXML private VBox noiseContent;
+    @FXML private VBox playlistContent;
+
     @FXML private Button whiteNoiseBtn;
     @FXML private Button brownNoiseBtn;
     @FXML private Button rainNoiseBtn;
     @FXML private Button forestNoiseBtn;
 
-    // --- Playlist Tab ---
-    @FXML private ListView<AudioTrack> playlistView;
-    @FXML private VBox                 emptyPlaylistLabel; // VBox placeholder "playlist kosong"
+    @FXML private ListView<Playlist>   playlistView;
+    @FXML private ListView<AudioTrack> trackView;
+    @FXML private VBox                 emptyPlaylistLabel;
+    @FXML private HBox                 backNavBar;
+    @FXML private Label                trackListTitle;
+    @FXML private Label                playlistHeader;
+    @FXML private Button               createPlaylistBtn;
+    @FXML private HBox                 playButtons;
+    @FXML private Button               addTracksBtn;
 
-    // --- Volume (shared) ---
+    @FXML private VBox       createForm;
+    @FXML private TextField  formNameField;
+    @FXML private TextArea   formDescField;
+    @FXML private ListView<String> formFileList;
+
     @FXML private Slider volumeSlider;
     @FXML private Label  volumeLabel;
 
-    // --- Player Bar (bottom) ---
+    @FXML private Label       playStateIcon;
     @FXML private Label       nowPlayingLabel;
     @FXML private Label       currentTimeLabel;
     @FXML private Label       totalDurationLabel;
@@ -50,56 +57,46 @@ public class AudioPanelController {
     @FXML private Button      playPauseBtn;
     @FXML private Button      nextBtn;
     @FXML private Button      stopBtn;
-
-    // ── Service ────────────────────────────────────────────────────────────
+    @FXML private Button      loopBtn;
+    @FXML private Button      shuffleBtn;
 
     private final AudioPlayerService audioService = new AudioPlayerService();
 
-    // ── Initialize ─────────────────────────────────────────────────────────
+    private Playlist viewingPlaylist = null;
+    private final List<File> pendingFiles = new ArrayList<>();
 
     @FXML
     public void initialize() {
         setupServiceCallbacks();
         setupVolumeSlider();
         setupPlaylistView();
+        setupTrackView();
+        setupModeButtons();
         resetPlayerBar();
+        showPlaylistList();
     }
 
-    // ── Setup Helpers ──────────────────────────────────────────────────────
-
-    /**
-     * Mendaftarkan semua callback dari service ke UI update yang sesuai.
-     */
     private void setupServiceCallbacks() {
-        // Progress: [progress, currentSec, totalSec]
         audioService.setOnProgressUpdate(data -> {
             audioProgressBar.setProgress(data[0]);
             currentTimeLabel.setText(formatTime(data[1]));
             totalDurationLabel.setText(formatTime(data[2]));
         });
 
-        // Track berubah → update label "Now Playing"
         audioService.setOnTrackChanged(name -> {
             nowPlayingLabel.setText(name);
         });
 
-        // State play/pause berubah → update ikon tombol
         audioService.setOnPlayStateChanged(playing -> {
-            playPauseBtn.setText(playing ? "\u23F8" : "\u25B6"); // ⏸ atau ▶
+            playPauseBtn.setText(playing ? "\u23F8" : "\u25B6");
             playPauseBtn.setDisable(false);
         });
 
-        // Track selesai → otomatis putar berikutnya
         audioService.setOnTrackEnded(() -> {
             audioService.nextTrack();
-            // Perbarui highlight item di playlist
-            playlistView.getSelectionModel().select(audioService.getCurrentIndex());
         });
     }
 
-    /**
-     * Menghubungkan slider volume ke service dan label persentase.
-     */
     private void setupVolumeSlider() {
         volumeSlider.setValue(audioService.getCurrentVolume());
         updateVolumeLabel(audioService.getCurrentVolume());
@@ -111,41 +108,275 @@ public class AudioPanelController {
         });
     }
 
-    /**
-     * Menghubungkan ListView playlist ke ObservableList dari service,
-     * serta listener untuk klik item agar langsung memutar track.
-     */
     private void setupPlaylistView() {
-        // Binding dua arah: ListView otomatis update saat playlist di service berubah
-        playlistView.setItems(audioService.getPlaylist());
+        playlistView.setItems(audioService.getPlaylists());
 
-        // Putar langsung saat item diklik
         playlistView.setOnMouseClicked(event -> {
             if (event.getClickCount() == 1) {
-                int idx = playlistView.getSelectionModel().getSelectedIndex();
-                if (idx >= 0) {
-                    clearNoiseActiveState();
-                    audioService.playTrackAt(idx);
-                    playPauseBtn.setDisable(false);
-                    updateEmptyPlaylistVisibility();
+                Playlist pl = playlistView.getSelectionModel().getSelectedItem();
+                if (pl != null) {
+                    showPlaylistTracks(pl);
                 }
             }
+        });
+
+        playlistView.setCellFactory(lv -> {
+            ListCell<Playlist> cell = new ListCell<>() {
+                @Override
+                protected void updateItem(Playlist pl, boolean empty) {
+                    super.updateItem(pl, empty);
+                    if (empty || pl == null) {
+                        setText(null);
+                        setGraphic(null);
+                    } else {
+                        Label nameLabel = new Label(pl.getName());
+                        nameLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #F0EAFF; -fx-font-weight: bold;");
+                        Label infoLabel = new Label(pl.getTrackCount() + " lagu" + (pl.getDescription().isEmpty() ? "" : " — " + pl.getDescription()));
+                        infoLabel.setStyle("-fx-font-size: 9px; -fx-text-fill: #7C6E8A;");
+                        VBox vb = new VBox(2, nameLabel, infoLabel);
+                        setGraphic(vb);
+                    }
+                }
+            };
+            return cell;
         });
 
         updateEmptyPlaylistVisibility();
     }
 
-    /** Mereset tampilan player bar ke kondisi awal. */
+    private void setupTrackView() {
+        trackView.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 1) {
+                Object target = event.getTarget();
+                boolean cellClicked = false;
+                if (target instanceof javafx.scene.Node) {
+                    javafx.scene.Node n = (javafx.scene.Node) target;
+                    while (n != null) {
+                        if (n instanceof ListCell) { cellClicked = true; break; }
+                        n = n.getParent();
+                    }
+                }
+                if (!cellClicked) return;
+                AudioTrack track = trackView.getSelectionModel().getSelectedItem();
+                if (track != null && viewingPlaylist != null) {
+                    int idx = viewingPlaylist.getTracks().indexOf(track);
+                    if (idx >= 0) {
+                        clearNoiseActiveState();
+                        audioService.playPlaylist(viewingPlaylist);
+                        audioService.playTrackAt(idx);
+                        playPauseBtn.setDisable(false);
+                    }
+                }
+            }
+        });
+
+        trackView.setCellFactory(lv -> {
+            ListCell<AudioTrack> cell = new ListCell<>() {
+                @Override
+                protected void updateItem(AudioTrack track, boolean empty) {
+                    super.updateItem(track, empty);
+                    if (empty || track == null) {
+                        setText(null);
+                    } else {
+                        setText(track.getDisplayName());
+                    }
+                }
+            };
+            return cell;
+        });
+    }
+
+    // ── View Switching ────────────────────────────────────
+
+    private void showPlaylistList() {
+        viewingPlaylist = null;
+        hideAllStackContent();
+        playlistView.setVisible(true);
+        playlistView.setManaged(true);
+        createPlaylistBtn.setVisible(true);
+        createPlaylistBtn.setManaged(true);
+        playButtons.setVisible(false);
+        playButtons.setManaged(false);
+        addTracksBtn.setVisible(true);
+        addTracksBtn.setManaged(true);
+        backNavBar.setVisible(false);
+        backNavBar.setManaged(false);
+        playlistHeader.setText("DAFTAR PLAYLIST");
+        updateEmptyPlaylistVisibility();
+        if (audioService.getPlaylists().isEmpty()) {
+            emptyPlaylistLabel.toFront();
+        }
+    }
+
+    private void showPlaylistTracks(Playlist pl) {
+        viewingPlaylist = pl;
+        hideAllStackContent();
+        trackView.setItems(pl.getTracks());
+        trackView.setVisible(true);
+        trackView.setManaged(true);
+        trackView.getSelectionModel().clearSelection();
+        createPlaylistBtn.setVisible(false);
+        createPlaylistBtn.setManaged(false);
+        playButtons.setVisible(true);
+        playButtons.setManaged(true);
+        addTracksBtn.setVisible(true);
+        addTracksBtn.setManaged(true);
+        backNavBar.setVisible(true);
+        backNavBar.setManaged(true);
+        trackListTitle.setText(pl.getName());
+        playlistHeader.setText("DAFTAR LAGU");
+        emptyPlaylistLabel.setVisible(false);
+        emptyPlaylistLabel.setManaged(false);
+    }
+
+    private void showCreateForm() {
+        hideAllStackContent();
+        createForm.setVisible(true);
+        createForm.setManaged(true);
+        createPlaylistBtn.setVisible(false);
+        createPlaylistBtn.setManaged(false);
+        playButtons.setVisible(false);
+        playButtons.setManaged(false);
+        addTracksBtn.setVisible(false);
+        addTracksBtn.setManaged(false);
+        backNavBar.setVisible(true);
+        backNavBar.setManaged(true);
+        trackListTitle.setText("Buat Playlist Baru");
+        playlistHeader.setText("");
+        emptyPlaylistLabel.setVisible(false);
+        emptyPlaylistLabel.setManaged(false);
+        formNameField.clear();
+        formDescField.clear();
+        pendingFiles.clear();
+        formFileList.setItems(FXCollections.observableArrayList());
+    }
+
+    private void hideAllStackContent() {
+        playlistView.setVisible(false); playlistView.setManaged(false);
+        trackView.setVisible(false);    trackView.setManaged(false);
+        createForm.setVisible(false);   createForm.setManaged(false);
+        emptyPlaylistLabel.setVisible(false); emptyPlaylistLabel.setManaged(false);
+    }
+
+    @FXML
+    public void handleBackToPlaylists() {
+        if (createForm.isVisible()) {
+            showPlaylistList();
+        } else {
+            showPlaylistList();
+        }
+    }
+
+    // ── Form Handlers ──────────────────────────────────────
+
+    @FXML
+    public void handleCreatePlaylist() {
+        showCreateForm();
+    }
+
+    @FXML
+    public void handlePickFormFiles() {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Pilih File Audio");
+        fc.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("Audio Files (MP3, WAV)", "*.mp3", "*.wav"),
+            new FileChooser.ExtensionFilter("MP3 Files", "*.mp3"),
+            new FileChooser.ExtensionFilter("WAV Files", "*.wav")
+        );
+        Stage stage = (Stage) playlistView.getScene().getWindow();
+        List<File> files = fc.showOpenMultipleDialog(stage);
+        if (files != null) {
+            pendingFiles.addAll(files);
+            ObservableList<String> names = FXCollections.observableArrayList();
+            for (File f : pendingFiles) {
+                names.add(f.getName());
+            }
+            formFileList.setItems(names);
+        }
+    }
+
+    @FXML
+    public void handleSavePlaylist() {
+        String name = formNameField.getText().trim();
+        if (name.isEmpty()) {
+            formNameField.setStyle("-fx-border-color: #f38ba8; -fx-background-color:#1A1722; -fx-text-fill:#F0EAFF; -fx-border-radius:6; -fx-background-radius:6; -fx-padding:6 10; -fx-font-size:12px;");
+            return;
+        }
+        String desc = formDescField.getText().trim();
+        Playlist pl = new Playlist(name, desc);
+        for (File f : pendingFiles) {
+            pl.addTrack(new AudioTrack(f));
+        }
+        audioService.getPlaylists().add(pl);
+        showPlaylistTracks(pl);
+    }
+
+    @FXML
+    public void handleCancelCreate() {
+        showPlaylistList();
+    }
+
+    // ── Player Controls ────────────────────────────────────
+
     private void resetPlayerBar() {
         nowPlayingLabel.setText("Tidak ada audio");
         currentTimeLabel.setText("0:00");
         totalDurationLabel.setText("0:00");
         audioProgressBar.setProgress(0);
         playPauseBtn.setDisable(true);
-        playPauseBtn.setText("\u25B6"); // ▶
+        playPauseBtn.setText("\u25B6");
+        if (playStateIcon != null) playStateIcon.setText("\u25B6");
     }
 
-    // ── Noise Tab Event Handlers ───────────────────────────────────────────
+    private void setupModeButtons() {
+        audioService.setOnModeChanged(() -> updateModeButtons());
+        updateModeButtons();
+    }
+
+    private void updateModeButtons() {
+        switch (audioService.getLoopMode()) {
+            case NONE -> {
+                loopBtn.setText("LP");
+                loopBtn.getStyleClass().remove("active");
+            }
+            case ALL -> {
+                loopBtn.setText("LP");
+                if (!loopBtn.getStyleClass().contains("active"))
+                    loopBtn.getStyleClass().add("active");
+            }
+            case ONE -> {
+                loopBtn.setText("L1");
+                if (!loopBtn.getStyleClass().contains("active"))
+                    loopBtn.getStyleClass().add("active");
+            }
+        }
+        if (audioService.isShuffle()) {
+            if (!shuffleBtn.getStyleClass().contains("active"))
+                shuffleBtn.getStyleClass().add("active");
+        } else {
+            shuffleBtn.getStyleClass().remove("active");
+        }
+    }
+
+    @FXML
+    public void showNoiseTab() {
+        setActiveTab(noiseTabBtn, playlistTabBtn, noiseContent, playlistContent);
+    }
+
+    @FXML
+    public void showPlaylistTab() {
+        setActiveTab(playlistTabBtn, noiseTabBtn, playlistContent, noiseContent);
+    }
+
+    private void setActiveTab(Button activeBtn, Button inactiveBtn,
+                              VBox activeContent, VBox inactiveContent) {
+        activeBtn.getStyleClass().add("active");
+        inactiveBtn.getStyleClass().remove("active");
+        activeContent.setVisible(true);
+        activeContent.setManaged(true);
+        inactiveContent.setVisible(false);
+        inactiveContent.setManaged(false);
+    }
 
     @FXML
     public void playWhiteNoise() {
@@ -167,11 +398,6 @@ public class AudioPanelController {
         handleNoiseButton(forestNoiseBtn, NoiseType.FOREST);
     }
 
-    /**
-     * Menangani klik tombol noise:
-     * - Jika tombol ini sudah aktif → toggle play/pause
-     * - Jika tombol lain → ganti noise & set active style
-     */
     private void handleNoiseButton(Button clickedBtn, NoiseType type) {
         setNoiseActiveState(clickedBtn);
         clearPlaylistSelection();
@@ -179,46 +405,44 @@ public class AudioPanelController {
         playPauseBtn.setDisable(false);
     }
 
-    // ── Playlist Tab Event Handlers ────────────────────────────────────────
-
-    /**
-     * Membuka FileChooser untuk import file audio lokal.
-     * File yang dipilih langsung diputar dan ditambahkan ke playlist.
-     */
     @FXML
-    public void handleImportMusic() {
+    public void handleSequentialPlay() {
+        if (viewingPlaylist == null || viewingPlaylist.getTracks().isEmpty()) return;
+        clearNoiseActiveState();
+        audioService.playPlaylist(viewingPlaylist);
+        playPauseBtn.setDisable(false);
+    }
+
+    @FXML
+    public void handleShufflePlay() {
+        if (viewingPlaylist == null || viewingPlaylist.getTracks().isEmpty()) return;
+        clearNoiseActiveState();
+        audioService.playPlaylistShuffled(viewingPlaylist);
+        playPauseBtn.setDisable(false);
+    }
+
+    @FXML
+    public void handleAddTracks() {
+        if (viewingPlaylist == null) return;
+
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Import File Audio");
+        fileChooser.setTitle("Tambah File Audio ke \"" + viewingPlaylist.getName() + "\"");
         fileChooser.getExtensionFilters().addAll(
             new FileChooser.ExtensionFilter("Audio Files (MP3, WAV)", "*.mp3", "*.wav"),
             new FileChooser.ExtensionFilter("MP3 Files", "*.mp3"),
             new FileChooser.ExtensionFilter("WAV Files", "*.wav")
         );
 
-        // Ambil stage dari salah satu komponen yang ada
         Stage stage = (Stage) playlistView.getScene().getWindow();
         List<File> selectedFiles = fileChooser.showOpenMultipleDialog(stage);
 
         if (selectedFiles != null && !selectedFiles.isEmpty()) {
-            int firstNewIndex = audioService.getPlaylist().size();
-
             for (File file : selectedFiles) {
-                AudioTrack track = new AudioTrack(file);
-                audioService.addTrack(track);
+                viewingPlaylist.addTrack(new AudioTrack(file));
             }
-
-            updateEmptyPlaylistVisibility();
-
-            // Langsung putar file pertama yang baru diimport
-            clearNoiseActiveState();
-            audioService.playTrackAt(firstNewIndex);
-            playlistView.getSelectionModel().select(firstNewIndex);
-            playlistView.scrollTo(firstNewIndex);
-            playPauseBtn.setDisable(false);
+            trackView.setItems(viewingPlaylist.getTracks());
         }
     }
-
-    // ── Audio Controls Event Handlers ─────────────────────────────────────
 
     @FXML
     public void handlePlayPause() {
@@ -231,41 +455,37 @@ public class AudioPanelController {
         clearNoiseActiveState();
         clearPlaylistSelection();
         playPauseBtn.setDisable(true);
-        playPauseBtn.setText("\u25B6"); // ▶
+        playPauseBtn.setText("\u25B6");
     }
 
     @FXML
     public void handleNext() {
         if (audioService.isNoiseMode() || audioService.getPlaylist().isEmpty()) return;
         audioService.nextTrack();
-        playlistView.getSelectionModel().select(audioService.getCurrentIndex());
-        playlistView.scrollTo(audioService.getCurrentIndex());
     }
 
     @FXML
     public void handlePrevious() {
         if (audioService.isNoiseMode() || audioService.getPlaylist().isEmpty()) return;
         audioService.previousTrack();
-        playlistView.getSelectionModel().select(audioService.getCurrentIndex());
-        playlistView.scrollTo(audioService.getCurrentIndex());
     }
 
-    // ── Cleanup ────────────────────────────────────────────────────────────
+    @FXML
+    public void handleToggleLoop() {
+        audioService.toggleLoopMode();
+    }
 
-    /**
-     * Dipanggil saat controller dihancurkan.
-     * Memastikan MediaPlayer dilepaskan dengan benar.
-     */
+    @FXML
+    public void handleToggleShuffle() {
+        audioService.toggleShuffle();
+    }
+
     public void shutdown() {
         audioService.dispose();
     }
 
-    // ── UI State Helpers ───────────────────────────────────────────────────
+    // ── Helpers ────────────────────────────────────────────
 
-    /**
-     * Mengatur tombol noise mana yang aktif (dengan style "active"),
-     * dan menghapus style "active" dari semua tombol lainnya.
-     */
     private void setNoiseActiveState(Button activeBtn) {
         Button[] noiseBtns = { whiteNoiseBtn, brownNoiseBtn, rainNoiseBtn, forestNoiseBtn };
         for (Button btn : noiseBtns) {
@@ -276,29 +496,21 @@ public class AudioPanelController {
         }
     }
 
-    /** Menghapus semua highlight dari tombol noise. */
     private void clearNoiseActiveState() {
         setNoiseActiveState(null);
     }
 
-    /** Menghapus seleksi di playlist. */
     private void clearPlaylistSelection() {
         playlistView.getSelectionModel().clearSelection();
+        trackView.getSelectionModel().clearSelection();
     }
 
-    /** Menampilkan atau menyembunyikan label placeholder "playlist kosong". */
     private void updateEmptyPlaylistVisibility() {
-        boolean empty = audioService.getPlaylist().isEmpty();
+        boolean empty = audioService.getPlaylists().isEmpty();
         emptyPlaylistLabel.setVisible(empty);
         emptyPlaylistLabel.setManaged(empty);
     }
 
-    /**
-     * Memformat detik menjadi format "M:SS".
-     *
-     * @param totalSeconds total detik
-     * @return string dalam format "1:05"
-     */
     private String formatTime(double totalSeconds) {
         if (totalSeconds < 0 || Double.isNaN(totalSeconds)) return "0:00";
         int minutes = (int) totalSeconds / 60;
@@ -306,7 +518,6 @@ public class AudioPanelController {
         return String.format("%d:%02d", minutes, seconds);
     }
 
-    /** Memperbarui label volume dengan persentase. */
     private void updateVolumeLabel(double volume) {
         volumeLabel.setText((int) (volume * 100) + "%");
     }
