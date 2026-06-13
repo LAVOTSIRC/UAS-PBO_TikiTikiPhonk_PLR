@@ -9,6 +9,16 @@ Proyek ini dikembangkan oleh kelompok **PLR - Pemuda Legend Revolusioner** yang 
 4. Cristoval Pratama Siahaan (241401057)
 5. M. Zidan Ruriano AG (241401063)
 
+Aplikasi ini dibangun dengan ketentuan dan spesifikasi berikut:
+1. Antarmuka aplikasi dibangun menggunakan JavaFX.
+2. REST API dibangun menggunakan Spring Boot.
+3. Penerapan arsitektur MVC (Model-View-Controller) dengan pemisahan layer Service dan Repository untuk pengelolaan logika bisnis dan akses database.
+4. Pengelolaan database menggunakan H2 Database.
+5. Implementasi ORM menggunakan JPA/Hibernate untuk proses penyimpanan dan pengambilan data.
+6. Penerapan validasi data (Validation) pada input pengguna dan proses bisnis aplikasi.
+7. Implementasi keamanan aplikasi (Security) untuk autentikasi dan otorisasi pengguna.
+8. Penerapan empat pilar PBO (Encapsulation, Inheritance, Polymorphism, dan Abstraction).
+
 ---
 
 ## 🌟 Fitur Utama
