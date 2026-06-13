@@ -1,51 +1,61 @@
-/* popup-light.css - Loaded dynamically for popups in Light Mode */
+/* popup-light.css - Loaded dynamically for popups in Light Mode
+   !important digunakan agar light mode selalu menang atas dark mode
+   dari todo-additions.css pada popup scene terpisah. */
 
 /* ComboBox Popup */
 .combo-box-popup .list-view {
-    -fx-background-color: #FFFFFF;
-    -fx-border-color: #E2D9EE;
+    -fx-background-color: #FFFFFF !important;
+    -fx-border-color: #E2D9EE !important;
 }
 .combo-box-popup .list-cell {
-    -fx-background-color: #FFFFFF;
-    -fx-text-fill: #1E1A29;
+    -fx-background-color: #FFFFFF !important;
+    -fx-text-fill: #1E1A29 !important;
 }
 .combo-box-popup .list-cell:hover {
-    -fx-background-color: #F8F6FA;
+    -fx-background-color: #F8F6FA !important;
 }
 
 /* DatePicker Popup */
 .date-picker-popup {
-    -fx-background-color: #FFFFFF;
-    -fx-border-color: #E2D9EE;
+    -fx-background-color: #FFFFFF !important;
+    -fx-border-color: #E2D9EE !important;
 }
 .date-picker-popup .month-year-pane {
-    -fx-background-color: #F8F6FA;
+    -fx-background-color: #F8F6FA !important;
 }
 .date-picker-popup .month-year-pane .label {
-    -fx-text-fill: #1E1A29;
+    -fx-text-fill: #1E1A29 !important;
 }
 .date-picker-popup .spinner-label {
-    -fx-text-fill: #1E1A29;
+    -fx-text-fill: #1E1A29 !important;
 }
 .date-picker-popup .day-cell {
-    -fx-background-color: #FFFFFF;
-    -fx-text-fill: #1E1A29;
+    -fx-background-color: #FFFFFF !important;
+    -fx-text-fill: #1E1A29 !important;
 }
 .date-picker-popup .day-cell:hover {
-    -fx-background-color: #F3E8FF;
+    -fx-background-color: #F3E8FF !important;
 }
 .date-picker-popup .day-cell:selected {
-    -fx-background-color: #7C3AED;
-    -fx-text-fill: #FFFFFF;
+    -fx-background-color: #7C3AED !important;
+    -fx-text-fill: #FFFFFF !important;
+}
+.date-picker-popup .day-cell:disabled {
+    -fx-background-color: #F0EEF3 !important;
+    -fx-text-fill: #B0A3C6 !important;
 }
 .date-picker-popup .day-name-cell {
-    -fx-background-color: #FFFFFF;
-    -fx-text-fill: #7C6E8A;
+    -fx-background-color: #FFFFFF !important;
+    -fx-text-fill: #7C6E8A !important;
 }
 .date-picker-popup .week-number-cell {
-    -fx-text-fill: #7C6E8A;
+    -fx-text-fill: #7C6E8A !important;
+}
+.date-picker-popup .left-button,
+.date-picker-popup .right-button {
+    -fx-background-color: transparent !important;
 }
 .date-picker-popup .left-button:hover,
 .date-picker-popup .right-button:hover {
-    -fx-background-color: #E2D9EE;
+    -fx-background-color: #E2D9EE !important;
 }

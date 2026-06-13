@@ -5,6 +5,7 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
@@ -34,9 +35,9 @@
         <DatePicker fx:id="dueDatePicker" maxWidth="Infinity" styleClass="task-input"/>
         <HBox spacing="12" alignment="CENTER_LEFT">
             <VBox.margin><Insets top="5"/></VBox.margin>
-            <ComboBox fx:id="hourComboBox" prefWidth="100" styleClass="todo-combo-box" promptText="Jam"/>
+            <Spinner fx:id="hourSpinner" prefWidth="100" editable="true" styleClass="todo-spinner"/>
             <Label text=":" styleClass="task-modal-colon"/>
-            <ComboBox fx:id="minuteComboBox" prefWidth="100" styleClass="todo-combo-box" promptText="Mnt"/>
+            <Spinner fx:id="minuteSpinner" prefWidth="100" editable="true" styleClass="todo-spinner"/>
         </HBox>
     </VBox>
 
