@@ -9,6 +9,7 @@ public class TaskClientDto {
     private String status;
     private String category;
     private LocalDateTime dueDate;
+    private Integer totalSessions;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -26,6 +27,8 @@ public class TaskClientDto {
     public void setCategory(String category) { this.category = category; }
     public LocalDateTime getDueDate() { return dueDate; }
     public void setDueDate(LocalDateTime dueDate) { this.dueDate = dueDate; }
+    public Integer getTotalSessions() { return totalSessions; }
+    public void setTotalSessions(Integer totalSessions) { this.totalSessions = totalSessions; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

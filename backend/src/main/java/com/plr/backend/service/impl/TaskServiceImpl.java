@@ -92,6 +92,7 @@ public class TaskServiceImpl implements ITaskService {
         response.setStatus(task.getStatus());
         response.setCategory(task.getCategory());
         response.setDueDate(task.getDueDate());
+        response.setTotalSessions(task.getTotalSessions());
         response.setCreatedAt(task.getCreatedAt());
         response.setUpdatedAt(task.getUpdatedAt());
         return response;

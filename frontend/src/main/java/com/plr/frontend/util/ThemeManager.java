@@ -28,10 +28,17 @@ public class ThemeManager {
 
     public void applyToScene(Scene scene) {
         if (scene == null) return;
+        
+        String popupLightCss = getClass().getResource("/css/popup-light.css").toExternalForm();
+        
         if (lightMode) {
             scene.getRoot().getStyleClass().add("light-mode");
+            if (!scene.getStylesheets().contains(popupLightCss)) {
+                scene.getStylesheets().add(popupLightCss);
+            }
         } else {
             scene.getRoot().getStyleClass().remove("light-mode");
+            scene.getStylesheets().remove(popupLightCss);
         }
     }
 }

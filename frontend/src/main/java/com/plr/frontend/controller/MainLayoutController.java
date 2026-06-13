@@ -27,18 +27,18 @@ public class MainLayoutController {
         if (timerPanelController != null) {
             timerPanelController.loadSessionHistory();
         }
-
         if (todoPanelController != null) {
             todoPanelController.setOnTasksChanged(() -> {
-                String activeTask = todoPanelController.getFirstActiveTask();
-                if (timerPanelController != null) {
-                    timerPanelController.setActiveTask(activeTask);
-                }
+                // Jangan otomatis set active task lagi, biarkan user yang milih manual via focusBtn
             });
             todoPanelController.loadTasks(() -> {
-                String activeTask = todoPanelController.getFirstActiveTask();
+                // Kosongkan
+            });
+            
+            todoPanelController.setOnFocusTaskRequested(taskDto -> {
                 if (timerPanelController != null) {
-                    timerPanelController.setActiveTask(activeTask);
+                    timerPanelController.setActiveTask(taskDto.getTitle());
+                    timerPanelController.setFocusedTaskId(taskDto.getId());
                 }
             });
         }
@@ -48,18 +48,28 @@ public class MainLayoutController {
         if (instance == null || instance.globalStatusLabel == null) return;
         
         Platform.runLater(() -> {
+            boolean isLight = com.plr.frontend.util.ThemeManager.getInstance().isLightMode();
+            String bgColor = isLight ? "#FFFFFF" : "#2D2936";
+            String defaultText = isLight ? "#1E1A29" : "#F0EAFF";
+            String undoText = isLight ? "#7C3AED" : "#C084FC";
+            String dropShadow = isLight ? "rgba(0,0,0,0.1)" : "rgba(0,0,0,0.5)";
+
             instance.globalStatusLabel.setText(text);
             instance.globalStatusLabel.setVisible(true);
             
             if (isUndoOption && undoAction != null) {
-                instance.globalStatusLabel.setStyle("-fx-background-color: #2D2936; -fx-text-fill: #C084FC; -fx-padding: 10 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand; -fx-underline: true; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 10, 0, 0, 5);");
+                instance.globalStatusLabel.setStyle(String.format(
+                    "-fx-background-color: %s; -fx-text-fill: %s; -fx-padding: 10 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand; -fx-underline: true; -fx-effect: dropshadow(three-pass-box, %s, 10, 0, 0, 5);",
+                    bgColor, undoText, dropShadow));
                 instance.globalStatusLabel.setOnMouseClicked(e -> {
                     undoAction.run();
                     instance.globalStatusLabel.setVisible(false);
                     instance.globalStatusLabel.setOnMouseClicked(null);
                 });
             } else {
-                instance.globalStatusLabel.setStyle("-fx-background-color: #2D2936; -fx-text-fill: #F0EAFF; -fx-padding: 10 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: default; -fx-underline: false; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 10, 0, 0, 5);");
+                instance.globalStatusLabel.setStyle(String.format(
+                    "-fx-background-color: %s; -fx-text-fill: %s; -fx-padding: 10 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: default; -fx-underline: false; -fx-effect: dropshadow(three-pass-box, %s, 10, 0, 0, 5);",
+                    bgColor, defaultText, dropShadow));
                 instance.globalStatusLabel.setOnMouseClicked(null);
             }
             

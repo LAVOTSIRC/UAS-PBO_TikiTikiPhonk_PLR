@@ -12,6 +12,7 @@ public class TaskResponse {
     private TaskStatus status;
     private TaskCategory category;
     private LocalDateTime dueDate;
+    private int totalSessions;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -29,6 +30,8 @@ public class TaskResponse {
     public void setCategory(TaskCategory category) { this.category = category; }
     public LocalDateTime getDueDate() { return dueDate; }
     public void setDueDate(LocalDateTime dueDate) { this.dueDate = dueDate; }
+    public int getTotalSessions() { return totalSessions; }
+    public void setTotalSessions(int totalSessions) { this.totalSessions = totalSessions; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

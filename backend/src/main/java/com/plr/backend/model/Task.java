@@ -28,6 +28,9 @@ public class Task extends BaseEntity {
     @Column(length = 20)
     private TaskCategory category;
 
+    @Column(name = "total_sessions")
+    private int totalSessions = 0;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -55,6 +58,8 @@ public class Task extends BaseEntity {
     public void setDueDate(LocalDateTime dueDate) { this.dueDate = dueDate; }
     public TaskCategory getCategory() { return category; }
     public void setCategory(TaskCategory category) { this.category = category; }
+    public int getTotalSessions() { return totalSessions; }
+    public void setTotalSessions(int totalSessions) { this.totalSessions = totalSessions; }
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
 

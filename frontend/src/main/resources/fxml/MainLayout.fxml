@@ -37,7 +37,7 @@
 
     <!-- Global Notification Overlay -->
     <VBox alignment="BOTTOM_CENTER" StackPane.alignment="BOTTOM_CENTER" pickOnBounds="false" maxWidth="400" maxHeight="100">
-        <StackPane.margin><javafx.geometry.Insets bottom="10"/></StackPane.margin>
+        <StackPane.margin><javafx.geometry.Insets bottom="60"/></StackPane.margin>
         <Label fx:id="globalStatusLabel" text="" visible="false"
                style="-fx-background-color: #2D2936; -fx-text-fill: #F0EAFF; -fx-padding: 10 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 10, 0, 0, 5);"/>
     </VBox>

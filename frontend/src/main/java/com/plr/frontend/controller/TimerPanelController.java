@@ -2,6 +2,7 @@ package com.plr.frontend.controller;
 
 import com.plr.frontend.util.ApiClient;
 import javafx.animation.KeyFrame;
+import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -51,6 +52,7 @@ public class TimerPanelController {
     private int completedFocusSessions = 0;
     private int focusCountInCycle = 0;
     private boolean modeInitialized = false;
+    private Long focusedTaskId;
 
     @FXML
     public void initialize() {
@@ -67,6 +69,10 @@ public class TimerPanelController {
                 activeTaskLabel.setVisible(false);
             }
         });
+    }
+
+    public void setFocusedTaskId(Long id) {
+        this.focusedTaskId = id;
     }
 
     @FXML
@@ -180,6 +186,9 @@ public class TimerPanelController {
         sessionData.put("durationMinutes", durationMinutes);
         sessionData.put("sessionType", sessionType);
         sessionData.put("startTime", sessionStartTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        if (focusedTaskId != null) {
+            sessionData.put("taskId", focusedTaskId);
+        }
 
         Task<Map<String, Object>> saveTask = new Task<>() {
             @Override
@@ -192,6 +201,9 @@ public class TimerPanelController {
             Map<String, Object> result = saveTask.getValue();
             Platform.runLater(() -> {
                 statusLabel.setText("\u2705 Sesi tersimpan!");
+                PauseTransition pt = new PauseTransition(Duration.seconds(5));
+                pt.setOnFinished(evt -> statusLabel.setText(""));
+                pt.play();
 
                 if ("FOCUS".equals(sessionType)) {
                     completedFocusSessions++;
@@ -211,6 +223,9 @@ public class TimerPanelController {
 
         saveTask.setOnFailed(e -> Platform.runLater(() -> {
             statusLabel.setText("\u26A0 Sesi selesai (gagal simpan)");
+            PauseTransition pt = new PauseTransition(Duration.seconds(5));
+            pt.setOnFinished(evt -> statusLabel.setText(""));
+            pt.play();
         }));
 
         new Thread(saveTask).start();

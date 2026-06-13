@@ -26,14 +26,13 @@
 
     <!-- Header Row -->
     <HBox alignment="CENTER_LEFT" spacing="8">
-        <Label text="TO-DO LIST" style="-fx-text-fill: #F0EAFF; -fx-font-weight: bold; -fx-font-size: 16px;"/>
+        <Label text="TO-DO LIST" styleClass="todo-title-label"/>
         <Region HBox.hgrow="ALWAYS"/>
     </HBox>
 
     <!-- Tombol Tambah Tugas Baru -->
     <Button text="+ Tambah Tugas"
             styleClass="add-task-btn"
-            style="-fx-background-color: #845EC2; -fx-text-fill: white; -fx-font-weight: bold;"
             maxWidth="Infinity"
             onAction="#handleOpenTaskModal">
         <VBox.margin><Insets top="15" bottom="10"/></VBox.margin>
@@ -91,7 +90,7 @@
         <VBox.margin><Insets top="8"/></VBox.margin>
         <Label text="SESI HARI INI" styleClass="panel-label"/>
         
-        <HBox spacing="16" alignment="CENTER_LEFT">
+        <VBox spacing="8" alignment="CENTER_LEFT">
             <VBox.margin><Insets top="8"/></VBox.margin>
             
             <HBox spacing="6" alignment="CENTER_LEFT">
@@ -99,20 +98,16 @@
                 <Label fx:id="sessionCountLabel" text="0 sesi" styleClass="session-stat"/>
             </HBox>
             
-            <Label text="|" styleClass="session-stat"/>
-            
             <HBox spacing="6" alignment="CENTER_LEFT">
                 <Label text="⏱" styleClass="session-stat"/>
                 <Label fx:id="focusMinutesLabel" text="0 mnt" styleClass="session-stat"/>
             </HBox>
             
-            <Label text="|" styleClass="session-stat"/>
-            
             <HBox spacing="6" alignment="CENTER_LEFT">
                 <Label text="✓" styleClass="session-stat"/>
                 <Label fx:id="tasksDoneLabel" text="0 tugas" styleClass="session-stat"/>
             </HBox>
-        </HBox>
+        </VBox>
     </VBox>
 
 </VBox>
