@@ -3,7 +3,7 @@ package com.plr.backend.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tasks")
@@ -22,7 +22,14 @@ public class Task extends BaseEntity {
     private TaskStatus status;
 
     @Column(name = "due_date")
-    private LocalDate dueDate;
+    private LocalDateTime dueDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private TaskCategory category;
+
+    @Column(name = "total_sessions")
+    private int totalSessions = 0;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -32,10 +39,11 @@ public class Task extends BaseEntity {
         this.status = TaskStatus.TODO;
     }
 
-    public Task(String title, String description, TaskStatus status, LocalDate dueDate, User user) {
+    public Task(String title, String description, TaskStatus status, TaskCategory category, LocalDateTime dueDate, User user) {
         this.title = title;
         this.description = description;
         this.status = status;
+        this.category = category;
         this.dueDate = dueDate;
         this.user = user;
     }
@@ -46,13 +54,17 @@ public class Task extends BaseEntity {
     public void setDescription(String description) { this.description = description; }
     public TaskStatus getStatus() { return status; }
     public void setStatus(TaskStatus status) { this.status = status; }
-    public LocalDate getDueDate() { return dueDate; }
-    public void setDueDate(LocalDate dueDate) { this.dueDate = dueDate; }
+    public LocalDateTime getDueDate() { return dueDate; }
+    public void setDueDate(LocalDateTime dueDate) { this.dueDate = dueDate; }
+    public TaskCategory getCategory() { return category; }
+    public void setCategory(TaskCategory category) { this.category = category; }
+    public int getTotalSessions() { return totalSessions; }
+    public void setTotalSessions(int totalSessions) { this.totalSessions = totalSessions; }
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
 
     @Override
     public String getEntityDescription() {
-        return "Task[id=" + getId() + ", title=" + title + ", status=" + status + "]";
+        return "Task[id=" + getId() + ", title=" + title + ", status=" + status + ", category=" + category + "]";
     }
 }

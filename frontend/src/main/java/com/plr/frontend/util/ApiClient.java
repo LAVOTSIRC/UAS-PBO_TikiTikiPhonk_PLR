@@ -3,6 +3,7 @@ package com.plr.frontend.util;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.plr.frontend.dto.TaskClientDto;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -90,7 +91,7 @@ public class ApiClient {
 
     // ========== TASK ENDPOINTS ==========
 
-    public List<Map<String, Object>> getTasks() throws Exception {
+    public List<TaskClientDto> getTasks() throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(BASE_URL + "/api/tasks"))
             .header("Authorization", SessionManager.getInstance().getAuthorizationHeader())
@@ -102,13 +103,13 @@ public class ApiClient {
 
         if (response.statusCode() == 200) {
             return objectMapper.readValue(response.body(),
-                new TypeReference<List<Map<String, Object>>>() {});
+                new TypeReference<List<TaskClientDto>>() {});
         } else {
             throw new Exception("Gagal mengambil tugas: " + response.statusCode());
         }
     }
 
-    public Map<String, Object> createTask(Map<String, Object> taskData) throws Exception {
+    public TaskClientDto createTask(TaskClientDto taskData) throws Exception {
         String json = objectMapper.writeValueAsString(taskData);
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -123,13 +124,13 @@ public class ApiClient {
 
         if (response.statusCode() == 201) {
             return objectMapper.readValue(response.body(),
-                new TypeReference<Map<String, Object>>() {});
+                new TypeReference<TaskClientDto>() {});
         } else {
             throw new Exception("Gagal membuat tugas: " + response.body());
         }
     }
 
-    public Map<String, Object> updateTask(Long id, Map<String, Object> taskData) throws Exception {
+    public TaskClientDto updateTask(Long id, TaskClientDto taskData) throws Exception {
         String json = objectMapper.writeValueAsString(taskData);
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -144,7 +145,7 @@ public class ApiClient {
 
         if (response.statusCode() == 200) {
             return objectMapper.readValue(response.body(),
-                new TypeReference<Map<String, Object>>() {});
+                new TypeReference<TaskClientDto>() {});
         } else {
             throw new Exception("Gagal memperbarui tugas: " + response.body());
         }
@@ -203,6 +204,118 @@ public class ApiClient {
                 new TypeReference<Map<String, Object>>() {});
         } else {
             throw new Exception("Gagal menyimpan sesi: " + response.body());
+        }
+    }
+
+    // ========== PLAYLIST ENDPOINTS ==========
+
+    public List<Map<String, Object>> getPlaylists() throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/api/playlists"))
+            .header("Authorization", SessionManager.getInstance().getAuthorizationHeader())
+            .GET()
+            .build();
+
+        HttpResponse<String> response = httpClient.send(request,
+            HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200) {
+            return objectMapper.readValue(response.body(),
+                new TypeReference<List<Map<String, Object>>>() {});
+        } else {
+            throw new Exception("Gagal mengambil playlist: " + response.statusCode());
+        }
+    }
+
+    public Map<String, Object> createPlaylist(Map<String, Object> playlistData) throws Exception {
+        String json = objectMapper.writeValueAsString(playlistData);
+
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/api/playlists"))
+            .header("Content-Type", "application/json")
+            .header("Authorization", SessionManager.getInstance().getAuthorizationHeader())
+            .POST(HttpRequest.BodyPublishers.ofString(json))
+            .build();
+
+        HttpResponse<String> response = httpClient.send(request,
+            HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 201) {
+            return objectMapper.readValue(response.body(),
+                new TypeReference<Map<String, Object>>() {});
+        } else {
+            throw new Exception("Gagal membuat playlist: " + response.body());
+        }
+    }
+
+    public void deletePlaylist(Long id) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/api/playlists/" + id))
+            .header("Authorization", SessionManager.getInstance().getAuthorizationHeader())
+            .DELETE()
+            .build();
+
+        HttpResponse<String> response = httpClient.send(request,
+            HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() != 204) {
+            throw new Exception("Gagal menghapus playlist: " + response.statusCode());
+        }
+    }
+
+    // ========== SONG ENDPOINTS ==========
+
+    public List<Map<String, Object>> getSongs(Long playlistId) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/api/playlists/" + playlistId + "/songs"))
+            .header("Authorization", SessionManager.getInstance().getAuthorizationHeader())
+            .GET()
+            .build();
+
+        HttpResponse<String> response = httpClient.send(request,
+            HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200) {
+            return objectMapper.readValue(response.body(),
+                new TypeReference<List<Map<String, Object>>>() {});
+        } else {
+            throw new Exception("Gagal mengambil lagu: " + response.statusCode());
+        }
+    }
+
+    public Map<String, Object> addSong(Long playlistId, Map<String, Object> songData) throws Exception {
+        String json = objectMapper.writeValueAsString(songData);
+
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/api/playlists/" + playlistId + "/songs"))
+            .header("Content-Type", "application/json")
+            .header("Authorization", SessionManager.getInstance().getAuthorizationHeader())
+            .POST(HttpRequest.BodyPublishers.ofString(json))
+            .build();
+
+        HttpResponse<String> response = httpClient.send(request,
+            HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 201) {
+            return objectMapper.readValue(response.body(),
+                new TypeReference<Map<String, Object>>() {});
+        } else {
+            throw new Exception("Gagal menambah lagu: " + response.body());
+        }
+    }
+
+    public void deleteSong(Long playlistId, Long songId) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/api/playlists/" + playlistId + "/songs/" + songId))
+            .header("Authorization", SessionManager.getInstance().getAuthorizationHeader())
+            .DELETE()
+            .build();
+
+        HttpResponse<String> response = httpClient.send(request,
+            HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() != 204) {
+            throw new Exception("Gagal menghapus lagu: " + response.statusCode());
         }
     }
 
