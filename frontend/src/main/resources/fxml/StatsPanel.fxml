@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.plr.frontend.controller.StatsController"
+      styleClass="stats-panel"
+      HBox.hgrow="ALWAYS">
+
+    <!-- Header -->
+    <HBox styleClass="stats-header" alignment="CENTER_LEFT" spacing="10">
+        <Label text="&#128202;" styleClass="stats-header-icon"/>
+        <Label text="STATISTIK PRODUKTIVITAS" styleClass="stats-header-title"/>
+    </HBox>
+
+    <!-- Error Label -->
+    <Label fx:id="statsErrorLabel" text="" visible="false"
+           styleClass="error-label" wrapText="true"/>
+
+    <!-- Summary Cards Row -->
+    <HBox styleClass="stats-cards-row" spacing="12">
+        <VBox styleClass="stats-card" alignment="CENTER" spacing="4" maxWidth="Infinity" HBox.hgrow="ALWAYS">
+            <Label fx:id="totalSessionsLabel" text="0" styleClass="stats-card-number"/>
+            <Label text="Total Sesi" styleClass="stats-card-label"/>
+        </VBox>
+        <VBox styleClass="stats-card" alignment="CENTER" spacing="4" maxWidth="Infinity" HBox.hgrow="ALWAYS">
+            <Label fx:id="totalFocusLabel" text="0" styleClass="stats-card-number"/>
+            <Label text="Menit Fokus" styleClass="stats-card-label"/>
+        </VBox>
+        <VBox styleClass="stats-card" alignment="CENTER" spacing="4" maxWidth="Infinity" HBox.hgrow="ALWAYS">
+            <Label fx:id="completedTasksLabel" text="0" styleClass="stats-card-number"/>
+            <Label text="Tugas Selesai" styleClass="stats-card-label"/>
+        </VBox>
+        <VBox styleClass="stats-card" alignment="CENTER" spacing="4" maxWidth="Infinity" HBox.hgrow="ALWAYS">
+            <Label fx:id="totalPointsLabel" text="0" styleClass="stats-card-number"/>
+            <Label text="Total Poin" styleClass="stats-card-label"/>
+        </VBox>
+    </HBox>
+
+    <!-- Charts Area -->
+    <HBox styleClass="stats-charts-area" spacing="16" VBox.vgrow="ALWAYS">
+        <!-- BarChart -->
+        <VBox styleClass="stats-chart-box" HBox.hgrow="ALWAYS" spacing="8">
+            <Label text="Waktu Fokus 7 Hari Terakhir" styleClass="stats-chart-title"/>
+            <BarChart fx:id="focusBarChart" styleClass="stats-bar-chart"
+                      animated="false" legendVisible="false" VBox.vgrow="ALWAYS">
+                <xAxis>
+                    <CategoryAxis side="BOTTOM" styleClass="stats-axis"/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis side="LEFT" label="Menit" styleClass="stats-axis"/>
+                </yAxis>
+            </BarChart>
+        </VBox>
+
+        <!-- PieChart -->
+        <VBox styleClass="stats-chart-box" HBox.hgrow="ALWAYS" spacing="8">
+            <Label text="Rasio Tugas Selesai vs Aktif" styleClass="stats-chart-title"/>
+            <PieChart fx:id="taskPieChart" styleClass="stats-pie-chart"
+                      animated="false" legendVisible="true"
+                      labelsVisible="true" VBox.vgrow="ALWAYS"/>
+        </VBox>
+    </HBox>
+
+</VBox>

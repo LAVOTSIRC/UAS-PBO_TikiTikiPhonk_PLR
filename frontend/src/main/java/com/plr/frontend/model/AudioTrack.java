@@ -11,6 +11,8 @@ public class AudioTrack {
     private final File file;
     private final String displayName;
     private final String uri;
+    private double durationSeconds;
+    private Long backendId;
 
     public AudioTrack(File file) {
         this.file = file;
@@ -39,6 +41,14 @@ public class AudioTrack {
     public String getUri() {
         return uri;
     }
+
+    public double getDurationSeconds() { return durationSeconds; }
+
+    public void setDurationSeconds(double durationSeconds) { this.durationSeconds = durationSeconds; }
+
+    public Long getBackendId() { return backendId; }
+
+    public void setBackendId(Long backendId) { this.backendId = backendId; }
 
     /** Dipakai ListView agar langsung tampil nama yang benar. */
     @Override

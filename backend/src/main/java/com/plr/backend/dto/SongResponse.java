@@ -8,6 +8,7 @@ public class SongResponse {
     private String filePath;
     private Integer durationSeconds;
     private Long fileSize;
+    private Integer sortOrder;
     private Long playlistId;
     private String playlistName;
     private LocalDateTime createdAt;
@@ -25,6 +26,8 @@ public class SongResponse {
     public void setDurationSeconds(Integer durationSeconds) { this.durationSeconds = durationSeconds; }
     public Long getFileSize() { return fileSize; }
     public void setFileSize(Long fileSize) { this.fileSize = fileSize; }
+    public Integer getSortOrder() { return sortOrder; }
+    public void setSortOrder(Integer sortOrder) { this.sortOrder = sortOrder; }
     public Long getPlaylistId() { return playlistId; }
     public void setPlaylistId(Long playlistId) { this.playlistId = playlistId; }
     public String getPlaylistName() { return playlistName; }

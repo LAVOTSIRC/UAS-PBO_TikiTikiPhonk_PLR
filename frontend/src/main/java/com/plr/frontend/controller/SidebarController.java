@@ -11,12 +11,17 @@ public class SidebarController {
 
     @FXML private Label usernameInitialLabel;
     @FXML private Button tasksNavBtn;
+    @FXML private Button statsNavBtn;
     @FXML private Button themeToggleBtn;
     @FXML private Label themeIconLabel;
     @FXML private Button logoutBtn;
 
-    private Runnable onTasksNav;
+    private Runnable onNavigateTasks;
+    private Runnable onNavigateStats;
     private Runnable onProfileNav;
+
+    public void setOnNavigateTasks(Runnable r) { this.onNavigateTasks = r; }
+    public void setOnNavigateStats(Runnable r) { this.onNavigateStats = r; }
 
     @FXML
     public void initialize() {
@@ -47,18 +52,25 @@ public class SidebarController {
     @FXML
     public void handleTasksNav() {
         setActiveButton(tasksNavBtn);
-        if (onTasksNav != null) {
-            onTasksNav.run();
-        }
+        if (onNavigateTasks != null) onNavigateTasks.run();
     }
 
     @FXML
     public void handleProfileNav() {
+        setActiveButton(null);
+        if (usernameInitialLabel != null && !usernameInitialLabel.getStyleClass().contains("active")) {
+            usernameInitialLabel.getStyleClass().add("active");
+        }
         if (onProfileNav != null) {
             onProfileNav.run();
         }
     }
 
+    @FXML
+    public void handleStatsNav() {
+        setActiveButton(statsNavBtn);
+        if (onNavigateStats != null) onNavigateStats.run();
+    }
 
 
     @FXML
@@ -68,7 +80,10 @@ public class SidebarController {
     }
 
     private void setActiveButton(Button active) {
-        Button[] allBtns = {tasksNavBtn};
+        if (usernameInitialLabel != null) {
+            usernameInitialLabel.getStyleClass().remove("active");
+        }
+        Button[] allBtns = {tasksNavBtn, statsNavBtn};
         for (Button btn : allBtns) {
             if (btn != null) {
                 btn.getStyleClass().remove("active");
@@ -79,10 +94,6 @@ public class SidebarController {
                 active.getStyleClass().add("active");
             }
         }
-    }
-
-    public void setOnTasksNav(Runnable onTasksNav) {
-        this.onTasksNav = onTasksNav;
     }
 
     public void setOnProfileNav(Runnable onProfileNav) {

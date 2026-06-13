@@ -5,14 +5,6 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
 
-<!--
-    MainLayout.fxml — Shell Utama
-    Mengatur tata letak 4 panel via fx:include:
-      1. Sidebar   (56px  - nav kiri)
-      2. TodoPanel (240px - daftar tugas)
-      3. TimerPanel(fills - pomodoro timer)
-      4. AudioPanel(220px - audio companion)
--->
 <StackPane xmlns="http://javafx.com/javafx/21"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.plr.frontend.controller.MainLayoutController"
@@ -21,29 +13,26 @@
 
     <HBox fillHeight="true">
 
-    <!-- Sidebar: ikon navigasi kiri -->
-    <fx:include fx:id="sidebar" source="Sidebar.fxml"/>
+        <!-- Sidebar -->
+        <fx:include fx:id="sidebar" source="Sidebar.fxml"/>
 
-    <!-- Content host: dashboard/profile -->
-    <StackPane HBox.hgrow="ALWAYS">
+        <!-- Content host: dashboard/profile/stats -->
+        <StackPane HBox.hgrow="ALWAYS">
 
-    <HBox fx:id="dashboardContent" fillHeight="true" visible="true" managed="true">
+            <!-- Task View: Todo + Timer + Audio -->
+            <HBox fx:id="taskView" fillHeight="true" managed="true" visible="true">
+                <fx:include fx:id="todoPanel" source="TodoPanel.fxml"/>
+                <fx:include fx:id="timerPanel" source="TimerPanel.fxml"/>
+                <fx:include fx:id="audioPanel" source="AudioPanel.fxml"/>
+            </HBox>
 
-    <!-- Todo Panel: daftar tugas -->
-    <fx:include fx:id="todoPanel" source="TodoPanel.fxml"/>
+            <!-- Stats View -->
+            <fx:include fx:id="statsPanel" source="StatsPanel.fxml" managed="false" visible="false"/>
 
-    <!-- Timer Panel: Pomodoro (mengisi sisa ruang) -->
-    <fx:include fx:id="timerPanel" source="TimerPanel.fxml"/>
+            <!-- Profile Panel -->
+            <fx:include fx:id="profilePanel" source="ProfilePanel.fxml" visible="false" managed="false"/>
 
-    <!-- Audio Panel: noise & playlist -->
-    <fx:include fx:id="audioPanel" source="AudioPanel.fxml"/>
-
-    </HBox>
-
-    <!-- Profile Panel -->
-    <fx:include fx:id="profilePanel" source="ProfilePanel.fxml" visible="false" managed="false"/>
-
-    </StackPane>
+        </StackPane>
 
     </HBox>
 

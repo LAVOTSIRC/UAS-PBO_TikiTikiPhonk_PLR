@@ -30,7 +30,7 @@
         <tooltip><Tooltip text="Profil kamu"/></tooltip>
     </Label>
 
-    <!-- Nav: Tasks — menggunakan graphic label (bukan button text) -->
+    <!-- Nav: Tasks -->
     <Button fx:id="tasksNavBtn"
             styleClass="sidebar-nav-btn, active"
             onAction="#handleTasksNav">
@@ -42,6 +42,17 @@
         <tooltip><Tooltip text="To-Do List"/></tooltip>
     </Button>
 
+    <!-- Nav: Statistics -->
+    <Button fx:id="statsNavBtn"
+            styleClass="sidebar-nav-btn"
+            onAction="#handleStatsNav">
+        <graphic>
+            <Label text="&#128202;"
+                   style="-fx-font-size:20px; -fx-background-color:transparent; -fx-padding:0;"/>
+        </graphic>
+        <VBox.margin><Insets bottom="4"/></VBox.margin>
+        <tooltip><Tooltip text="Statistik"/></tooltip>
+    </Button>
 
     <!-- Theme Toggle -->
     <Button fx:id="themeToggleBtn"

@@ -11,4 +11,5 @@ public interface ISongService {
     SongResponse getSongById(Long playlistId, Long songId, String username);
     SongResponse updateSong(Long playlistId, Long songId, SongRequest request, String username);
     void deleteSong(Long playlistId, Long songId, String username);
+    void reorderSongs(Long playlistId, List<Long> songIds, String username);
 }

@@ -4,6 +4,8 @@ import com.plr.backend.dto.SongRequest;
 import com.plr.backend.dto.SongResponse;
 import com.plr.backend.service.ISongService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,11 +13,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/playlists/{playlistId}/songs")
 @CrossOrigin(origins = "*")
 public class SongController {
+
+    private static final Logger log = LoggerFactory.getLogger(SongController.class);
 
     @Autowired
     private ISongService songService;
@@ -73,19 +78,36 @@ public class SongController {
     }
 
     @DeleteMapping("/{songId}")
-    public ResponseEntity<Void> deleteSong(
+    public ResponseEntity<?> deleteSong(
             @PathVariable Long playlistId,
             @PathVariable Long songId,
             Authentication authentication) {
+        log.info("DELETE song request: playlistId={}, songId={}, user={}",
+            playlistId, songId, authentication.getName());
         try {
             songService.deleteSong(playlistId, songId, authentication.getName());
+            log.info("Song deleted successfully: songId={}, playlistId={}", songId, playlistId);
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
             String msg = e.getMessage();
+            log.error("Failed to delete song: songId={}, playlistId={}, error={}", songId, playlistId, msg);
             if (msg != null && msg.contains("Lagu tidak ditemukan")) {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", msg));
             }
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body(Map.of("error", msg != null ? msg : "Internal error"));
+        }
+    }
+
+    @PutMapping("/reorder")
+    public ResponseEntity<Void> reorderSongs(
+            @PathVariable Long playlistId,
+            @RequestBody Map<String, List<Long>> body,
+            Authentication authentication) {
+        try {
+            songService.reorderSongs(playlistId, body.get("songIds"), authentication.getName());
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 }

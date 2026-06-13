@@ -53,11 +53,32 @@ public class TimerPanelController {
     private LocalDateTime sessionStartTime;
     private int completedFocusSessions = 0;
     private int focusCountInCycle = 0;
-    private boolean modeInitialized = false;
+    private long currentTotalSessions = 0;
     private Long focusedTaskId;
+
+    // State per tugas (bertahan selama session aplikasi)
+    private final Map<Long, TaskTimerState> taskStateMap = new HashMap<>();
 
     private AudioClip clickSound;
     private AudioClip completeSound;
+
+    // ========== Inner class state per tugas ==========
+
+    private static class TaskTimerState {
+        String mode;
+        int focusCountInCycle;
+        int completedFocusSessions;
+        long totalSessions;
+
+        TaskTimerState(String mode, int focusCountInCycle, int completedFocusSessions, long totalSessions) {
+            this.mode = mode;
+            this.focusCountInCycle = focusCountInCycle;
+            this.completedFocusSessions = completedFocusSessions;
+            this.totalSessions = totalSessions;
+        }
+    }
+
+    // ========== Lifecycle ==========
 
     @FXML
     public void initialize() {
@@ -68,7 +89,8 @@ public class TimerPanelController {
             System.err.println("Failed to load audio: " + e.getMessage());
         }
         ThemeManager.getInstance().addChangeListener(this::onThemeChanged);
-        loadSessionHistory();
+        // Inisialisasi awal timer tanpa bergantung pada jaringan
+        applyFocusMode();
     }
 
     private void onThemeChanged() {
@@ -77,6 +99,8 @@ public class TimerPanelController {
             updateTimerDisplay();
         });
     }
+
+    // ========== Task switching ==========
 
     public void setActiveTask(String taskTitle) {
         Platform.runLater(() -> {
@@ -90,9 +114,57 @@ public class TimerPanelController {
         });
     }
 
+    /**
+     * Dipanggil saat user memilih tugas dari TodoPanel.
+     * SELALU memuat data terbaru dari backend agar konsisten setelah restart.
+     */
     public void setFocusedTaskId(Long id) {
+        // Simpan state tugas sebelumnya ke memory
+        saveCurrentTaskState();
+
         this.focusedTaskId = id;
+        stopTimer();
+        if (remainingSeconds < 0) remainingSeconds = 0;
+        sessionDots.getChildren().clear();
+
+        if (id == null) {
+            // Mode tanpa tugas aktif: reset ke awal
+            completedFocusSessions = 0;
+            focusCountInCycle = 0;
+            currentTotalSessions = 0;
+            sessionCountLabel.setText("");
+            pointsLabel.setText("");
+            statusLabel.setText("");
+            applyFocusMode();
+            updateSessionDots();
+        } else if (taskStateMap.containsKey(id)) {
+            // Sudah ada di memory: restore langsung (tugas yang sudah pernah dibuka sesi ini)
+            TaskTimerState saved = taskStateMap.get(id);
+            completedFocusSessions = saved.completedFocusSessions;
+            focusCountInCycle = saved.focusCountInCycle;
+            currentTotalSessions = saved.totalSessions;
+            restoreMode(saved.mode);
+            updateSessionDots();
+            updateTimerDisplay();
+            
+            // Instantly update label from memory
+            sessionCountLabel.setText(completedFocusSessions + " fokus \u00B7 " + currentTotalSessions + " total sesi");
+            
+            // Lakukan sinkronisasi ke backend secara asynchronous
+            refreshSessionCountLabel();
+        } else {
+            // Tugas baru / restart aplikasi: WAJIB muat dari backend
+            completedFocusSessions = 0;
+            focusCountInCycle = 0;
+            currentTotalSessions = 0;
+            sessionCountLabel.setText(""); // Kosongkan saat memuat
+            applyFocusMode();
+            updateSessionDots();
+            loadSessionHistoryForTask(id);
+        }
     }
+
+    // ========== Controls ==========
 
     @FXML
     public void handlePlayPause() {
@@ -115,20 +187,28 @@ public class TimerPanelController {
         updateTimerDisplay();
         statusLabel.setText("\u23ED Sesi dilewati");
 
+        String skippedType = currentMode;
         if ("FOCUS".equals(currentMode)) {
             completedFocusSessions++;
             focusCountInCycle++;
             updateSessionDots();
         }
         advanceToNextMode();
-        saveSkippedSession();
+        saveCurrentTaskState();
+        saveSkippedSession(skippedType);
     }
 
-    private void saveSkippedSession() {
+    // ========== Session saving ==========
+
+    private void saveSkippedSession(String sessionType) {
         Map<String, Object> sessionData = new HashMap<>();
         sessionData.put("durationMinutes", 0);
-        sessionData.put("sessionType", currentMode);
-        sessionData.put("startTime", sessionStartTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        sessionData.put("sessionType", sessionType);
+        sessionData.put("startTime", (sessionStartTime != null ? sessionStartTime : LocalDateTime.now())
+            .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        if (focusedTaskId != null) {
+            sessionData.put("taskId", focusedTaskId);
+        }
 
         Task<Map<String, Object>> saveTask = new Task<>() {
             @Override
@@ -137,11 +217,13 @@ public class TimerPanelController {
             }
         };
 
-        saveTask.setOnSucceeded(e -> Platform.runLater(this::loadSessionHistory));
+        // Setelah simpan: hanya refresh label, TIDAK reset state cycle
+        saveTask.setOnSucceeded(e -> Platform.runLater(this::refreshSessionCountLabel));
         saveTask.setOnFailed(e -> {});
-
         new Thread(saveTask).start();
     }
+
+    // ========== Mode transitions ==========
 
     private void applyFocusMode() {
         currentMode = "FOCUS";
@@ -172,6 +254,17 @@ public class TimerPanelController {
         updateCycleLabel();
         updateAccentColors();
     }
+
+    private void restoreMode(String mode) {
+        switch (mode) {
+            case "FOCUS":       applyFocusMode();      break;
+            case "SHORT_BREAK": applyShortBreakMode(); break;
+            case "LONG_BREAK":  applyLongBreakMode();  break;
+            default:            applyFocusMode();
+        }
+    }
+
+    // ========== Timer engine ==========
 
     private void startTimer() {
         if (remainingSeconds <= 0) {
@@ -269,7 +362,9 @@ public class TimerPanelController {
                 }
 
                 advanceToNextMode();
-                loadSessionHistory();
+                saveCurrentTaskState();
+                // Hanya refresh label angka, TIDAK ubah state cycle
+                refreshSessionCountLabel();
             });
         });
 
@@ -301,63 +396,146 @@ public class TimerPanelController {
         sessionTypeLabel.setText("Selanjutnya: " + getModeLabel());
     }
 
-    private String getModeLabel() {
-        switch (currentMode) {
+    // ========== State persistence per tugas ==========
+
+    private void saveCurrentTaskState() {
+        if (focusedTaskId != null) {
+            taskStateMap.put(focusedTaskId, new TaskTimerState(
+                currentMode,
+                focusCountInCycle,
+                completedFocusSessions,
+                currentTotalSessions
+            ));
+        }
+    }
+
+    /**
+     * Memuat sesi tugas dari backend dan merestore state cycle.
+     * Dipanggil HANYA saat task pertama kali dipilih setelah restart.
+     * State yang di-restore kemudian disimpan ke taskStateMap (memory).
+     */
+    public void loadSessionHistoryForTask(Long taskId) {
+        Task<List<Map<String, Object>>> loadTask = new Task<>() {
+            @Override
+            protected List<Map<String, Object>> call() throws Exception {
+                return ApiClient.getInstance().getPomodoroSessionsByTask(taskId);
+            }
+        };
+
+        loadTask.setOnSucceeded(e -> {
+            List<Map<String, Object>> sessions = loadTask.getValue();
+            Platform.runLater(() -> {
+                // Hanya proses jika task ini masih dipilih (hindari race condition)
+                if (!taskId.equals(focusedTaskId)) return;
+
+                long focusCount = sessions.stream()
+                    .filter(s -> "FOCUS".equals(s.get("sessionType")))
+                    .count();
+
+                completedFocusSessions = (int) focusCount;
+                focusCountInCycle = (int) (focusCount % CYCLE_LENGTH);
+
+                // Tentukan mode selanjutnya berdasarkan sesi terakhir (sudah terurut ASC dari DB)
+                String lastSessionType = sessions.isEmpty() ? null
+                    : (String) sessions.get(sessions.size() - 1).get("sessionType");
+                String restoredMode = deriveNextMode(lastSessionType, focusCountInCycle);
+
+                // Simpan ke memory agar perpindahan tugas berikutnya bisa pakai cache
+                currentTotalSessions = sessions.size();
+                taskStateMap.put(taskId, new TaskTimerState(
+                    restoredMode, focusCountInCycle, completedFocusSessions, currentTotalSessions));
+
+                restoreMode(restoredMode);
+                updateSessionDots();
+
+                // Update label sesi
+                sessionCountLabel.setText(focusCount + " fokus \u00B7 " + currentTotalSessions + " total sesi");
+            });
+        });
+
+        loadTask.setOnFailed(e -> Platform.runLater(() -> {
+            if (!taskId.equals(focusedTaskId)) return;
+            applyFocusMode();
+            updateSessionDots();
+        }));
+
+        new Thread(loadTask).start();
+    }
+
+    /**
+     * Menentukan mode timer berikutnya berdasarkan tipe sesi terakhir yang selesai.
+     * Dipanggil saat me-restore state dari DB setelah restart.
+     */
+    private String deriveNextMode(String lastSessionType, int cyclePos) {
+        if (lastSessionType == null) return "FOCUS";
+        switch (lastSessionType) {
             case "FOCUS":
-                return "Sesi Fokus";
+                // cyclePos == 0 artinya cycle baru saja penuh (4 % 4 = 0) → saatnya long break
+                return (cyclePos == 0) ? "LONG_BREAK" : "SHORT_BREAK";
             case "SHORT_BREAK":
-                return "Istirahat Pendek";
             case "LONG_BREAK":
-                return "Istirahat Panjang";
+                return "FOCUS";
             default:
-                return "";
+                return "FOCUS";
         }
     }
 
-    private int getDurationForMode() {
-        switch (currentMode) {
-            case "FOCUS": return FOCUS_MINUTES;
-            case "SHORT_BREAK": return SHORT_BREAK_MINUTES;
-            case "LONG_BREAK": return LONG_BREAK_MINUTES;
-            default: return FOCUS_MINUTES;
-        }
+    /**
+     * Hanya memperbarui label statistik sesi (jumlah fokus & total sesi).
+     * TIDAK mengubah mode timer, dots, atau counter cycle.
+     * Dipanggil setelah sesi selesai/dilewati untuk sinkronisasi angka dari DB.
+     */
+    private void refreshSessionCountLabel() {
+        if (focusedTaskId == null) return;
+        final Long currentTaskId = focusedTaskId;
+
+        Task<List<Map<String, Object>>> loadTask = new Task<>() {
+            @Override
+            protected List<Map<String, Object>> call() throws Exception {
+                return ApiClient.getInstance().getPomodoroSessionsByTask(currentTaskId);
+            }
+        };
+
+        loadTask.setOnSucceeded(e -> {
+            List<Map<String, Object>> sessions = loadTask.getValue();
+            Platform.runLater(() -> {
+                if (!currentTaskId.equals(focusedTaskId)) return;
+                long focusCount = sessions.stream()
+                    .filter(s -> "FOCUS".equals(s.get("sessionType")))
+                    .count();
+                currentTotalSessions = sessions.size();
+                completedFocusSessions = (int) focusCount;
+                sessionCountLabel.setText(focusCount + " fokus \u00B7 " + currentTotalSessions + " total sesi");
+            });
+        });
+
+        loadTask.setOnFailed(e -> {});
+        new Thread(loadTask).start();
     }
 
-    private String getCurrentAccentColor() {
-        boolean light = ThemeManager.getInstance().isLightMode();
-        if (isRunning) {
-            if ("FOCUS".equals(currentMode)) return light ? "#d06a84" : "#f38ba8";
-            return light ? "#5a7fc8" : "#7aa2f7";
-        }
-        return light ? "#7C3AED" : "#C084FC";
+    // Method ini dipanggil dari MainLayoutController, dijaga agar tidak mengubah state
+    public void loadSessionHistory() {
+        // Kosongkan — state cycle sekarang hanya dikelola oleh loadSessionHistoryForTask
+        // agar tidak ada race condition antara global load dan task-specific load
     }
 
-    private void updateAccentColors() {
-        playPauseBtn.getStyleClass().removeAll(ACCENT_RED, ACCENT_BLUE);
-        pointsLabel.getStyleClass().removeAll(ACCENT_RED, ACCENT_BLUE);
-        activeTaskLabel.getStyleClass().removeAll(ACCENT_RED, ACCENT_BLUE);
+    // ========== UI helpers ==========
 
-        if (isRunning) {
-            String cls = "FOCUS".equals(currentMode) ? ACCENT_RED : ACCENT_BLUE;
-            playPauseBtn.getStyleClass().add(cls);
-            pointsLabel.getStyleClass().add(cls);
-            activeTaskLabel.getStyleClass().add(cls);
-        }
-
-        timerArc.setStroke(Color.web(getCurrentAccentColor()));
-        updateSessionDots();
-    }
-
-    private void updateTimerDisplay() {
-        int minutes = remainingSeconds / 60;
-        int seconds = remainingSeconds % 60;
-        timerLabel.setText(String.format("%02d:%02d", minutes, seconds));
-
-        if (totalSeconds > 0) {
-            double progress = Math.max(0, Math.min(1, (double) remainingSeconds / totalSeconds));
-            double dashLength = CIRCUMFERENCE * progress;
-            timerArc.getStrokeDashArray().setAll(dashLength, CIRCUMFERENCE);
-            timerArc.setStroke(Color.web(getCurrentAccentColor()));
+    private void updateSessionDots() {
+        if (sessionDots == null) return;
+        sessionDots.getChildren().clear();
+        int filled = focusCountInCycle;
+        if (filled > CYCLE_LENGTH) filled = CYCLE_LENGTH;
+        String filledColor = getCurrentAccentColor();
+        for (int i = 0; i < CYCLE_LENGTH; i++) {
+            Circle dot = new Circle(5);
+            if (i < filled) {
+                dot.getStyleClass().add("timer-dot-filled");
+                dot.setFill(Color.web(filledColor));
+            } else {
+                dot.getStyleClass().add("timer-dot-empty");
+            }
+            sessionDots.getChildren().add(dot);
         }
     }
 
@@ -376,51 +554,59 @@ public class TimerPanelController {
         }
     }
 
-    public void loadSessionHistory() {
-        Task<List<Map<String, Object>>> loadTask = new Task<>() {
-            @Override
-            protected List<Map<String, Object>> call() throws Exception {
-                return ApiClient.getInstance().getPomodoroSessions();
-            }
-        };
+    private void updateTimerDisplay() {
+        int minutes = remainingSeconds / 60;
+        int seconds = remainingSeconds % 60;
+        timerLabel.setText(String.format("%02d:%02d", minutes, seconds));
 
-        loadTask.setOnSucceeded(e -> {
-            List<Map<String, Object>> sessions = loadTask.getValue();
-            Platform.runLater(() -> {
-                long totalSessions = sessions.size();
-                long focusCount = sessions.stream()
-                    .filter(s -> "FOCUS".equals(s.get("sessionType")))
-                    .count();
-                sessionCountLabel.setText(focusCount + " fokus \u00B7 " + totalSessions + " total sesi");
-                completedFocusSessions = (int) focusCount;
-                focusCountInCycle = (int) (focusCount % CYCLE_LENGTH);
-                updateSessionDots();
-                if (!modeInitialized) {
-                    modeInitialized = true;
-                    applyFocusMode();
-                }
-            });
-        });
-
-        loadTask.setOnFailed(e -> {});
-        new Thread(loadTask).start();
+        if (totalSeconds > 0) {
+            double progress = Math.max(0, Math.min(1, (double) remainingSeconds / totalSeconds));
+            double dashLength = CIRCUMFERENCE * progress;
+            timerArc.getStrokeDashArray().setAll(dashLength, CIRCUMFERENCE);
+            timerArc.setStroke(Color.web(getCurrentAccentColor()));
+        }
     }
 
-    private void updateSessionDots() {
-        if (sessionDots == null) return;
-        sessionDots.getChildren().clear();
-        int filled = focusCountInCycle;
-        if (filled > CYCLE_LENGTH) filled = CYCLE_LENGTH;
-        String filledColor = getCurrentAccentColor();
-        for (int i = 0; i < CYCLE_LENGTH; i++) {
-            Circle dot = new Circle(5);
-            if (i < filled) {
-                dot.getStyleClass().add("timer-dot-filled");
-                dot.setFill(Color.web(filledColor));
-            } else {
-                dot.getStyleClass().add("timer-dot-empty");
-            }
-            sessionDots.getChildren().add(dot);
+    private void updateAccentColors() {
+        playPauseBtn.getStyleClass().removeAll(ACCENT_RED, ACCENT_BLUE);
+        pointsLabel.getStyleClass().removeAll(ACCENT_RED, ACCENT_BLUE);
+        activeTaskLabel.getStyleClass().removeAll(ACCENT_RED, ACCENT_BLUE);
+
+        if (isRunning) {
+            String cls = "FOCUS".equals(currentMode) ? ACCENT_RED : ACCENT_BLUE;
+            playPauseBtn.getStyleClass().add(cls);
+            pointsLabel.getStyleClass().add(cls);
+            activeTaskLabel.getStyleClass().add(cls);
+        }
+
+        timerArc.setStroke(Color.web(getCurrentAccentColor()));
+        updateSessionDots();
+    }
+
+    private String getCurrentAccentColor() {
+        boolean light = ThemeManager.getInstance().isLightMode();
+        if (isRunning) {
+            if ("FOCUS".equals(currentMode)) return light ? "#d06a84" : "#f38ba8";
+            return light ? "#5a7fc8" : "#7aa2f7";
+        }
+        return "#C084FC";
+    }
+
+    private String getModeLabel() {
+        switch (currentMode) {
+            case "FOCUS":       return "Sesi Fokus";
+            case "SHORT_BREAK": return "Istirahat Pendek";
+            case "LONG_BREAK":  return "Istirahat Panjang";
+            default:            return "";
+        }
+    }
+
+    private int getDurationForMode() {
+        switch (currentMode) {
+            case "FOCUS":       return FOCUS_MINUTES;
+            case "SHORT_BREAK": return SHORT_BREAK_MINUTES;
+            case "LONG_BREAK":  return LONG_BREAK_MINUTES;
+            default:            return FOCUS_MINUTES;
         }
     }
 }

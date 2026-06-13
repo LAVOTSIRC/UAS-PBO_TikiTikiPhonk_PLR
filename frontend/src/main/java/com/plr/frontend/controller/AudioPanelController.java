@@ -11,8 +11,13 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -21,6 +26,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class AudioPanelController {
 
@@ -46,11 +54,16 @@ public class AudioPanelController {
     @FXML private Button               createPlaylistBtn;
     @FXML private HBox                 playButtons;
     @FXML private Button               addTracksBtn;
+    @FXML private Button               editPlaylistBtn;
 
     @FXML private VBox       createForm;
     @FXML private TextField  formNameField;
     @FXML private TextArea   formDescField;
     @FXML private ListView<String> formFileList;
+
+    @FXML private VBox       editForm;
+    @FXML private TextField  editNameField;
+    @FXML private VBox       editTrackList;
 
     @FXML private Slider volumeSlider;
     @FXML private Label  volumeLabel;
@@ -121,6 +134,20 @@ public class AudioPanelController {
 
         playlistView.setOnMouseClicked(event -> {
             if (event.getClickCount() == 1) {
+                Object target = event.getTarget();
+                boolean cellClicked = false;
+                if (target instanceof javafx.scene.Node) {
+                    javafx.scene.Node n = (javafx.scene.Node) target;
+                    while (n != null) {
+                        if (n instanceof ListCell) {
+                            if (((ListCell<?>) n).isEmpty()) return;
+                            cellClicked = true;
+                            break;
+                        }
+                        n = n.getParent();
+                    }
+                }
+                if (!cellClicked) return;
                 Playlist pl = playlistView.getSelectionModel().getSelectedItem();
                 if (pl != null) {
                     showPlaylistTracks(pl);
@@ -139,18 +166,43 @@ public class AudioPanelController {
                         setStyle("-fx-background-color: transparent; -fx-padding: 0;");
                     } else {
                         Label iconLabel = new Label("\uD83C\uDFB6");
-                        iconLabel.getStyleClass().add("playlist-cell-icon");
+                        iconLabel.getStyleClass().add("audio-pl-icon");
                         Label nameLabel = new Label(pl.getName());
-                        nameLabel.getStyleClass().add("playlist-cell-name");
+                        nameLabel.getStyleClass().add("audio-pl-name");
                         Label countLabel = new Label(pl.getTrackCount() + " lagu");
-                        countLabel.getStyleClass().add("playlist-cell-count");
+                        countLabel.getStyleClass().add("audio-pl-count");
                         Label descLabel = new Label(pl.getDescription());
-                        descLabel.getStyleClass().add("playlist-cell-info");
+                        descLabel.getStyleClass().add("audio-pl-desc");
                         descLabel.setVisible(!pl.getDescription().isEmpty());
                         descLabel.setManaged(!pl.getDescription().isEmpty());
                         VBox textBox = new VBox(1, nameLabel, countLabel, descLabel);
-                        javafx.scene.layout.HBox root = new javafx.scene.layout.HBox(8, iconLabel, textBox);
-                        root.getStyleClass().add("playlist-cell");
+                        HBox.setHgrow(textBox, javafx.scene.layout.Priority.ALWAYS);
+
+                        Button moreBtn = new Button("\u22EE");
+                        moreBtn.getStyleClass().add("audio-pl-more");
+                        Long plId = pl.getBackendId();
+                        moreBtn.setOnAction(ev -> {
+                            ContextMenu menu = new ContextMenu();
+                            MenuItem hapus = new MenuItem("Hapus Playlist");
+                            hapus.setOnAction(e -> {
+                                if (plId == null) return;
+                                Task<Void> dt = new Task<>() {
+                                    @Override
+                                    protected Void call() throws Exception {
+                                        ApiClient.getInstance().deletePlaylist(plId);
+                                        return null;
+                                    }
+                                };
+                                dt.setOnSucceeded(e2 -> Platform.runLater(() -> loadPlaylists()));
+                                new Thread(dt).start();
+                            });
+                            menu.getItems().add(hapus);
+                            menu.show(moreBtn, javafx.geometry.Side.BOTTOM, 0, 0);
+                        });
+
+                        javafx.scene.layout.HBox root = new javafx.scene.layout.HBox(8, iconLabel, textBox, moreBtn);
+                        root.getStyleClass().add("audio-pl-card");
+                        root.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
                         VBox wrapper = new VBox(root);
                         wrapper.setStyle("-fx-padding: 3 0;");
                         setGraphic(wrapper);
@@ -160,25 +212,6 @@ public class AudioPanelController {
             };
             return cell;
         });
-
-        ContextMenu playlistContextMenu = new ContextMenu();
-        MenuItem deleteItem = new MenuItem("Hapus Playlist");
-        deleteItem.setOnAction(e -> {
-            Playlist pl = playlistView.getSelectionModel().getSelectedItem();
-            if (pl != null && pl.getBackendId() != null) {
-                Task<Void> deleteTask = new Task<>() {
-                    @Override
-                    protected Void call() throws Exception {
-                        ApiClient.getInstance().deletePlaylist(pl.getBackendId());
-                        return null;
-                    }
-                };
-                deleteTask.setOnSucceeded(ev -> Platform.runLater(this::loadPlaylists));
-                new Thread(deleteTask).start();
-            }
-        });
-        playlistContextMenu.getItems().add(deleteItem);
-        playlistView.setContextMenu(playlistContextMenu);
 
         updateEmptyPlaylistVisibility();
     }
@@ -191,7 +224,11 @@ public class AudioPanelController {
                 if (target instanceof javafx.scene.Node) {
                     javafx.scene.Node n = (javafx.scene.Node) target;
                     while (n != null) {
-                        if (n instanceof ListCell) { cellClicked = true; break; }
+                        if (n instanceof ListCell) {
+                            if (((ListCell<?>) n).isEmpty()) return;
+                            cellClicked = true;
+                            break;
+                        }
                         n = n.getParent();
                     }
                 }
@@ -216,13 +253,131 @@ public class AudioPanelController {
                     super.updateItem(track, empty);
                     if (empty || track == null) {
                         setText(null);
+                        setGraphic(null);
                     } else {
-                        setText(track.getDisplayName());
+                        Label iconLabel = new Label("\uD83C\uDFB5");
+                        iconLabel.getStyleClass().add("audio-tr-icon");
+
+                        Label nameLabel = new Label(track.getDisplayName());
+                        nameLabel.getStyleClass().add("audio-tr-name");
+                        nameLabel.setWrapText(false);
+                        nameLabel.setMaxWidth(Double.MAX_VALUE);
+                        nameLabel.setTextOverrun(javafx.scene.control.OverrunStyle.ELLIPSIS);
+                        HBox.setHgrow(nameLabel, javafx.scene.layout.Priority.ALWAYS);
+
+                        double dur = track.getDurationSeconds();
+                        String durText = (dur > 0) ? formatTime(dur) : "--:--";
+                        Label durLabel = new Label(durText);
+                        durLabel.getStyleClass().add("audio-tr-dur");
+
+                        VBox textBox = new VBox(0, nameLabel, durLabel);
+                        textBox.setMaxWidth(Double.MAX_VALUE);
+                        HBox root = new HBox(6, iconLabel, textBox);
+                        root.getStyleClass().add("audio-tr-card");
+                        root.setMaxWidth(Double.MAX_VALUE);
+                        HBox.setHgrow(textBox, javafx.scene.layout.Priority.ALWAYS);
+                        root.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+                        VBox wrapper = new VBox(root);
+                        wrapper.setMaxWidth(Double.MAX_VALUE);
+                        wrapper.setStyle("-fx-padding: 2 0;");
+                        setGraphic(wrapper);
+                        setStyle("-fx-background-color: transparent; -fx-padding: 0;");
                     }
                 }
             };
+
+            cell.setOnDragDetected(e -> {
+                AudioTrack t = cell.getItem();
+                if (t == null) return;
+                Dragboard db = cell.startDragAndDrop(TransferMode.MOVE);
+                ClipboardContent cc = new ClipboardContent();
+                cc.putString(String.valueOf(trackView.getItems().indexOf(t)));
+                db.setContent(cc);
+                e.consume();
+            });
+
+            cell.setOnDragOver(e -> {
+                Dragboard db = e.getDragboard();
+                if (db.hasString() && e.getGestureSource() instanceof ListCell) {
+                    e.acceptTransferModes(TransferMode.MOVE);
+                }
+                e.consume();
+            });
+
+            cell.setOnDragDropped(e -> {
+                Dragboard db = e.getDragboard();
+                boolean success = false;
+                if (db.hasString() && viewingPlaylist != null) {
+                    int fromIdx = Integer.parseInt(db.getString());
+                    AudioTrack targetTrack = cell.getItem();
+                    if (targetTrack != null) {
+                        int toIdx = trackView.getItems().indexOf(targetTrack);
+                        if (fromIdx != toIdx) {
+                            AudioTrack moved = trackView.getItems().remove(fromIdx);
+                            int insertAt = (fromIdx < toIdx) ? toIdx - 1 : toIdx;
+                            trackView.getItems().add(insertAt, moved);
+                            trackView.getSelectionModel().select(insertAt);
+                            persistTrackOrder();
+                            success = true;
+                        }
+                    }
+                }
+                e.setDropCompleted(success);
+                e.consume();
+            });
+
             return cell;
         });
+
+        ContextMenu trackCtx = new ContextMenu();
+        MenuItem deleteTrackItem = new MenuItem("Hapus Lagu");
+        deleteTrackItem.setOnAction(e -> {
+            AudioTrack track = trackView.getSelectionModel().getSelectedItem();
+            if (track == null || track.getBackendId() == null || viewingPlaylist == null) return;
+            Long plId = viewingPlaylist.getBackendId();
+            Long trackId = track.getBackendId();
+            Task<Void> delTask = new Task<>() {
+                @Override
+                protected Void call() throws Exception {
+                    ApiClient.getInstance().deleteSong(plId, trackId);
+                    return null;
+                }
+            };
+            delTask.setOnSucceeded(ev -> Platform.runLater(() -> {
+                loadPlaylists(() -> {
+                    for (Playlist p : audioService.getPlaylists()) {
+                        if (p.getBackendId() != null && p.getBackendId().equals(plId)) {
+                            showPlaylistTracks(p);
+                            return;
+                        }
+                    }
+                    showPlaylistList();
+                });
+            }));
+            delTask.setOnFailed(ev -> Platform.runLater(() -> {
+                System.err.println("Gagal hapus lagu (context menu): "
+                    + (delTask.getException() != null ? delTask.getException().getMessage() : "unknown"));
+            }));
+            new Thread(delTask).start();
+        });
+        trackCtx.getItems().add(deleteTrackItem);
+        trackView.setContextMenu(trackCtx);
+    }
+
+    private void persistTrackOrder() {
+        if (viewingPlaylist == null) return;
+        Long plId = viewingPlaylist.getBackendId();
+        List<Long> ids = trackView.getItems().stream()
+            .map(AudioTrack::getBackendId)
+            .collect(Collectors.toList());
+        Task<Void> reorderTask = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                ApiClient.getInstance().reorderSongs(plId, ids);
+                return null;
+            }
+        };
+        new Thread(reorderTask).start();
     }
 
     // ── View Switching ────────────────────────────────────
@@ -238,6 +393,8 @@ public class AudioPanelController {
         playButtons.setManaged(false);
         addTracksBtn.setVisible(false);
         addTracksBtn.setManaged(false);
+        editPlaylistBtn.setVisible(false);
+        editPlaylistBtn.setManaged(false);
         backNavBar.setVisible(false);
         backNavBar.setManaged(false);
         playlistHeader.setText("DAFTAR PLAYLIST");
@@ -260,6 +417,8 @@ public class AudioPanelController {
         playButtons.setManaged(true);
         addTracksBtn.setVisible(true);
         addTracksBtn.setManaged(true);
+        editPlaylistBtn.setVisible(true);
+        editPlaylistBtn.setManaged(true);
         backNavBar.setVisible(true);
         backNavBar.setManaged(true);
         trackListTitle.setText(pl.getName());
@@ -294,6 +453,7 @@ public class AudioPanelController {
         playlistView.setVisible(false); playlistView.setManaged(false);
         trackView.setVisible(false);    trackView.setManaged(false);
         createForm.setVisible(false);   createForm.setManaged(false);
+        editForm.setVisible(false);     editForm.setManaged(false);
         emptyPlaylistLabel.setVisible(false); emptyPlaylistLabel.setManaged(false);
     }
 
@@ -301,12 +461,22 @@ public class AudioPanelController {
     public void handleBackToPlaylists() {
         if (createForm.isVisible()) {
             showPlaylistList();
+        } else if (editForm.isVisible()) {
+            if (viewingPlaylist != null) {
+                showPlaylistTracks(viewingPlaylist);
+            } else {
+                showPlaylistList();
+            }
         } else {
             showPlaylistList();
         }
     }
 
     private void loadPlaylists() {
+        loadPlaylists(null);
+    }
+
+    private void loadPlaylists(Runnable onComplete) {
         Task<List<Map<String, Object>>> fetchTask = new Task<>() {
             @Override
             protected List<Map<String, Object>> call() throws Exception {
@@ -336,7 +506,14 @@ public class AudioPanelController {
                         if (filePath != null && !filePath.isEmpty()) {
                             File file = new File(filePath);
                             if (file.exists()) {
-                                pl.addTrack(new AudioTrack(file));
+                                AudioTrack track = new AudioTrack(file);
+                                if (songMap.get("id") instanceof Number nid) {
+                                    track.setBackendId(nid.longValue());
+                                }
+                                if (songMap.get("durationSeconds") instanceof Number n) {
+                                    track.setDurationSeconds(n.doubleValue());
+                                }
+                                pl.addTrack(track);
                             }
                         }
                     }
@@ -345,14 +522,19 @@ public class AudioPanelController {
             }
 
             Platform.runLater(() -> {
-                showPlaylistList();
+                if (onComplete == null) {
+                    showPlaylistList();
+                }
                 updateEmptyPlaylistVisibility();
+                if (onComplete != null) onComplete.run();
             });
         });
 
         fetchTask.setOnFailed(e -> {
-            // Backend tidak tersedia — tetap pakai data lokal (jika ada)
-            Platform.runLater(this::updateEmptyPlaylistVisibility);
+            Platform.runLater(() -> {
+                updateEmptyPlaylistVisibility();
+                if (onComplete != null) onComplete.run();
+            });
         });
 
         new Thread(fetchTask).start();
@@ -414,6 +596,7 @@ public class AudioPanelController {
                     songData.put("title", title);
                     songData.put("filePath", f.getAbsolutePath());
                     songData.put("fileSize", f.length());
+                    songData.put("durationSeconds", (int) getDurationSeconds(f));
                     ApiClient.getInstance().addSong(playlistId, songData);
                 }
                 return result;
@@ -422,14 +605,15 @@ public class AudioPanelController {
 
         String finalName = name;
         saveTask.setOnSucceeded(e -> Platform.runLater(() -> {
-            loadPlaylists();
-            for (Playlist p : audioService.getPlaylists()) {
-                if (p.getName().equals(finalName) && p.getBackendId() != null) {
-                    showPlaylistTracks(p);
-                    return;
+            loadPlaylists(() -> {
+                for (Playlist p : audioService.getPlaylists()) {
+                    if (p.getName().equals(finalName) && p.getBackendId() != null) {
+                        showPlaylistTracks(p);
+                        return;
+                    }
                 }
-            }
-            showPlaylistList();
+                showPlaylistList();
+            });
         }));
 
         saveTask.setOnFailed(e -> Platform.runLater(() -> {
@@ -442,6 +626,133 @@ public class AudioPanelController {
     @FXML
     public void handleCancelCreate() {
         showPlaylistList();
+    }
+
+    // ── Edit Playlist ──────────────────────────────────────
+
+    @FXML
+    public void handleEditPlaylist() {
+        if (viewingPlaylist == null) return;
+        showEditForm();
+    }
+
+    private void showEditForm() {
+        if (viewingPlaylist == null) return;
+        hideAllStackContent();
+        editForm.setVisible(true);
+        editForm.setManaged(true);
+        createPlaylistBtn.setVisible(false);
+        createPlaylistBtn.setManaged(false);
+        playButtons.setVisible(false);
+        playButtons.setManaged(false);
+        addTracksBtn.setVisible(false);
+        addTracksBtn.setManaged(false);
+        editPlaylistBtn.setVisible(false);
+        editPlaylistBtn.setManaged(false);
+        backNavBar.setVisible(true);
+        backNavBar.setManaged(true);
+        trackListTitle.setText("Edit " + viewingPlaylist.getName());
+        playlistHeader.setText("");
+
+        editNameField.setText(viewingPlaylist.getName());
+        editNameField.getStyleClass().remove("audio-form-field-error");
+
+        editTrackList.getChildren().clear();
+        for (AudioTrack t : viewingPlaylist.getTracks()) {
+            HBox row = new HBox(6);
+            row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+            row.getStyleClass().add("audio-edit-row");
+
+            Label nameLbl = new Label(t.getDisplayName());
+            nameLbl.getStyleClass().add("audio-edit-name");
+            nameLbl.setMaxWidth(Double.MAX_VALUE);
+            HBox.setHgrow(nameLbl, javafx.scene.layout.Priority.ALWAYS);
+
+            double dur = t.getDurationSeconds();
+            Label durLbl = new Label(dur > 0 ? formatTime(dur) : "--:--");
+            durLbl.getStyleClass().add("audio-edit-dur");
+
+            Button delBtn = new Button("\u2716");
+            delBtn.getStyleClass().add("audio-edit-del");
+            Long trackId = t.getBackendId();
+            delBtn.setOnAction(ev -> {
+                if (trackId == null || viewingPlaylist == null) {
+                    System.err.println("Hapus gagal: trackId=" + trackId + ", viewingPlaylist=" + viewingPlaylist);
+                    return;
+                }
+                Long plId = viewingPlaylist.getBackendId();
+                System.out.println("Menghapus lagu: playlistId=" + plId + ", trackId=" + trackId);
+                Task<Void> dt = new Task<>() {
+                    @Override
+                    protected Void call() throws Exception {
+                        ApiClient.getInstance().deleteSong(plId, trackId);
+                        return null;
+                    }
+                };
+                dt.setOnSucceeded(e -> Platform.runLater(() -> {
+                    loadPlaylists(() -> {
+                        for (Playlist p : audioService.getPlaylists()) {
+                            if (p.getBackendId() != null && p.getBackendId().equals(plId)) {
+                                viewingPlaylist = p;
+                                showEditForm();
+                                return;
+                            }
+                        }
+                    });
+                }));
+                dt.setOnFailed(e -> Platform.runLater(() -> {
+                    System.err.println("Gagal hapus lagu: " + dt.getException().getMessage()
+                        + " (playlistId=" + plId + ", trackId=" + trackId + ")");
+                }));
+                new Thread(dt).start();
+            });
+
+            row.getChildren().addAll(nameLbl, durLbl, delBtn);
+            editTrackList.getChildren().add(row);
+        }
+    }
+
+    @FXML
+    public void handleSaveEdit() {
+        if (viewingPlaylist == null) return;
+        String name = editNameField.getText().trim();
+        if (name.isEmpty()) {
+            editNameField.getStyleClass().add("audio-form-field-error");
+            return;
+        }
+        editNameField.getStyleClass().remove("audio-form-field-error");
+
+        Long plId = viewingPlaylist.getBackendId();
+        Task<Void> saveTask = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                Map<String, Object> data = new HashMap<>();
+                data.put("name", name);
+                data.put("description", viewingPlaylist.getDescription());
+                ApiClient.getInstance().updatePlaylist(plId, data);
+                return null;
+            }
+        };
+        saveTask.setOnSucceeded(e -> Platform.runLater(() -> {
+            loadPlaylists(() -> {
+                for (Playlist p : audioService.getPlaylists()) {
+                    if (p.getBackendId() != null && p.getBackendId().equals(plId)) {
+                        showPlaylistTracks(p);
+                        return;
+                    }
+                }
+            });
+        }));
+        new Thread(saveTask).start();
+    }
+
+    @FXML
+    public void handleCancelEdit() {
+        if (viewingPlaylist != null) {
+            showPlaylistTracks(viewingPlaylist);
+        } else {
+            showPlaylistList();
+        }
     }
 
     // ── Player Controls ────────────────────────────────────
@@ -589,15 +900,24 @@ public class AudioPanelController {
                         songData.put("title", title);
                         songData.put("filePath", file.getAbsolutePath());
                         songData.put("fileSize", file.length());
+                        songData.put("durationSeconds", (int) getDurationSeconds(file));
                         ApiClient.getInstance().addSong(playlistId, songData);
                     }
                     return null;
                 }
             };
 
+            Playlist currentPlaylist = viewingPlaylist;
             addTask.setOnSucceeded(e -> Platform.runLater(() -> {
-                loadPlaylists();
-                showPlaylistList();
+                loadPlaylists(() -> {
+                    for (Playlist p : audioService.getPlaylists()) {
+                        if (p.getBackendId() != null && p.getBackendId().equals(currentPlaylist.getBackendId())) {
+                            showPlaylistTracks(p);
+                            return;
+                        }
+                    }
+                    showPlaylistList();
+                });
             }));
 
             new Thread(addTask).start();
@@ -680,5 +1000,27 @@ public class AudioPanelController {
 
     private void updateVolumeLabel(double volume) {
         volumeLabel.setText((int) (volume * 100) + "%");
+    }
+
+    private double getDurationSeconds(File file) {
+        try {
+            Media media = new Media(file.toURI().toString());
+            CountDownLatch latch = new CountDownLatch(1);
+            final double[] duration = {0};
+            media.setOnError(() -> latch.countDown());
+            MediaPlayer player = new MediaPlayer(media);
+            player.setOnReady(() -> {
+                javafx.util.Duration d = media.getDuration();
+                if (d != null && !d.equals(javafx.util.Duration.UNKNOWN)) {
+                    duration[0] = d.toSeconds();
+                }
+                player.dispose();
+                latch.countDown();
+            });
+            latch.await(5, TimeUnit.SECONDS);
+            return duration[0];
+        } catch (Exception e) {
+            return 0;
+        }
     }
 }
