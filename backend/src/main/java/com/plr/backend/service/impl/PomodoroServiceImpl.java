@@ -3,10 +3,15 @@ package com.plr.backend.service.impl;
 import com.plr.backend.dto.PomodoroRequest;
 import com.plr.backend.dto.PomodoroResponse;
 import com.plr.backend.model.PomodoroSession;
+import com.plr.backend.model.SessionType;
 import com.plr.backend.model.User;
 import com.plr.backend.repository.PomodoroSessionRepository;
 import com.plr.backend.repository.UserRepository;
 import com.plr.backend.service.IPomodoroService;
+import com.plr.backend.service.score.BreakSessionScore;
+import com.plr.backend.service.score.FocusSessionScore;
+import com.plr.backend.service.score.LongBreakSessionScore;
+import com.plr.backend.service.score.SessionScoreCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +41,11 @@ public class PomodoroServiceImpl implements IPomodoroService {
             : LocalDateTime.now());
         session.setNotes(request.getNotes());
         session.setUser(user);
+
+        SessionScoreCalculator calculator = getCalculator(session.getSessionType());
+        int points = calculator.calculatePoints(session.getDurationMinutes());
+        session.setPoints(points);
+
         PomodoroSession saved = pomodoroRepository.save(session);
         return toResponse(saved);
     }
@@ -58,6 +68,18 @@ public class PomodoroServiceImpl implements IPomodoroService {
         pomodoroRepository.delete(session);
     }
 
+    private SessionScoreCalculator getCalculator(SessionType type) {
+        switch (type) {
+            case FOCUS:
+                return new FocusSessionScore();
+            case LONG_BREAK:
+                return new LongBreakSessionScore();
+            case SHORT_BREAK:
+            default:
+                return new BreakSessionScore();
+        }
+    }
+
     private User findUser(String username) {
         return userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User tidak ditemukan: " + username));
@@ -70,6 +92,7 @@ public class PomodoroServiceImpl implements IPomodoroService {
         response.setSessionType(session.getSessionType());
         response.setStartTime(session.getStartTime());
         response.setNotes(session.getNotes());
+        response.setPoints(session.getPoints());
         response.setCreatedAt(session.getCreatedAt());
         return response;
     }
