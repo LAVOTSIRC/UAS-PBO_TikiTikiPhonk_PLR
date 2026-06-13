@@ -1,0 +1,104 @@
+# ========================
+# Build Output
+# ========================
+target/
+build/
+*.jar
+*.war
+*.ear
+*.class
+
+# ========================
+# Maven Wrapper (keep mvnw scripts, ignore jar)
+# ========================
+.mvn/wrapper/maven-wrapper.jar
+
+# ========================
+# IntelliJ IDEA
+# ========================
+.idea/
+*.iml
+*.iws
+*.ipr
+**/*.iml
+out/
+
+# ========================
+# VS Code
+# ========================
+.vscode/
+*.code-workspace
+
+# ========================
+# Eclipse / NetBeans
+# ========================
+.project
+.classpath
+.settings/
+.factorypath
+.apt_generated
+.springBeans
+.sts4-cache
+nbproject/private/
+nbbuild/
+nbdist/
+.nb-gradle/
+build/
+
+# ========================
+# H2 Database (runtime data)
+# ========================
+data/
+*.db
+*.mv.db
+*.trace.db
+
+# ========================
+# Logs
+# ========================
+*.log
+logs/
+**/logs/
+
+# ========================
+# OS Files
+# ========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# ========================
+# Environment & Config
+# ========================
+.env
+.env.local
+*.env
+application-local.properties
+application-local.yml
+
+# ========================
+# Temp Files
+# ========================
+*.tmp
+*.swp
+*.swo
+*~
+~$*
+
+# ========================
+# Node (if any frontend npm later)
+# ========================
+node_modules/
+npm-debug.log*
+
+# ========================
+# Project-specific
+# ========================
+frontend/src/main/resources/audio/*.mp3
+frontend/src/main/resources/audio/*.wav
+frontend/src/main/resources/audio/*.aac
