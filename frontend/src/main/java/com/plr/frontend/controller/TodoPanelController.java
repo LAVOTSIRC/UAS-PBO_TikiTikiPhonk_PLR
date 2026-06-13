@@ -497,6 +497,7 @@ public class TodoPanelController {
                 
                 Label check = new Label();
                 check.getStyleClass().add("todo-check-box");
+                check.setMinWidth(Region.USE_PREF_SIZE); // Jangan sampai mengecil
                 if (isCompletedList) {
                     check.setText("❎");
                     check.getStyleClass().add("todo-checked");
@@ -531,6 +532,13 @@ public class TodoPanelController {
                 if (isCompletedList) {
                     text.getStyleClass().add("todo-text-done");
                 }
+                // Mencegah judul tugas yang panjang mendorong elemen lain keluar batas (horizontal scroll)
+                text.setMinWidth(0);
+                text.setMaxWidth(Double.MAX_VALUE);
+                text.setWrapText(false);
+                
+                // text diizinkan mengecil ketika tidak ada ruang
+                HBox.setHgrow(text, javafx.scene.layout.Priority.SOMETIMES);
                 
                 root.getChildren().addAll(check, text);
                 
@@ -538,6 +546,11 @@ public class TodoPanelController {
                 Region spacer = new Region();
                 HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
                 root.getChildren().add(spacer);
+                
+                // Mengikat ukuran root agar tidak pernah melebihi lebar list view (mencegah scrollbar horizontal)
+                if (getListView() != null) {
+                    root.maxWidthProperty().bind(getListView().widthProperty().subtract(30));
+                }
 
                 // Tambahkan Tag jika ada
                 if (taskId != null) {
@@ -545,6 +558,7 @@ public class TodoPanelController {
                     if (dto != null && dto.getCategory() != null) {
                         Label tagLabel = new Label();
                         tagLabel.setStyle("-fx-font-size: 10px; -fx-padding: 2 6; -fx-background-radius: 4; -fx-text-fill: #1A1722; -fx-font-weight: bold;");
+                        tagLabel.setMinWidth(Region.USE_PREF_SIZE); // Jangan disembunyikan/dikecilkan
                         switch (dto.getCategory()) {
                             case "KERJA": 
                                 tagLabel.setText("Kerja");
@@ -570,6 +584,7 @@ public class TodoPanelController {
                 if (taskId != null) {
                     javafx.scene.control.Button detailBtn = new javafx.scene.control.Button("📋");
                     detailBtn.getStyleClass().addAll("focus-btn", "detail-btn");
+                    detailBtn.setMinWidth(Region.USE_PREF_SIZE); // Jangan sampai icon tersembunyi
                     detailBtn.setOnMouseClicked(e -> {
                         e.consume();
                         openEditModal(taskId, isCompletedList);

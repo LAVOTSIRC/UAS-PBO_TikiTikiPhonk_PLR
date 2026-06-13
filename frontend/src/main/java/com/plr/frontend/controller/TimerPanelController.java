@@ -53,6 +53,7 @@ public class TimerPanelController {
     private LocalDateTime sessionStartTime;
     private int completedFocusSessions = 0;
     private int focusCountInCycle = 0;
+    private long currentTotalSessions = 0;
     private Long focusedTaskId;
 
     // State per tugas (bertahan selama session aplikasi)
@@ -67,11 +68,13 @@ public class TimerPanelController {
         String mode;
         int focusCountInCycle;
         int completedFocusSessions;
+        long totalSessions;
 
-        TaskTimerState(String mode, int focusCountInCycle, int completedFocusSessions) {
+        TaskTimerState(String mode, int focusCountInCycle, int completedFocusSessions, long totalSessions) {
             this.mode = mode;
             this.focusCountInCycle = focusCountInCycle;
             this.completedFocusSessions = completedFocusSessions;
+            this.totalSessions = totalSessions;
         }
     }
 
@@ -128,6 +131,7 @@ public class TimerPanelController {
             // Mode tanpa tugas aktif: reset ke awal
             completedFocusSessions = 0;
             focusCountInCycle = 0;
+            currentTotalSessions = 0;
             sessionCountLabel.setText("");
             pointsLabel.setText("");
             statusLabel.setText("");
@@ -138,13 +142,22 @@ public class TimerPanelController {
             TaskTimerState saved = taskStateMap.get(id);
             completedFocusSessions = saved.completedFocusSessions;
             focusCountInCycle = saved.focusCountInCycle;
+            currentTotalSessions = saved.totalSessions;
             restoreMode(saved.mode);
             updateSessionDots();
             updateTimerDisplay();
+            
+            // Instantly update label from memory
+            sessionCountLabel.setText(completedFocusSessions + " fokus \u00B7 " + currentTotalSessions + " total sesi");
+            
+            // Lakukan sinkronisasi ke backend secara asynchronous
+            refreshSessionCountLabel();
         } else {
             // Tugas baru / restart aplikasi: WAJIB muat dari backend
             completedFocusSessions = 0;
             focusCountInCycle = 0;
+            currentTotalSessions = 0;
+            sessionCountLabel.setText(""); // Kosongkan saat memuat
             applyFocusMode();
             updateSessionDots();
             loadSessionHistoryForTask(id);
@@ -390,7 +403,8 @@ public class TimerPanelController {
             taskStateMap.put(focusedTaskId, new TaskTimerState(
                 currentMode,
                 focusCountInCycle,
-                completedFocusSessions
+                completedFocusSessions,
+                currentTotalSessions
             ));
         }
     }
@@ -427,15 +441,15 @@ public class TimerPanelController {
                 String restoredMode = deriveNextMode(lastSessionType, focusCountInCycle);
 
                 // Simpan ke memory agar perpindahan tugas berikutnya bisa pakai cache
+                currentTotalSessions = sessions.size();
                 taskStateMap.put(taskId, new TaskTimerState(
-                    restoredMode, focusCountInCycle, completedFocusSessions));
+                    restoredMode, focusCountInCycle, completedFocusSessions, currentTotalSessions));
 
                 restoreMode(restoredMode);
                 updateSessionDots();
 
                 // Update label sesi
-                long totalSessions = sessions.size();
-                sessionCountLabel.setText(focusCount + " fokus \u00B7 " + totalSessions + " total sesi");
+                sessionCountLabel.setText(focusCount + " fokus \u00B7 " + currentTotalSessions + " total sesi");
             });
         });
 
@@ -489,8 +503,9 @@ public class TimerPanelController {
                 long focusCount = sessions.stream()
                     .filter(s -> "FOCUS".equals(s.get("sessionType")))
                     .count();
-                long totalSessions = sessions.size();
-                sessionCountLabel.setText(focusCount + " fokus \u00B7 " + totalSessions + " total sesi");
+                currentTotalSessions = sessions.size();
+                completedFocusSessions = (int) focusCount;
+                sessionCountLabel.setText(focusCount + " fokus \u00B7 " + currentTotalSessions + " total sesi");
             });
         });
 
