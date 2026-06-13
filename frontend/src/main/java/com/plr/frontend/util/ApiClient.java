@@ -206,6 +206,118 @@ public class ApiClient {
         }
     }
 
+    // ========== PLAYLIST ENDPOINTS ==========
+
+    public List<Map<String, Object>> getPlaylists() throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/api/playlists"))
+            .header("Authorization", SessionManager.getInstance().getAuthorizationHeader())
+            .GET()
+            .build();
+
+        HttpResponse<String> response = httpClient.send(request,
+            HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200) {
+            return objectMapper.readValue(response.body(),
+                new TypeReference<List<Map<String, Object>>>() {});
+        } else {
+            throw new Exception("Gagal mengambil playlist: " + response.statusCode());
+        }
+    }
+
+    public Map<String, Object> createPlaylist(Map<String, Object> playlistData) throws Exception {
+        String json = objectMapper.writeValueAsString(playlistData);
+
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/api/playlists"))
+            .header("Content-Type", "application/json")
+            .header("Authorization", SessionManager.getInstance().getAuthorizationHeader())
+            .POST(HttpRequest.BodyPublishers.ofString(json))
+            .build();
+
+        HttpResponse<String> response = httpClient.send(request,
+            HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 201) {
+            return objectMapper.readValue(response.body(),
+                new TypeReference<Map<String, Object>>() {});
+        } else {
+            throw new Exception("Gagal membuat playlist: " + response.body());
+        }
+    }
+
+    public void deletePlaylist(Long id) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/api/playlists/" + id))
+            .header("Authorization", SessionManager.getInstance().getAuthorizationHeader())
+            .DELETE()
+            .build();
+
+        HttpResponse<String> response = httpClient.send(request,
+            HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() != 204) {
+            throw new Exception("Gagal menghapus playlist: " + response.statusCode());
+        }
+    }
+
+    // ========== SONG ENDPOINTS ==========
+
+    public List<Map<String, Object>> getSongs(Long playlistId) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/api/playlists/" + playlistId + "/songs"))
+            .header("Authorization", SessionManager.getInstance().getAuthorizationHeader())
+            .GET()
+            .build();
+
+        HttpResponse<String> response = httpClient.send(request,
+            HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200) {
+            return objectMapper.readValue(response.body(),
+                new TypeReference<List<Map<String, Object>>>() {});
+        } else {
+            throw new Exception("Gagal mengambil lagu: " + response.statusCode());
+        }
+    }
+
+    public Map<String, Object> addSong(Long playlistId, Map<String, Object> songData) throws Exception {
+        String json = objectMapper.writeValueAsString(songData);
+
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/api/playlists/" + playlistId + "/songs"))
+            .header("Content-Type", "application/json")
+            .header("Authorization", SessionManager.getInstance().getAuthorizationHeader())
+            .POST(HttpRequest.BodyPublishers.ofString(json))
+            .build();
+
+        HttpResponse<String> response = httpClient.send(request,
+            HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 201) {
+            return objectMapper.readValue(response.body(),
+                new TypeReference<Map<String, Object>>() {});
+        } else {
+            throw new Exception("Gagal menambah lagu: " + response.body());
+        }
+    }
+
+    public void deleteSong(Long playlistId, Long songId) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/api/playlists/" + playlistId + "/songs/" + songId))
+            .header("Authorization", SessionManager.getInstance().getAuthorizationHeader())
+            .DELETE()
+            .build();
+
+        HttpResponse<String> response = httpClient.send(request,
+            HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() != 204) {
+            throw new Exception("Gagal menghapus lagu: " + response.statusCode());
+        }
+    }
+
     public ObjectMapper getObjectMapper() {
         return objectMapper;
     }

@@ -4,8 +4,11 @@ import com.plr.frontend.model.AudioTrack;
 import com.plr.frontend.model.NoiseType;
 import com.plr.frontend.model.Playlist;
 import com.plr.frontend.service.AudioPlayerService;
+import com.plr.frontend.util.ApiClient;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -15,7 +18,9 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AudioPanelController {
 
@@ -74,6 +79,7 @@ public class AudioPanelController {
         setupModeButtons();
         resetPlayerBar();
         showPlaylistList();
+        loadPlaylists();
     }
 
     private void setupServiceCallbacks() {
@@ -130,9 +136,9 @@ public class AudioPanelController {
                         setGraphic(null);
                     } else {
                         Label nameLabel = new Label(pl.getName());
-                        nameLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #F0EAFF; -fx-font-weight: bold;");
+                        nameLabel.getStyleClass().add("playlist-cell-name");
                         Label infoLabel = new Label(pl.getTrackCount() + " lagu" + (pl.getDescription().isEmpty() ? "" : " — " + pl.getDescription()));
-                        infoLabel.setStyle("-fx-font-size: 9px; -fx-text-fill: #7C6E8A;");
+                        infoLabel.getStyleClass().add("playlist-cell-info");
                         VBox vb = new VBox(2, nameLabel, infoLabel);
                         setGraphic(vb);
                     }
@@ -140,6 +146,25 @@ public class AudioPanelController {
             };
             return cell;
         });
+
+        ContextMenu playlistContextMenu = new ContextMenu();
+        MenuItem deleteItem = new MenuItem("Hapus Playlist");
+        deleteItem.setOnAction(e -> {
+            Playlist pl = playlistView.getSelectionModel().getSelectedItem();
+            if (pl != null && pl.getBackendId() != null) {
+                Task<Void> deleteTask = new Task<>() {
+                    @Override
+                    protected Void call() throws Exception {
+                        ApiClient.getInstance().deletePlaylist(pl.getBackendId());
+                        return null;
+                    }
+                };
+                deleteTask.setOnSucceeded(ev -> Platform.runLater(this::loadPlaylists));
+                new Thread(deleteTask).start();
+            }
+        });
+        playlistContextMenu.getItems().add(deleteItem);
+        playlistView.setContextMenu(playlistContextMenu);
 
         updateEmptyPlaylistVisibility();
     }
@@ -267,6 +292,58 @@ public class AudioPanelController {
         }
     }
 
+    private void loadPlaylists() {
+        Task<List<Map<String, Object>>> fetchTask = new Task<>() {
+            @Override
+            protected List<Map<String, Object>> call() throws Exception {
+                return ApiClient.getInstance().getPlaylists();
+            }
+        };
+
+        fetchTask.setOnSucceeded(e -> {
+            List<Map<String, Object>> data = fetchTask.getValue();
+            ObservableList<Playlist> playlists = audioService.getPlaylists();
+            playlists.clear();
+
+            for (Map<String, Object> plMap : data) {
+                Long id = ((Number) plMap.get("id")).longValue();
+                String name = (String) plMap.get("name");
+                String desc = (String) plMap.get("description");
+                if (desc == null) desc = "";
+
+                Playlist pl = new Playlist(name, desc);
+                pl.setBackendId(id);
+
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> songsData = (List<Map<String, Object>>) plMap.get("songs");
+                if (songsData != null) {
+                    for (Map<String, Object> songMap : songsData) {
+                        String filePath = (String) songMap.get("filePath");
+                        if (filePath != null && !filePath.isEmpty()) {
+                            File file = new File(filePath);
+                            if (file.exists()) {
+                                pl.addTrack(new AudioTrack(file));
+                            }
+                        }
+                    }
+                }
+                playlists.add(pl);
+            }
+
+            Platform.runLater(() -> {
+                showPlaylistList();
+                updateEmptyPlaylistVisibility();
+            });
+        });
+
+        fetchTask.setOnFailed(e -> {
+            // Backend tidak tersedia — tetap pakai data lokal (jika ada)
+            Platform.runLater(this::updateEmptyPlaylistVisibility);
+        });
+
+        new Thread(fetchTask).start();
+    }
+
     // ── Form Handlers ──────────────────────────────────────
 
     @FXML
@@ -299,16 +376,53 @@ public class AudioPanelController {
     public void handleSavePlaylist() {
         String name = formNameField.getText().trim();
         if (name.isEmpty()) {
-            formNameField.setStyle("-fx-border-color: #f38ba8; -fx-background-color:#1A1722; -fx-text-fill:#F0EAFF; -fx-border-radius:6; -fx-background-radius:6; -fx-padding:6 10; -fx-font-size:12px;");
+            formNameField.getStyleClass().add("audio-form-field-error");
             return;
         }
+        formNameField.getStyleClass().remove("audio-form-field-error");
         String desc = formDescField.getText().trim();
-        Playlist pl = new Playlist(name, desc);
-        for (File f : pendingFiles) {
-            pl.addTrack(new AudioTrack(f));
-        }
-        audioService.getPlaylists().add(pl);
-        showPlaylistTracks(pl);
+
+        Task<Map<String, Object>> saveTask = new Task<>() {
+            @Override
+            protected Map<String, Object> call() throws Exception {
+                Map<String, Object> plData = new HashMap<>();
+                plData.put("name", name);
+                plData.put("description", desc);
+                Map<String, Object> result = ApiClient.getInstance().createPlaylist(plData);
+                Long playlistId = ((Number) result.get("id")).longValue();
+
+                for (File f : pendingFiles) {
+                    String title = f.getName();
+                    int dot = title.lastIndexOf('.');
+                    if (dot > 0) title = title.substring(0, dot);
+
+                    Map<String, Object> songData = new HashMap<>();
+                    songData.put("title", title);
+                    songData.put("filePath", f.getAbsolutePath());
+                    songData.put("fileSize", f.length());
+                    ApiClient.getInstance().addSong(playlistId, songData);
+                }
+                return result;
+            }
+        };
+
+        String finalName = name;
+        saveTask.setOnSucceeded(e -> Platform.runLater(() -> {
+            loadPlaylists();
+            for (Playlist p : audioService.getPlaylists()) {
+                if (p.getName().equals(finalName) && p.getBackendId() != null) {
+                    showPlaylistTracks(p);
+                    return;
+                }
+            }
+            showPlaylistList();
+        }));
+
+        saveTask.setOnFailed(e -> Platform.runLater(() -> {
+            formNameField.getStyleClass().add("audio-form-field-error");
+        }));
+
+        new Thread(saveTask).start();
     }
 
     @FXML
@@ -437,10 +551,32 @@ public class AudioPanelController {
         List<File> selectedFiles = fileChooser.showOpenMultipleDialog(stage);
 
         if (selectedFiles != null && !selectedFiles.isEmpty()) {
-            for (File file : selectedFiles) {
-                viewingPlaylist.addTrack(new AudioTrack(file));
-            }
-            trackView.setItems(viewingPlaylist.getTracks());
+            Long playlistId = viewingPlaylist.getBackendId();
+
+            Task<Void> addTask = new Task<>() {
+                @Override
+                protected Void call() throws Exception {
+                    for (File file : selectedFiles) {
+                        String title = file.getName();
+                        int dot = title.lastIndexOf('.');
+                        if (dot > 0) title = title.substring(0, dot);
+
+                        Map<String, Object> songData = new HashMap<>();
+                        songData.put("title", title);
+                        songData.put("filePath", file.getAbsolutePath());
+                        songData.put("fileSize", file.length());
+                        ApiClient.getInstance().addSong(playlistId, songData);
+                    }
+                    return null;
+                }
+            };
+
+            addTask.setOnSucceeded(e -> Platform.runLater(() -> {
+                loadPlaylists();
+                showPlaylistList();
+            }));
+
+            new Thread(addTask).start();
         }
     }
 

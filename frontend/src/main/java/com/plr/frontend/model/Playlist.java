@@ -11,6 +11,7 @@ public class Playlist {
     private final String name;
     private final String description;
     private final ObservableList<AudioTrack> tracks = FXCollections.observableArrayList();
+    private Long backendId;
 
     public Playlist(String name, String description) {
         this.id = UUID.randomUUID().toString();
@@ -22,6 +23,8 @@ public class Playlist {
     public String getName() { return name; }
     public String getDescription() { return description; }
     public ObservableList<AudioTrack> getTracks() { return tracks; }
+    public Long getBackendId() { return backendId; }
+    public void setBackendId(Long backendId) { this.backendId = backendId; }
 
     public int getTrackCount() { return tracks.size(); }
 
