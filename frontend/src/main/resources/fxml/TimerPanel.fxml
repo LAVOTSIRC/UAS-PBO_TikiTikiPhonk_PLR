@@ -17,90 +17,97 @@
       HBox.hgrow="ALWAYS"
       fillWidth="true">
 
-    <Label fx:id="cycleLabel"
-           text="Sesi Fokus ke-1"
-           styleClass="timer-cycle-label"
-           alignment="CENTER">
-        <VBox.margin><Insets bottom="8"/></VBox.margin>
-    </Label>
-
-    <Label fx:id="activeTaskLabel"
-           text=""
-           styleClass="timer-active-task"
-           visible="false"
-           alignment="CENTER"/>
-
-    <StackPane prefWidth="270" prefHeight="270"
-               alignment="CENTER"
-               styleClass="timer-circle-container">
-        <VBox.margin><Insets bottom="16"/></VBox.margin>
-
-        <Circle radius="120"
-                fill="transparent"
-                styleClass="timer-bg-ring"
-                strokeWidth="10"/>
-
-        <Circle fx:id="timerArc"
-                radius="120"
-                fill="transparent"
-                styleClass="timer-progress-ring"
-                stroke="#C084FC"
-                strokeWidth="10"
-                rotate="-90"/>
-
-        <VBox alignment="CENTER" spacing="6">
-            <Label fx:id="timerLabel"
-                   text="25:00"
-                   styleClass="timer-display"
-                   alignment="CENTER"/>
-            <Label fx:id="sessionTypeLabel"
-                   text="Sesi Fokus"
-                   styleClass="timer-session-type"
-                   alignment="CENTER"/>
-        </VBox>
-
-    </StackPane>
-
-    <HBox fx:id="sessionDots"
-          styleClass="session-dots"
+    <VBox styleClass="timer-card-wrapper"
           alignment="CENTER"
-          spacing="6">
-        <VBox.margin><Insets bottom="8"/></VBox.margin>
-    </HBox>
+          maxWidth="400"
+          fillWidth="true">
 
-    <Label fx:id="pointsLabel"
-           text=""
-           styleClass="timer-points"
-           alignment="CENTER"/>
+        <Label fx:id="cycleLabel"
+               text="Sesi Fokus ke-1"
+               styleClass="timer-cycle-label"
+               alignment="CENTER">
+            <VBox.margin><Insets bottom="8"/></VBox.margin>
+        </Label>
 
-    <Label fx:id="sessionCountLabel"
-           text=""
-           styleClass="timer-session-count"
-           alignment="CENTER">
-        <VBox.margin><Insets bottom="8"/></VBox.margin>
-    </Label>
+        <Label fx:id="activeTaskLabel"
+               text=""
+               styleClass="timer-active-task"
+               visible="false"
+               alignment="CENTER"/>
 
-    <HBox styleClass="timer-controls"
-          alignment="CENTER"
-          spacing="16">
-        <VBox.margin><Insets bottom="12"/></VBox.margin>
+        <StackPane prefWidth="270" prefHeight="270"
+                   alignment="CENTER"
+                   styleClass="timer-circle-container">
+            <VBox.margin><Insets bottom="16"/></VBox.margin>
 
-        <Button fx:id="skipBtn"
-                text="⏭"
-                styleClass="timer-control-btn"
-                onAction="#handleSkip"/>
+            <Circle radius="120"
+                    fill="transparent"
+                    styleClass="timer-bg-ring"
+                    strokeWidth="10"/>
 
-        <Button fx:id="playPauseBtn"
-                text="▶"
-                styleClass="timer-play-btn"
-                onAction="#handlePlayPause"/>
+            <Circle fx:id="timerArc"
+                    radius="120"
+                    fill="transparent"
+                    styleClass="timer-progress-ring"
+                    stroke="#C084FC"
+                    strokeWidth="10"
+                    rotate="-90"/>
 
-        <Region prefWidth="48"/>
-    </HBox>
+            <VBox alignment="CENTER" spacing="6">
+                <Label fx:id="timerLabel"
+                       text="25:00"
+                       styleClass="timer-display"
+                       alignment="CENTER"/>
+                <Label fx:id="sessionTypeLabel"
+                       text="Sesi Fokus"
+                       styleClass="timer-session-type"
+                       alignment="CENTER"/>
+            </VBox>
 
-    <Label fx:id="statusLabel"
-           text=""
-           styleClass="timer-status"
-           alignment="CENTER"/>
+        </StackPane>
+
+        <HBox fx:id="sessionDots"
+              styleClass="session-dots"
+              alignment="CENTER"
+              spacing="6">
+            <VBox.margin><Insets bottom="8"/></VBox.margin>
+        </HBox>
+
+        <Label fx:id="pointsLabel"
+               text=""
+               styleClass="timer-points"
+               alignment="CENTER"/>
+
+        <Label fx:id="sessionCountLabel"
+               text=""
+               styleClass="timer-session-count"
+               alignment="CENTER">
+            <VBox.margin><Insets bottom="8"/></VBox.margin>
+        </Label>
+
+        <HBox styleClass="timer-controls"
+              alignment="CENTER"
+              spacing="16">
+            <VBox.margin><Insets bottom="12"/></VBox.margin>
+
+            <Button fx:id="skipBtn"
+                    text="⏭"
+                    styleClass="timer-control-btn"
+                    onAction="#handleSkip"/>
+
+            <Button fx:id="playPauseBtn"
+                    text="▶"
+                    styleClass="timer-play-btn"
+                    onAction="#handlePlayPause"/>
+
+            <Region prefWidth="48"/>
+        </HBox>
+
+        <Label fx:id="statusLabel"
+               text=""
+               styleClass="timer-status"
+               alignment="CENTER"/>
+
+    </VBox>
 
 </VBox>

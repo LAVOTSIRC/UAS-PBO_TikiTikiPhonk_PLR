@@ -17,6 +17,7 @@ import java.util.Optional;
 public class ProfilePanelController {
 
     @FXML private Circle userAvatarCircle;
+    @FXML private Label avatarInitialLabel;
     @FXML private Label usernameLabel;
     @FXML private Label emailLabel;
     @FXML private Label joinedDateLabel;
@@ -311,6 +312,7 @@ public class ProfilePanelController {
     private void setAvatarInitial(String username) {
         if (username != null && !username.isEmpty()) {
             userAvatarCircle.setFill(Color.web("#C084FC"));
+            avatarInitialLabel.setText(username.substring(0, 1).toUpperCase());
         }
     }
 

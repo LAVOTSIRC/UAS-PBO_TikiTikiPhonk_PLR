@@ -1,7 +1,6 @@
 package com.plr.backend.service.impl;
 
 import com.plr.backend.dto.StatSummaryResponse;
-import com.plr.backend.dto.StatSummaryResponse.DaySummary;
 import com.plr.backend.model.PomodoroSession;
 import com.plr.backend.model.TaskStatus;
 import com.plr.backend.model.User;
@@ -15,11 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.TextStyle;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,10 +50,9 @@ public class StatServiceImpl implements IStatService {
         long activeTasks = taskRepository.countByUserAndStatus(user, TaskStatus.TODO)
                          + taskRepository.countByUserAndStatus(user, TaskStatus.IN_PROGRESS);
 
-        List<DaySummary> focusMinutesByDay = getDailyFocusMinutes(user);
+        Map<String, Long> focusMinutesByDay = getDailyFocusMinutes(user);
 
         int currentStreak = computeStreak(focusMinutesByDay);
-        System.out.println("[StatServiceImpl] currentStreak computed: " + currentStreak);
 
         StatSummaryResponse response = new StatSummaryResponse();
         response.setTotalFocusMinutes(totalFocusMinutes);
@@ -71,10 +65,12 @@ public class StatServiceImpl implements IStatService {
         return response;
     }
 
-    private int computeStreak(List<DaySummary> focusMinutesByDay) {
+    private int computeStreak(Map<String, Long> focusMinutesByDay) {
+        List<String> sortedDates = new ArrayList<>(focusMinutesByDay.keySet());
+        Collections.sort(sortedDates);
         int streak = 0;
-        for (int i = focusMinutesByDay.size() - 1; i >= 0; i--) {
-            if (focusMinutesByDay.get(i).getMinutes() > 0) {
+        for (int i = sortedDates.size() - 1; i >= 0; i--) {
+            if (focusMinutesByDay.get(sortedDates.get(i)) > 0) {
                 streak++;
             } else {
                 break;
@@ -83,25 +79,23 @@ public class StatServiceImpl implements IStatService {
         return streak;
     }
 
-    private List<DaySummary> getDailyFocusMinutes(User user) {
+    private Map<String, Long> getDailyFocusMinutes(User user) {
         LocalDateTime sevenDaysAgo = LocalDate.now().minusDays(6).atStartOfDay();
         List<Object[]> raw = pomodoroRepository.findDailyFocusMinutesSince(user.getId(), sevenDaysAgo);
 
-        Map<LocalDate, Integer> dayMap = raw.stream()
-            .collect(Collectors.toMap(
-                row -> ((java.sql.Date) row[0]).toLocalDate(),
-                row -> {
-                    Number val = (Number) row[1];
-                    return val != null ? val.intValue() : 0;
-                }
-            ));
+        Map<String, Long> dayMap = raw.stream().collect(Collectors.toMap(
+            row -> ((java.sql.Date) row[0]).toLocalDate().toString(),
+            row -> {
+                Number val = (Number) row[1];
+                return val != null ? val.longValue() : 0L;
+            }
+        ));
 
-        List<DaySummary> result = new ArrayList<>();
+        Map<String, Long> result = new LinkedHashMap<>();
         for (int i = 0; i < 7; i++) {
             LocalDate date = LocalDate.now().minusDays(6 - i);
-            int minutes = dayMap.getOrDefault(date, 0);
-            String dayName = date.getDayOfWeek().getDisplayName(TextStyle.SHORT, new Locale("id", "ID"));
-            result.add(new DaySummary(dayName, minutes));
+            String key = date.toString(); // ISO "YYYY-MM-DD"
+            result.put(key, dayMap.getOrDefault(key, 0L));
         }
         return result;
     }

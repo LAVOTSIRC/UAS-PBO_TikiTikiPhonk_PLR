@@ -8,6 +8,8 @@ import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -54,11 +56,12 @@ public class StatsController {
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         series.setName("Menit Fokus");
 
-        List<Map<String, Object>> days = (List<Map<String, Object>>) stats.get("focusMinutesByDay");
-        if (days != null) {
-            for (Map<String, Object> day : days) {
-                String date = (String) day.get("date");
-                int minutes = ((Number) day.get("minutes")).intValue();
+        Map<String, Object> days = (Map<String, Object>) stats.get("focusMinutesByDay");
+        if (days != null && !days.isEmpty()) {
+            List<String> sortedDates = new ArrayList<>(days.keySet());
+            Collections.sort(sortedDates);
+            for (String date : sortedDates) {
+                Number minutes = (Number) days.get(date);
                 series.getData().add(new XYChart.Data<>(date, minutes));
             }
         }
