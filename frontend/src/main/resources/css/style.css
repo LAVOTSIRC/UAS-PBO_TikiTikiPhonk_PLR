@@ -8,7 +8,8 @@
 
 /* ---- Root / Base ----------------------------------------- */
 .root {
-    -fx-font-family: 'Space Grotesk', 'Segoe UI', 'Helvetica Neue', sans-serif;
+    /* Tambah 'Segoe UI Emoji' dan 'Segoe UI Symbol' sebagai fallback untuk emoji Unicode di Windows */
+    -fx-font-family: 'Space Grotesk', 'Segoe UI', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Helvetica Neue', sans-serif;
     -fx-background-color: #0E0C10;
     -fx-text-fill: #F0EAFF;
 }
@@ -16,7 +17,7 @@
 /* ---- Global Labels --------------------------------------- */
 .label {
     -fx-text-fill: #F0EAFF;
-    -fx-font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+    -fx-font-family: 'Space Grotesk', 'Segoe UI', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
 }
 
 /* ---- Global Text Fields ---------------------------------- */
@@ -47,7 +48,8 @@
     -fx-cursor: hand;
     -fx-padding: 8 16 8 16;
     -fx-font-size: 13px;
-    -fx-font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+    /* Tambah emoji font fallback agar ikon button muncul */
+    -fx-font-family: 'Space Grotesk', 'Segoe UI', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
     -fx-border-color: transparent;
     -fx-border-width: 0;
 }
@@ -200,10 +202,9 @@
     -fx-alignment: center;
 }
 
+/* Sidebar nav buttons — disederhanakan karena ikon ada di graphic Label, bukan button text */
 .sidebar-nav-btn {
     -fx-background-color: transparent;
-    -fx-text-fill: #7C6E8A;
-    -fx-font-size: 16px;
     -fx-cursor: hand;
     -fx-border-radius: 10;
     -fx-background-radius: 10;
@@ -213,6 +214,9 @@
     -fx-min-height: 40;
     -fx-alignment: center;
     -fx-border-color: transparent;
+    -fx-border-width: 0;
+    /* Pastikan tidak ada padding berlebih yang menggeser graphic */
+    -fx-padding: 0;
 }
 
 .sidebar-nav-btn:hover {
@@ -227,8 +231,6 @@
 
 .sidebar-logout-btn {
     -fx-background-color: transparent;
-    -fx-text-fill: #7C6E8A;
-    -fx-font-size: 14px;
     -fx-cursor: hand;
     -fx-border-radius: 10;
     -fx-background-radius: 10;
@@ -238,11 +240,12 @@
     -fx-min-height: 40;
     -fx-alignment: center;
     -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 0;
 }
 
 .sidebar-logout-btn:hover {
     -fx-background-color: #2A1010;
-    -fx-text-fill: #f38ba8;
 }
 
 /* ============================================================
@@ -260,27 +263,52 @@
     -fx-spacing: 10;
 }
 
-.todo-header {
-    -fx-font-size: 15px;
+/* Label Section (TO-DO, AKTIF, dll) */
+.panel-label {
+    -fx-font-size: 11px;
     -fx-font-weight: bold;
-    -fx-text-fill: #F0EAFF;
+    -fx-text-fill: #7C6E8A;
 }
 
 .task-input {
     -fx-background-color: #1A1722;
     -fx-border-color: #2D2936;
-    -fx-border-radius: 20;
-    -fx-background-radius: 20;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
     -fx-text-fill: #F0EAFF;
     -fx-prompt-text-fill: #7C6E8A;
-    -fx-padding: 8 16 8 16;
-    -fx-font-size: 12px;
+    -fx-padding: 8 10 8 10;
+    -fx-font-size: 13px;
     -fx-pref-height: 36;
     -fx-pref-width: Infinity;
 }
 
 .task-input:focused {
     -fx-border-color: #C084FC;
+}
+
+/* Tombol "+" untuk menambah task — menggunakan graphic label agar karakter selalu tampil */
+.add-task-btn {
+    -fx-background-color: #2D2936;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 0;
+    -fx-alignment: center;
+    -fx-min-width: 24;
+    -fx-min-height: 24;
+    -fx-pref-width: 24;
+    -fx-pref-height: 24;
+}
+
+.add-task-btn:hover {
+    -fx-background-color: #3D3748;
+}
+
+.add-task-btn:pressed {
+    -fx-background-color: #4A4258;
 }
 
 .section-label {
@@ -299,22 +327,20 @@
 
 .task-list-view .list-cell {
     -fx-background-color: transparent;
-    -fx-text-fill: #F0EAFF;
-    -fx-padding: 8 8 8 8;
-    -fx-font-size: 12px;
-    -fx-border-color: transparent transparent #1A1722 transparent;
-    -fx-border-width: 0 0 1 0;
+    -fx-padding: 6 8 6 8;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-border-color: transparent;
+    -fx-border-width: 0.5;
 }
 
 .task-list-view .list-cell:hover {
-    -fx-background-color: #1A1722;
-    -fx-background-radius: 6;
+    -fx-background-color: #1A171F;
 }
 
 .task-list-view .list-cell:selected {
-    -fx-background-color: #2D2936;
-    -fx-background-radius: 6;
-    -fx-text-fill: #C084FC;
+    -fx-background-color: #1A171F;
+    -fx-border-color: #3D2E52;
 }
 
 .task-list-view .list-cell:empty {
@@ -322,43 +348,45 @@
     -fx-border-color: transparent;
 }
 
-.completed-list-view .list-cell {
+/* Sesi Hari Ini (Session History) */
+.session-history {
+    -fx-border-color: #2D2936 transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 12 0 0 0;
+}
+
+.session-dot {
+    -fx-min-width: 8;
+    -fx-min-height: 8;
+    -fx-max-width: 8;
+    -fx-max-height: 8;
+    -fx-background-radius: 50%;
+}
+
+.dot-purple {
+    -fx-background-color: #C084FC;
+}
+
+.session-stat {
+    -fx-font-family: 'JetBrains Mono', 'Consolas', monospace;
+    -fx-font-size: 12px;
     -fx-text-fill: #7C6E8A;
-}
-
-.session-summary {
-    -fx-background-color: #140F1C;
-    -fx-border-radius: 10;
-    -fx-background-radius: 10;
-    -fx-padding: 10 12 10 12;
-    -fx-border-color: #2D2936;
-    -fx-border-width: 1;
-    -fx-spacing: 4;
-}
-
-.summary-title {
-    -fx-font-size: 10px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #7C6E8A;
-}
-
-.summary-value {
-    -fx-font-size: 13px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #C084FC;
 }
 
 .todo-delete-btn {
     -fx-background-color: transparent;
-    -fx-text-fill: #7C6E8A;
+    /* Teks lebih kontras agar tombol terlihat jelas */
+    -fx-text-fill: #C084FC;
     -fx-cursor: hand;
     -fx-font-size: 11px;
-    -fx-padding: 4 8 4 8;
+    -fx-padding: 6 8 6 8;
     -fx-border-radius: 6;
     -fx-background-radius: 6;
-    -fx-border-color: #2D2936;
+    /* Border lebih terang agar tombol terlihat */
+    -fx-border-color: #4A4258;
     -fx-border-width: 1;
     -fx-pref-width: 212;
+    -fx-max-width: Infinity;
 }
 
 .todo-delete-btn:hover {
@@ -489,6 +517,7 @@
 
 .audio-panel {
     -fx-background-color: #0C0A0F;
+    /* FIX: border-color dan border-width harus konsisten (kiri = 1px) */
     -fx-border-color: transparent transparent transparent #2D2936;
     -fx-border-width: 0 0 0 1;
     -fx-pref-width: 220;

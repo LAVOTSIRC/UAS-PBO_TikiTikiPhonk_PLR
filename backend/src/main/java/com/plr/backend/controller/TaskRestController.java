@@ -43,7 +43,12 @@ public class TaskRestController {
             TaskResponse updated = taskService.updateTask(id, request, authentication.getName());
             return ResponseEntity.ok(updated);
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            // BUG-05 FIX: Bedakan 404 (task not found) dari 500 (error lain)
+            String msg = e.getMessage();
+            if (msg != null && msg.contains("Tugas tidak ditemukan")) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.internalServerError().body(msg);
         }
     }
 
@@ -55,7 +60,12 @@ public class TaskRestController {
             taskService.deleteTask(id, authentication.getName());
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            // BUG-05 FIX: Bedakan 404 (task not found) dari 500 (error lain)
+            String msg = e.getMessage();
+            if (msg != null && msg.contains("Tugas tidak ditemukan")) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -67,7 +77,12 @@ public class TaskRestController {
             TaskResponse task = taskService.getTaskById(id, authentication.getName());
             return ResponseEntity.ok(task);
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            // BUG-05 FIX: Bedakan 404 (task not found) dari 500 (error lain)
+            String msg = e.getMessage();
+            if (msg != null && msg.contains("Tugas tidak ditemukan")) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.internalServerError().body(msg);
         }
     }
 }

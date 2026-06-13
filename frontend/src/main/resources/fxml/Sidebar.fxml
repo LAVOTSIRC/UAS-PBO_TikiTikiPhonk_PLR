@@ -9,7 +9,9 @@
 
 <!--
     Sidebar.fxml — Panel Navigasi Kiri (56px)
-    Berisi: logo/avatar, tombol nav vertikal, logout di bawah
+    PERBAIKAN: semua tombol menggunakan <graphic><Label> seperti pola audio buttons
+    agar ikon Unicode/emoji tampil di JavaFX Windows (Button text tidak render emoji,
+    tapi Label graphic bisa)
 -->
 <VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
@@ -27,48 +29,64 @@
         <tooltip><Tooltip text="Profil kamu"/></tooltip>
     </Label>
 
-    <!-- Nav: Tasks -->
+    <!-- Nav: Tasks — menggunakan graphic label (bukan button text) -->
     <Button fx:id="tasksNavBtn"
-            text="✓"
-            styleClass="sidebar-nav-btn"
+            styleClass="sidebar-nav-btn, active"
             onAction="#handleTasksNav">
+        <graphic>
+            <Label text="✅"
+                   style="-fx-font-size:20px; -fx-background-color:transparent; -fx-padding:0;"/>
+        </graphic>
         <VBox.margin><Insets bottom="4"/></VBox.margin>
         <tooltip><Tooltip text="To-Do List"/></tooltip>
     </Button>
 
     <!-- Nav: Timer -->
     <Button fx:id="timerNavBtn"
-            text="⏱"
             styleClass="sidebar-nav-btn"
             onAction="#handleTimerNav">
+        <graphic>
+            <Label text="⏱"
+                   style="-fx-font-size:20px; -fx-background-color:transparent; -fx-padding:0;"/>
+        </graphic>
         <VBox.margin><Insets bottom="4"/></VBox.margin>
         <tooltip><Tooltip text="Pomodoro Timer"/></tooltip>
     </Button>
 
     <!-- Nav: Audio -->
     <Button fx:id="audioNavBtn"
-            text="🎵"
             styleClass="sidebar-nav-btn"
             onAction="#handleAudioNav">
+        <graphic>
+            <Label text="🎵"
+                   style="-fx-font-size:20px; -fx-background-color:transparent; -fx-padding:0;"/>
+        </graphic>
         <VBox.margin><Insets bottom="4"/></VBox.margin>
         <tooltip><Tooltip text="Audio"/></tooltip>
     </Button>
 
     <!-- Nav: Settings -->
     <Button fx:id="settingsNavBtn"
-            text="⚙"
             styleClass="sidebar-nav-btn"
             onAction="#handleSettings">
+        <graphic>
+            <Label text="⚙"
+                   style="-fx-font-size:20px; -fx-background-color:transparent; -fx-padding:0;"/>
+        </graphic>
         <tooltip><Tooltip text="Pengaturan"/></tooltip>
     </Button>
 
     <!-- Spacer -->
     <Region VBox.vgrow="ALWAYS"/>
 
-    <!-- Logout Button -->
-    <Button text="⏻"
+    <!-- Logout Button — fx:id agar bisa dikontrol dari SidebarController -->
+    <Button fx:id="logoutBtn"
             styleClass="sidebar-logout-btn"
             onAction="#handleLogout">
+        <graphic>
+            <Label text="🚪"
+                   style="-fx-font-size:20px; -fx-background-color:transparent; -fx-padding:0;"/>
+        </graphic>
         <VBox.margin><Insets bottom="8"/></VBox.margin>
         <tooltip><Tooltip text="Keluar"/></tooltip>
     </Button>

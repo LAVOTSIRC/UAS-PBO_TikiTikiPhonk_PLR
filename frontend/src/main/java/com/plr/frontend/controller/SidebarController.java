@@ -14,6 +14,7 @@ public class SidebarController {
     @FXML private Button timerNavBtn;
     @FXML private Button audioNavBtn;
     @FXML private Button settingsNavBtn;
+    @FXML private Button logoutBtn;
 
     @FXML
     public void initialize() {

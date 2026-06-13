@@ -28,7 +28,8 @@ public class LoginController {
     @FXML
     public void handleLogin() {
         String username = usernameField.getText().trim();
-        String password = passwordField.getText().trim();
+        // BUG-16 FIX: Jangan trim() password — spasi di awal/akhir adalah bagian valid dari password
+        String password = passwordField.getText();
 
         if (username.isEmpty() || password.isEmpty()) {
             showError("Username dan password tidak boleh kosong!");
@@ -50,8 +51,11 @@ public class LoginController {
             String uname = (String) response.get("username");
             Long uid = ((Number) response.get("userId")).longValue();
             SessionManager.getInstance().setSession(token, uname, uid);
-            setLoading(false);
-            JavaFXApp.showScene("fxml/MainLayout.fxml", "TikiTikiPhonk - " + uname, 1100, 700);
+            // BUG-03 FIX: Eksplisit Platform.runLater() untuk semua UI update pasca async
+            Platform.runLater(() -> {
+                setLoading(false);
+                JavaFXApp.showScene("fxml/MainLayout.fxml", "TikiTikiPhonk - " + uname, 1100, 700);
+            });
         });
 
         loginTask.setOnFailed(event -> {
