@@ -23,6 +23,7 @@ public class TodoPanelController {
 
     private final ObservableList<String> activeTasks = FXCollections.observableArrayList();
     private final ObservableList<String> completedTasks = FXCollections.observableArrayList();
+    private Runnable onTasksChanged;
 
     // BUG-07 FIX: Ganti Map<String, Long> (title→id, rawan duplikat) dengan
     // cache bertipe Map<Long, Map<String,Object>> (id→fullData).
@@ -142,6 +143,7 @@ public class TodoPanelController {
                 if (sessionCountLabel != null) {
                     sessionCountLabel.setText(finalDone + " dari " + tasks.size() + " selesai");
                 }
+                if (onTasksChanged != null) onTasksChanged.run();
             });
         });
 
@@ -271,6 +273,25 @@ public class TodoPanelController {
         });
 
         new Thread(deleteTask).start();
+    }
+
+    public void setOnTasksChanged(Runnable callback) {
+        this.onTasksChanged = callback;
+    }
+
+    public String getFirstActiveTask() {
+        if (activeTasks.isEmpty()) return null;
+        return extractTitle(activeTasks.get(0));
+    }
+
+    public void loadTasks(Runnable callback) {
+        loadTasks();
+        if (callback != null) {
+            new Thread(() -> {
+                try { Thread.sleep(100); } catch (InterruptedException ignored) {}
+                javafx.application.Platform.runLater(callback);
+            }).start();
+        }
     }
 
     // ========== HELPER METHODS ==========
