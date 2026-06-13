@@ -3,6 +3,7 @@ package com.plr.frontend.util;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.plr.frontend.dto.TaskClientDto;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -90,7 +91,7 @@ public class ApiClient {
 
     // ========== TASK ENDPOINTS ==========
 
-    public List<Map<String, Object>> getTasks() throws Exception {
+    public List<TaskClientDto> getTasks() throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(BASE_URL + "/api/tasks"))
             .header("Authorization", SessionManager.getInstance().getAuthorizationHeader())
@@ -102,13 +103,13 @@ public class ApiClient {
 
         if (response.statusCode() == 200) {
             return objectMapper.readValue(response.body(),
-                new TypeReference<List<Map<String, Object>>>() {});
+                new TypeReference<List<TaskClientDto>>() {});
         } else {
             throw new Exception("Gagal mengambil tugas: " + response.statusCode());
         }
     }
 
-    public Map<String, Object> createTask(Map<String, Object> taskData) throws Exception {
+    public TaskClientDto createTask(TaskClientDto taskData) throws Exception {
         String json = objectMapper.writeValueAsString(taskData);
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -123,13 +124,13 @@ public class ApiClient {
 
         if (response.statusCode() == 201) {
             return objectMapper.readValue(response.body(),
-                new TypeReference<Map<String, Object>>() {});
+                new TypeReference<TaskClientDto>() {});
         } else {
             throw new Exception("Gagal membuat tugas: " + response.body());
         }
     }
 
-    public Map<String, Object> updateTask(Long id, Map<String, Object> taskData) throws Exception {
+    public TaskClientDto updateTask(Long id, TaskClientDto taskData) throws Exception {
         String json = objectMapper.writeValueAsString(taskData);
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -144,7 +145,7 @@ public class ApiClient {
 
         if (response.statusCode() == 200) {
             return objectMapper.readValue(response.body(),
-                new TypeReference<Map<String, Object>>() {});
+                new TypeReference<TaskClientDto>() {});
         } else {
             throw new Exception("Gagal memperbarui tugas: " + response.body());
         }

@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextField?>
@@ -20,33 +21,37 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.plr.frontend.controller.TodoPanelController"
       styleClass="todo-panel"
-      prefWidth="240" minWidth="240" maxWidth="240"
+      prefWidth="300" minWidth="300" maxWidth="300"
       fillWidth="true" VBox.vgrow="ALWAYS">
 
     <!-- Header Row -->
     <HBox alignment="CENTER_LEFT" spacing="8">
-        <Label text="TO-DO" styleClass="panel-label"/>
+        <Label text="TO-DO LIST" style="-fx-text-fill: #F0EAFF; -fx-font-weight: bold; -fx-font-size: 16px;"/>
         <Region HBox.hgrow="ALWAYS"/>
-        <Label fx:id="statusLabel" text="" styleClass="section-label"/>
-        <!-- Tombol "+" -->
-        <Button styleClass="add-task-btn"
-                onAction="#handleAddTask"
-                minWidth="24" minHeight="24"
-                prefWidth="24" prefHeight="24">
-            <graphic>
-                <Label text="+"
-                       style="-fx-font-size:16px; -fx-font-weight:bold; -fx-text-fill:#C084FC; -fx-background-color:transparent; -fx-padding:0;"/>
-            </graphic>
-        </Button>
     </HBox>
 
-    <!-- Input Row: input field tanpa HBox agar tidak collapse -->
-    <TextField fx:id="taskInputField"
-               promptText="Tambah tugas baru..."
-               styleClass="task-input"
-               onAction="#handleAddTask">
-        <VBox.margin><Insets top="10" bottom="10"/></VBox.margin>
+    <!-- Tombol Tambah Tugas Baru -->
+    <Button text="+ Tambah Tugas"
+            styleClass="add-task-btn"
+            style="-fx-background-color: #845EC2; -fx-text-fill: white; -fx-font-weight: bold;"
+            maxWidth="Infinity"
+            onAction="#handleOpenTaskModal">
+        <VBox.margin><Insets top="15" bottom="10"/></VBox.margin>
+    </Button>
+
+    <!-- Search Row -->
+    <TextField fx:id="searchField"
+               promptText="Cari tugas..."
+               styleClass="task-input">
+        <VBox.margin><Insets bottom="8"/></VBox.margin>
     </TextField>
+
+    <!-- Filter & Sort Dropdowns -->
+    <HBox spacing="8">
+        <ComboBox fx:id="filterCategoryComboBox" styleClass="todo-combo-box" maxWidth="Infinity" HBox.hgrow="ALWAYS" promptText="Filter"/>
+        <ComboBox fx:id="sortTaskComboBox" styleClass="todo-combo-box" maxWidth="Infinity" HBox.hgrow="ALWAYS" promptText="Urutkan"/>
+        <VBox.margin><Insets bottom="10"/></VBox.margin>
+    </HBox>
 
     <!-- Section: Aktif -->
     <Label text="AKTIF" styleClass="panel-label">
@@ -70,15 +75,16 @@
               VBox.vgrow="SOMETIMES"
               prefHeight="100"/>
 
+    <!-- Spacer -->
+    <Region VBox.vgrow="ALWAYS"/>
+
     <!-- Delete Button — teks biasa (tanpa emoji) agar selalu terbaca -->
     <Button text="Hapus Tugas Dipilih"
             styleClass="todo-delete-btn"
+            maxWidth="Infinity"
             onAction="#handleDeleteSelected">
-        <VBox.margin><Insets top="8"/></VBox.margin>
+        <VBox.margin><Insets top="8" bottom="8"/></VBox.margin>
     </Button>
-
-    <!-- Spacer -->
-    <Region VBox.vgrow="ALWAYS"/>
 
     <!-- Session Summary Card -->
     <VBox styleClass="session-history">

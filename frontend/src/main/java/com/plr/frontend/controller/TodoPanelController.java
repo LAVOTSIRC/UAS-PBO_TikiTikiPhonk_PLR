@@ -1,238 +1,294 @@
 package com.plr.frontend.controller;
 
+import com.plr.frontend.dto.TaskClientDto;
 import com.plr.frontend.util.ApiClient;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.geometry.Pos;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TodoPanelController {
 
-    @FXML private TextField taskInputField;
+    @FXML private TextField searchField;
+    @FXML private ComboBox<String> filterCategoryComboBox;
+    @FXML private ComboBox<String> sortTaskComboBox;
     @FXML private ListView<String> activeTasksList;
     @FXML private ListView<String> completedTasksList;
     @FXML private Label sessionCountLabel;
-    @FXML private Label statusLabel;
 
     private final ObservableList<String> activeTasks = FXCollections.observableArrayList();
     private final ObservableList<String> completedTasks = FXCollections.observableArrayList();
 
-    // BUG-07 FIX: Ganti Map<String, Long> (title→id, rawan duplikat) dengan
-    // cache bertipe Map<Long, Map<String,Object>> (id→fullData).
-    // ID di-encode ke display string sebagai "title|id" agar selalu unik.
-    private final Map<Long, Map<String, Object>> taskCache = new HashMap<>();
+    private final Map<Long, TaskClientDto> taskCache = new HashMap<>();
+
+    // Untuk fitur Undo
+    private TaskClientDto lastDeletedTask = null;
 
     @FXML
     public void initialize() {
         activeTasksList.setItems(activeTasks);
         completedTasksList.setItems(completedTasks);
 
-        // Gunakan CellFactory kustom untuk merender checkbox lingkaran + teks seperti desain referensi
-        activeTasksList.setCellFactory(lv -> new ListCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                    setGraphic(null);
-                } else {
-                    javafx.scene.layout.HBox root = new javafx.scene.layout.HBox(8);
-                    root.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-                    
-                    javafx.scene.shape.Circle check = new javafx.scene.shape.Circle(8);
-                    check.setFill(javafx.scene.paint.Color.TRANSPARENT);
-                    check.setStroke(javafx.scene.paint.Color.web("#4A4055"));
-                    check.setStrokeWidth(1.5);
-                    
-                    Label text = new Label(extractTitle(item));
-                    text.setStyle("-fx-text-fill: #D4C8E8; -fx-font-size: 13px;");
-                    
-                    root.getChildren().addAll(check, text);
-                    setGraphic(root);
-                    setText(null);
-                }
+        filterCategoryComboBox.getItems().addAll("Semua Kategori", "Kerja", "Fokus", "Cepat");
+        filterCategoryComboBox.getSelectionModel().selectFirst();
+        
+        sortTaskComboBox.getItems().addAll("Paling Baru", "Tenggat Waktu", "Sesuai Abjad");
+        sortTaskComboBox.getSelectionModel().selectFirst();
+
+        filterCategoryComboBox.valueProperty().addListener((obs, oldV, newV) -> refreshListViews());
+        sortTaskComboBox.valueProperty().addListener((obs, oldV, newV) -> refreshListViews());
+        
+        if (searchField != null) {
+            searchField.textProperty().addListener((obs, oldV, newV) -> refreshListViews());
+        }
+
+        activeTasksList.setCellFactory(lv -> new TaskListCell(false));
+        completedTasksList.setCellFactory(lv -> new TaskListCell(true));
+
+        // Bersihkan seleksi di list sebelah agar hanya 1 tugas yang bisa dipilih (UX fix)
+        activeTasksList.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                completedTasksList.getSelectionModel().clearSelection();
             }
         });
-
-        completedTasksList.setCellFactory(lv -> new ListCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                    setGraphic(null);
-                } else {
-                    // Hapus prefix "✓ " karena kita merender GUI kustom
-                    String displayTitle = extractTitle(item);
-                    if (displayTitle.startsWith("✓ ")) {
-                        displayTitle = displayTitle.substring(2);
-                    }
-
-                    javafx.scene.layout.HBox root = new javafx.scene.layout.HBox(8);
-                    root.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-                    
-                    javafx.scene.shape.Circle check = new javafx.scene.shape.Circle(8);
-                    check.setFill(javafx.scene.paint.Color.web("#C084FC"));
-                    check.setStroke(javafx.scene.paint.Color.TRANSPARENT);
-                    
-                    Label text = new Label(displayTitle);
-                    text.setStyle("-fx-text-fill: #4A4055; -fx-font-size: 13px; -fx-strikethrough: true;");
-                    
-                    root.getChildren().addAll(check, text);
-                    setGraphic(root);
-                    setText(null);
-                }
-            }
-        });
-
-        // Double-click active task untuk menandai selesai
-        activeTasksList.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) {
-                String selected = activeTasksList.getSelectionModel().getSelectedItem();
-                if (selected != null) {
-                    markTaskDone(selected);
-                }
+        
+        completedTasksList.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                activeTasksList.getSelectionModel().clearSelection();
             }
         });
     }
 
     public void loadTasks() {
-        Task<List<Map<String, Object>>> fetchTask = new Task<>() {
+        Task<List<TaskClientDto>> fetchTask = new Task<>() {
             @Override
-            protected List<Map<String, Object>> call() throws Exception {
+            protected List<TaskClientDto> call() throws Exception {
                 return ApiClient.getInstance().getTasks();
             }
         };
 
         fetchTask.setOnSucceeded(e -> {
-            List<Map<String, Object>> tasks = fetchTask.getValue();
-            activeTasks.clear();
-            completedTasks.clear();
+            List<TaskClientDto> tasks = fetchTask.getValue();
             taskCache.clear();
-
-            int doneCount = 0;
-            for (Map<String, Object> t : tasks) {
-                String title = (String) t.get("title");
-                String status = (String) t.get("status");
-                Long id = ((Number) t.get("id")).longValue();
-
-                // BUG-07 FIX: Simpan full task data di cache dengan key = id (unik)
-                taskCache.put(id, t);
-
-                // Encode id ke display string: "title|id" — dijamin unik walau judul sama
-                String displayKey = title + "|" + id;
-
-                if ("DONE".equals(status)) {
-                    completedTasks.add("✓ " + displayKey);
-                    doneCount++;
-                } else {
-                    activeTasks.add(displayKey);
-                }
+            for (TaskClientDto t : tasks) {
+                taskCache.put(t.getId(), t);
             }
-
-            final int finalDone = doneCount;
-            Platform.runLater(() -> {
-                if (sessionCountLabel != null) {
-                    sessionCountLabel.setText(finalDone + " dari " + tasks.size() + " selesai");
-                }
-            });
+            Platform.runLater(this::refreshListViews);
         });
 
         fetchTask.setOnFailed(e -> {
-            // BUG-19 FIX: Tampilkan error yang informatif, bukan silent fail
             Platform.runLater(() -> {
-                if (statusLabel != null)
-                    statusLabel.setText("⚠ Gagal memuat tugas: " + fetchTask.getException().getMessage());
+                showNotification("⚠ Gagal memuat tugas: " + fetchTask.getException().getMessage(), false);
             });
         });
 
         new Thread(fetchTask).start();
     }
 
-    @FXML
-    public void handleAddTask() {
-        String title = taskInputField.getText().trim();
-        if (title.isEmpty()) {
-            // Feedback visual: beritahu user bahwa nama tugas harus diisi
-            if (statusLabel != null) {
-                statusLabel.setText("⚠ Ketik nama tugas dulu!");
-            }
-            taskInputField.requestFocus();
-            return;
+    private void refreshListViews() {
+        String searchText = searchField != null && searchField.getText() != null ? searchField.getText().toLowerCase() : "";
+        String filterCat = filterCategoryComboBox.getValue();
+        String sortMode = sortTaskComboBox.getValue();
+
+        List<TaskClientDto> filtered = taskCache.values().stream()
+            .filter(t -> t.getTitle().toLowerCase().contains(searchText))
+            .filter(t -> {
+                if ("Semua Kategori".equals(filterCat)) return true;
+                if (t.getCategory() == null) return false;
+                if ("Kerja".equals(filterCat) && "KERJA".equals(t.getCategory())) return true;
+                if ("Fokus".equals(filterCat) && "FOKUS".equals(t.getCategory())) return true;
+                if ("Cepat".equals(filterCat) && "CEPAT".equals(t.getCategory())) return true;
+                return false;
+            })
+            .collect(Collectors.toList());
+
+        // Sortir
+        if ("Sesuai Abjad".equals(sortMode)) {
+            filtered.sort(Comparator.comparing(TaskClientDto::getTitle, String.CASE_INSENSITIVE_ORDER));
+        } else if ("Tenggat Waktu".equals(sortMode)) {
+            filtered.sort((a, b) -> {
+                if (a.getDueDate() == null && b.getDueDate() == null) return 0;
+                if (a.getDueDate() == null) return 1;
+                if (b.getDueDate() == null) return -1;
+                return a.getDueDate().compareTo(b.getDueDate());
+            });
+        } else { // Paling Baru (Berdasarkan ID turun)
+            filtered.sort((a, b) -> Long.compare(b.getId(), a.getId()));
         }
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("title", title);
-        data.put("status", "TODO");
+        activeTasks.clear();
+        completedTasks.clear();
+        int doneCount = 0;
 
-        Task<Map<String, Object>> createTask = new Task<>() {
-            @Override
-            protected Map<String, Object> call() throws Exception {
-                return ApiClient.getInstance().createTask(data);
+        for (TaskClientDto t : filtered) {
+            String displayKey = t.getTitle() + "|" + t.getId();
+            if ("DONE".equals(t.getStatus())) {
+                completedTasks.add("✓ " + displayKey);
+                doneCount++;
+            } else {
+                activeTasks.add(displayKey);
             }
-        };
+        }
 
-        createTask.setOnSucceeded(e -> {
-            Platform.runLater(() -> {
-                taskInputField.clear();
-                if (statusLabel != null) statusLabel.setText("");
-                loadTasks();
-            });
-        });
-
-        createTask.setOnFailed(e -> {
-            // BUG-19 FIX: Tampilkan error yang informatif
-            Platform.runLater(() -> {
-                if (statusLabel != null)
-                    statusLabel.setText("⚠ Gagal tambah: " + createTask.getException().getMessage());
-            });
-        });
-
-        new Thread(createTask).start();
+        int finalDone = doneCount;
+        if (sessionCountLabel != null) {
+            sessionCountLabel.setText(finalDone + " dari " + taskCache.size() + " selesai");
+        }
     }
 
-    private void markTaskDone(String displayString) {
-        Long id = extractId(displayString);
-        if (id == null) return;
+    @FXML
+    public void handleOpenTaskModal() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/TaskModal.fxml"));
+            Parent root = loader.load();
 
-        // BUG-07 + BUG-11 FIX: Ambil full data dari cache, update status tanpa kehilangan field lain
-        Map<String, Object> existingData = taskCache.get(id);
-        if (existingData == null) return;
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Tambah Tugas");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.setResizable(false);
+            
+            // Mengambil stage parent dengan cara yang lebih aman
+            if (activeTasksList != null && activeTasksList.getScene() != null) {
+                dialogStage.initOwner(activeTasksList.getScene().getWindow());
+            }
 
-        // Salin semua field existing agar description & dueDate tidak hilang
-        Map<String, Object> data = new HashMap<>(existingData);
-        data.put("status", "DONE");
-        // Hapus field yang tidak dikenali backend dari response object (id, createdAt, updatedAt)
-        data.remove("id");
-        data.remove("createdAt");
-        data.remove("updatedAt");
+            TaskModalController controller = loader.getController();
+            controller.setDialogStage(dialogStage);
+            
+            TaskClientDto newTask = new TaskClientDto();
+            newTask.setStatus("TODO");
+            controller.setTask(newTask, true, false);
 
-        Task<Map<String, Object>> updateTask = new Task<>() {
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
+            dialogStage.setScene(scene);
+            dialogStage.showAndWait();
+
+            if (controller.isSaveClicked()) {
+                TaskClientDto data = controller.getTask();
+                Task<TaskClientDto> createTask = new Task<>() {
+                    @Override
+                    protected TaskClientDto call() throws Exception {
+                        return ApiClient.getInstance().createTask(data);
+                    }
+                };
+
+                createTask.setOnSucceeded(e -> Platform.runLater(() -> {
+                    showNotification("✅ Tugas ditambah!", false);
+                    loadTasks();
+                }));
+
+                new Thread(createTask).start();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void openEditModal(Long id, boolean isCompleted) {
+        TaskClientDto existing = taskCache.get(id);
+        if (existing == null) return;
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/TaskModal.fxml"));
+            Parent root = loader.load();
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Detail Tugas");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(activeTasksList.getScene().getWindow());
+            dialogStage.setResizable(false);
+
+            TaskModalController controller = loader.getController();
+            controller.setDialogStage(dialogStage);
+            
+            // Kirim copy data
+            TaskClientDto copy = new TaskClientDto();
+            copy.setId(existing.getId());
+            copy.setTitle(existing.getTitle());
+            copy.setDescription(existing.getDescription());
+            copy.setCategory(existing.getCategory());
+            copy.setDueDate(existing.getDueDate());
+            copy.setStatus(existing.getStatus());
+            
+            controller.setTask(copy, false, isCompleted);
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
+            dialogStage.setScene(scene);
+            dialogStage.showAndWait();
+
+            if (controller.isSaveClicked()) {
+                TaskClientDto data = controller.getTask();
+                updateTaskApi(id, data, "✅ Tugas diperbarui!");
+            } else if (controller.isDeleteClicked()) {
+                deleteTaskApi(id);
+            } else if (controller.isCancelCompleteClicked()) {
+                TaskClientDto data = controller.getTask();
+                data.setStatus("TODO");
+                updateTaskApi(id, data, "✅ Tugas dikembalikan ke aktif!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void markTaskDone(Long id) {
+        TaskClientDto existing = taskCache.get(id);
+        if (existing == null) return;
+
+        TaskClientDto data = new TaskClientDto();
+        data.setTitle(existing.getTitle());
+        data.setDescription(existing.getDescription());
+        data.setCategory(existing.getCategory());
+        data.setDueDate(existing.getDueDate());
+        data.setStatus("DONE");
+
+        updateTaskApi(id, data, "✓ Tugas diselesaikan!");
+    }
+    
+    private void markTaskActive(Long id) {
+        TaskClientDto existing = taskCache.get(id);
+        if (existing == null) return;
+
+        TaskClientDto data = new TaskClientDto();
+        data.setTitle(existing.getTitle());
+        data.setDescription(existing.getDescription());
+        data.setCategory(existing.getCategory());
+        data.setDueDate(existing.getDueDate());
+        data.setStatus("TODO");
+
+        updateTaskApi(id, data, "✓ Tugas dikembalikan!");
+    }
+
+    private void updateTaskApi(Long id, TaskClientDto data, String successMsg) {
+        Task<TaskClientDto> updateTask = new Task<>() {
             @Override
-            protected Map<String, Object> call() throws Exception {
+            protected TaskClientDto call() throws Exception {
                 return ApiClient.getInstance().updateTask(id, data);
             }
         };
 
         updateTask.setOnSucceeded(e -> Platform.runLater(() -> {
-            if (statusLabel != null) statusLabel.setText("✓ Tugas diselesaikan!");
+            showNotification(successMsg, false);
             loadTasks();
         }));
-
-        updateTask.setOnFailed(e -> {
-            // BUG-19 FIX: Tampilkan error yang informatif
-            Platform.runLater(() -> {
-                if (statusLabel != null)
-                    statusLabel.setText("⚠ Gagal selesaikan: " + updateTask.getException().getMessage());
-            });
-        });
 
         new Thread(updateTask).start();
     }
@@ -243,42 +299,66 @@ public class TodoPanelController {
         if (selected == null) selected = completedTasksList.getSelectionModel().getSelectedItem();
         if (selected == null) return;
 
-        // BUG-07 FIX: Ekstrak id dari display string "title|id" atau "✓ title|id"
         String cleanDisplayKey = selected.startsWith("✓ ") ? selected.substring(2) : selected;
         Long id = extractId(cleanDisplayKey);
-        if (id == null) return;
+        if (id != null) {
+            deleteTaskApi(id);
+        }
+    }
 
-        final Long taskId = id;
+    private void deleteTaskApi(Long id) {
+        TaskClientDto toDelete = taskCache.get(id);
+        if (toDelete != null) {
+            lastDeletedTask = toDelete; // Simpan untuk Undo
+        }
+
         Task<Void> deleteTask = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                ApiClient.getInstance().deleteTask(taskId);
+                ApiClient.getInstance().deleteTask(id);
                 return null;
             }
         };
 
         deleteTask.setOnSucceeded(e -> Platform.runLater(() -> {
-            if (statusLabel != null) statusLabel.setText("🗑 Tugas dihapus.");
+            showNotification("🗑 Dihapus. [Klik Disini untuk Undo]", true);
             loadTasks();
         }));
-
-        deleteTask.setOnFailed(e -> {
-            // BUG-19 FIX: Tampilkan error yang informatif
-            Platform.runLater(() -> {
-                if (statusLabel != null)
-                    statusLabel.setText("⚠ Gagal hapus: " + deleteTask.getException().getMessage());
-            });
-        });
 
         new Thread(deleteTask).start();
     }
 
-    // ========== HELPER METHODS ==========
+    private void undoDelete() {
+        if (lastDeletedTask == null) return;
+        
+        TaskClientDto data = new TaskClientDto();
+        data.setTitle(lastDeletedTask.getTitle());
+        data.setDescription(lastDeletedTask.getDescription());
+        data.setCategory(lastDeletedTask.getCategory());
+        data.setDueDate(lastDeletedTask.getDueDate());
+        data.setStatus(lastDeletedTask.getStatus());
 
-    /**
-     * Ekstrak ID dari display string format "judulTugas|123".
-     * Format ini menjamin keunikan walau ada 2 tugas dengan judul sama (BUG-07 FIX).
-     */
+        Task<TaskClientDto> recreateTask = new Task<>() {
+            @Override
+            protected TaskClientDto call() throws Exception {
+                return ApiClient.getInstance().createTask(data);
+            }
+        };
+
+        recreateTask.setOnSucceeded(e -> Platform.runLater(() -> {
+            showNotification("✅ Penghapusan dibatalkan!", false);
+            lastDeletedTask = null;
+            loadTasks();
+        }));
+
+        new Thread(recreateTask).start();
+    }
+
+    private void showNotification(String text, boolean isUndoOption) {
+        Runnable undoAction = isUndoOption ? this::undoDelete : null;
+        MainLayoutController.showGlobalNotification(text, isUndoOption, undoAction);
+    }
+
     private Long extractId(String displayString) {
         if (displayString == null) return null;
         int idx = displayString.lastIndexOf("|");
@@ -290,13 +370,102 @@ public class TodoPanelController {
         }
     }
 
-    /**
-     * Ekstrak judul task dari display string format "judulTugas|123".
-     * Digunakan oleh CellFactory agar ListView hanya menampilkan judul.
-     */
     private String extractTitle(String displayString) {
         if (displayString == null) return "";
         int idx = displayString.lastIndexOf("|");
         return idx >= 0 ? displayString.substring(0, idx) : displayString;
+    }
+
+    // Custom Cell Factory class
+    private class TaskListCell extends ListCell<String> {
+        private final boolean isCompletedList;
+        
+        public TaskListCell(boolean isCompletedList) {
+            this.isCompletedList = isCompletedList;
+        }
+        
+        @Override
+        protected void updateItem(String item, boolean empty) {
+            super.updateItem(item, empty);
+            if (empty || item == null) {
+                setText(null);
+                setGraphic(null);
+            } else {
+                String cleanItem = isCompletedList && item.startsWith("✓ ") ? item.substring(2) : item;
+                String displayTitle = extractTitle(cleanItem);
+                Long taskId = extractId(cleanItem);
+
+                HBox root = new HBox(8);
+                root.setAlignment(Pos.CENTER_LEFT);
+                root.setStyle("-fx-cursor: hand;");
+                
+                Circle check = new Circle(8);
+                if (isCompletedList) {
+                    check.setFill(Color.web("#C084FC"));
+                    check.setStroke(Color.TRANSPARENT);
+                } else {
+                    check.setFill(Color.TRANSPARENT);
+                    check.setStroke(Color.web("#4A4055"));
+                    check.setStrokeWidth(1.5);
+                }
+                
+                // Hitbox pada lingkaran
+                check.setOnMouseClicked(e -> {
+                    e.consume(); // Jangan teruskan klik ke HBox
+                    if (taskId != null) {
+                        if (isCompletedList) markTaskActive(taskId);
+                        else markTaskDone(taskId);
+                    }
+                });
+                
+                // Jika baris (HBox) diklik, buka edit modal
+                root.setOnMouseClicked(e -> {
+                    if (taskId != null) {
+                        openEditModal(taskId, isCompletedList);
+                    }
+                });
+
+                Label text = new Label(displayTitle);
+                if (isCompletedList) {
+                    text.setStyle("-fx-text-fill: #4A4055; -fx-font-size: 13px; -fx-strikethrough: true;");
+                } else {
+                    text.setStyle("-fx-text-fill: #D4C8E8; -fx-font-size: 13px;");
+                }
+                
+                root.getChildren().addAll(check, text);
+                
+                // Tambahkan Tag jika ada
+                if (taskId != null) {
+                    TaskClientDto dto = taskCache.get(taskId);
+                    if (dto != null && dto.getCategory() != null) {
+                        Label tagLabel = new Label();
+                        tagLabel.setStyle("-fx-font-size: 10px; -fx-padding: 2 6; -fx-background-radius: 4; -fx-text-fill: #1A1722; -fx-font-weight: bold;");
+                        switch (dto.getCategory()) {
+                            case "KERJA": 
+                                tagLabel.setText("Kerja");
+                                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #C084FC;");
+                                break;
+                            case "FOKUS": 
+                                tagLabel.setText("Fokus");
+                                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #84FCB0;");
+                                break;
+                            case "CEPAT": 
+                                tagLabel.setText("Cepat");
+                                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #FCA984;");
+                                break;
+                        }
+                        if (isCompletedList) {
+                            tagLabel.setOpacity(0.5);
+                        }
+                        Region spacer = new Region();
+                        HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+                        root.getChildren().addAll(spacer, tagLabel);
+                    }
+                }
+                
+                setGraphic(root);
+                setText(null);
+            }
+        }
     }
 }

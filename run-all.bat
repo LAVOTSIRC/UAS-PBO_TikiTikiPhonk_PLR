@@ -10,7 +10,7 @@ echo [1/2] Starting Backend on http://localhost:8080 ...
 start "TikiTikiPhonk Backend" cmd /c "cd /d %~dp0backend && .\mvnw.cmd spring-boot:run"
 
 :: Wait a moment for backend to init
-timeout /t 5 /nobreak >nul
+ping 127.0.0.1 -n 6 >nul
 
 :: Start Frontend (JavaFX)
 echo [2/2] Starting Frontend ...
