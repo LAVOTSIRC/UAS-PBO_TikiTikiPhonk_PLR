@@ -20,6 +20,9 @@ public class Song extends BaseEntity {
     @Column(name = "file_size")
     private Long fileSize;
 
+    @Column(name = "sort_order")
+    private Integer sortOrder;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "playlist_id", nullable = false)
     private Playlist playlist;
@@ -40,6 +43,8 @@ public class Song extends BaseEntity {
     public void setDurationSeconds(Integer durationSeconds) { this.durationSeconds = durationSeconds; }
     public Long getFileSize() { return fileSize; }
     public void setFileSize(Long fileSize) { this.fileSize = fileSize; }
+    public Integer getSortOrder() { return sortOrder; }
+    public void setSortOrder(Integer sortOrder) { this.sortOrder = sortOrder; }
     public Playlist getPlaylist() { return playlist; }
     public void setPlaylist(Playlist playlist) { this.playlist = playlist; }
 

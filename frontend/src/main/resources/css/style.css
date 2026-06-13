@@ -825,22 +825,21 @@
 .playlist-list-view .list-cell {
     -fx-background-color: transparent;
     -fx-text-fill: #C8BFD8;
-    -fx-padding: 7 8 7 8;
+    -fx-padding: 3 0 3 0;
     -fx-font-size: 11px;
-    -fx-border-color: transparent transparent #1A1722 transparent;
-    -fx-border-width: 0 0 1 0;
+    -fx-border-color: transparent;
     -fx-cursor: hand;
+    -fx-max-width: Infinity;
+    -fx-pref-width: 0;
 }
 
 .playlist-list-view .list-cell:hover {
-    -fx-background-color: #1A1722;
-    -fx-background-radius: 6;
+    -fx-background-color: transparent;
     -fx-text-fill: #F0EAFF;
 }
 
 .playlist-list-view .list-cell:selected {
-    -fx-background-color: #1F1630;
-    -fx-background-radius: 6;
+    -fx-background-color: transparent;
     -fx-text-fill: #C084FC;
     -fx-border-color: transparent;
 }
@@ -1270,6 +1269,129 @@
     -fx-font-size: 9px;
     -fx-text-fill: #7C6E8A;
     -fx-text-alignment: center;
+}
+
+/* ── Audio Track Card (daftar lagu di dalam playlist) ────── */
+
+.audio-tr-card {
+    -fx-background-color: #1A1722;
+    -fx-border-color: #2D2936;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-border-width: 1;
+    -fx-padding: 6 8 6 8;
+}
+
+.audio-tr-icon {
+    -fx-font-size: 14px;
+    -fx-text-fill: #C084FC;
+    -fx-min-width: 18;
+    -fx-max-width: 18;
+}
+
+.audio-tr-name {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F0EAFF;
+    /* Pastikan label tidak bisa melebihi lebar parent */
+    -fx-max-width: Infinity;
+}
+
+.audio-tr-dur {
+    -fx-font-size: 10px;
+    -fx-text-fill: #7C6E8A;
+    -fx-font-family: 'JetBrains Mono', 'Consolas', monospace;
+}
+
+/* ── Audio Edit Row (di form edit playlist) ──────────────── */
+
+.audio-edit-row {
+    -fx-background-color: #1A1722;
+    -fx-border-color: #2D2936;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-border-width: 1;
+    -fx-padding: 5 8;
+}
+
+.audio-edit-name {
+    -fx-font-size: 11px;
+    -fx-text-fill: #F0EAFF;
+    -fx-max-width: Infinity;
+}
+
+.audio-edit-dur {
+    -fx-font-size: 10px;
+    -fx-text-fill: #7C6E8A;
+    -fx-font-family: 'JetBrains Mono', 'Consolas', monospace;
+    -fx-min-width: 32;
+}
+
+.audio-edit-del {
+    -fx-background-color: transparent;
+    -fx-text-fill: #7C6E8A;
+    -fx-font-size: 10px;
+    -fx-cursor: hand;
+    -fx-padding: 2 4;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-border-color: transparent;
+    -fx-min-width: 22;
+    -fx-max-width: 22;
+}
+
+.audio-edit-del:hover {
+    -fx-background-color: #2A1010;
+    -fx-text-fill: #f38ba8;
+    -fx-border-color: #f38ba8;
+    -fx-border-width: 1;
+}
+
+/* ── Playlist card labels ─────────────────────────────────── */
+
+.audio-pl-icon {
+    -fx-font-size: 14px;
+    -fx-text-fill: #C084FC;
+    -fx-min-width: 20;
+    -fx-max-width: 20;
+}
+
+.audio-pl-name {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F0EAFF;
+    -fx-max-width: Infinity;
+}
+
+.audio-pl-count {
+    -fx-font-size: 9px;
+    -fx-text-fill: #7C6E8A;
+}
+
+.audio-pl-desc {
+    -fx-font-size: 9px;
+    -fx-text-fill: #7C6E8A;
+    -fx-opacity: 0.7;
+}
+
+.audio-pl-more {
+    -fx-background-color: transparent;
+    -fx-text-fill: #7C6E8A;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-padding: 0 2;
+    -fx-border-color: transparent;
+    -fx-min-width: 20;
+    -fx-max-width: 20;
+}
+
+.audio-pl-more:hover {
+    -fx-text-fill: #C084FC;
+}
+
+.audio-pl-card {
+    -fx-max-width: Infinity;
+    -fx-padding: 4 2;
 }
 
 /* ── Add task icon ───────────────────────────────────────── */
@@ -2056,4 +2178,194 @@
     -fx-background-color: #F8F6FA;
     -fx-text-fill: #1E1A29;
     -fx-border-color: #C8BED8;
+}
+
+/* ── Playlist & Track Cards ───────────────────────── */
+
+.audio-pl-card {
+    -fx-padding: 8 10;
+    -fx-background-color: #140F1C;
+    -fx-background-radius: 8;
+    -fx-border-color: #2D2936;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+}
+.light-mode .audio-pl-card {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E0D8F0;
+}
+
+.audio-tr-card {
+    -fx-padding: 6 8;
+    -fx-background-color: #140F1C;
+    -fx-background-radius: 6;
+    -fx-border-color: #2D2936;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+}
+.light-mode .audio-tr-card {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E0D8F0;
+}
+
+.audio-tr-icon {
+    -fx-font-size: 14px;
+    -fx-text-fill: #C084FC;
+    -fx-min-width: 24;
+    -fx-alignment: center-left;
+}
+.light-mode .audio-tr-icon {
+    -fx-text-fill: #7C3AED;
+}
+
+.audio-tr-name {
+    -fx-font-size: 11px;
+    -fx-text-fill: #F0EAFF;
+    -fx-font-weight: bold;
+}
+.light-mode .audio-tr-name {
+    -fx-text-fill: #1E1A29;
+}
+
+.audio-tr-dur {
+    -fx-font-size: 10px;
+    -fx-text-fill: #7C6E8A;
+}
+.light-mode .audio-tr-dur {
+    -fx-text-fill: #9A8AAA;
+}
+
+.audio-pl-icon {
+    -fx-font-size: 18px;
+    -fx-text-fill: #C084FC;
+    -fx-min-width: 28;
+    -fx-alignment: center-left;
+}
+.light-mode .audio-pl-icon {
+    -fx-text-fill: #7C3AED;
+}
+
+.audio-pl-name {
+    -fx-font-size: 12px;
+    -fx-text-fill: #F0EAFF;
+    -fx-font-weight: bold;
+}
+.light-mode .audio-pl-name {
+    -fx-text-fill: #1E1A29;
+}
+
+.audio-pl-count {
+    -fx-font-size: 9px;
+    -fx-text-fill: #C084FC;
+    -fx-font-weight: bold;
+}
+.light-mode .audio-pl-count {
+    -fx-text-fill: #7C3AED;
+}
+
+.audio-pl-desc {
+    -fx-font-size: 9px;
+    -fx-text-fill: #7C6E8A;
+}
+.light-mode .audio-pl-desc {
+    -fx-text-fill: #9A8AAA;
+}
+
+.audio-pl-more {
+    -fx-background-color: transparent;
+    -fx-text-fill: #6B5B7F;
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+    -fx-padding: 0 2;
+    -fx-min-width: 28;
+    -fx-min-height: 24;
+    -fx-background-radius: 4;
+}
+.light-mode .audio-pl-more {
+    -fx-text-fill: #8B7FA0;
+}
+.audio-pl-more:hover {
+    -fx-background-color: #2D2936;
+    -fx-text-fill: #C084FC;
+}
+.light-mode .audio-pl-more:hover {
+    -fx-background-color: #E8E0F4;
+    -fx-text-fill: #7C3AED;
+}
+
+.audio-edit-row {
+    -fx-padding: 4 6;
+    -fx-background-color: #140F1C;
+    -fx-background-radius: 4;
+}
+.light-mode .audio-edit-row {
+    -fx-background-color: #F5F0FF;
+}
+
+.audio-edit-name {
+    -fx-text-fill: #F0EAFF;
+    -fx-font-size: 10px;
+}
+.light-mode .audio-edit-name {
+    -fx-text-fill: #1E1A29;
+}
+
+.audio-edit-dur {
+    -fx-text-fill: #7C6E8A;
+    -fx-font-size: 9px;
+}
+.light-mode .audio-edit-dur {
+    -fx-text-fill: #9A8AAA;
+}
+
+.audio-edit-del {
+    -fx-background-color: transparent;
+    -fx-text-fill: #EF4444;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-padding: 0;
+    -fx-min-width: 28;
+    -fx-min-height: 28;
+    -fx-background-radius: 14;
+}
+.audio-edit-del:hover {
+    -fx-background-color: #2D2936;
+}
+.light-mode .audio-edit-del:hover {
+    -fx-background-color: #FEE2E2;
+}
+
+/* ── Context Menu ──────────────────────────── */
+
+.context-menu {
+    -fx-background-color: #1A1722;
+    -fx-border-color: #2D2936;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 4;
+    -fx-font-size: 11px;
+}
+.light-mode .context-menu {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E0D8F0;
+}
+
+.menu-item {
+    -fx-padding: 6 12;
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}
+.menu-item .label {
+    -fx-text-fill: #F0EAFF;
+    -fx-font-size: 11px;
+}
+.light-mode .menu-item .label {
+    -fx-text-fill: #1E1A29;
+}
+.menu-item:hover {
+    -fx-background-color: #2D2936;
+    -fx-background-radius: 4;
+}
+.light-mode .menu-item:hover {
+    -fx-background-color: #F0ECF5;
 }
