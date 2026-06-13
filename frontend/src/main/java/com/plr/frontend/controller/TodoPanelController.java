@@ -495,31 +495,42 @@ public class TodoPanelController {
                 root.setStyle("-fx-cursor: hand;");
                 root.getStyleClass().add("todo-cell");
                 
-                Label check = new Label();
-                check.getStyleClass().add("todo-check-box");
-                check.setMinWidth(Region.USE_PREF_SIZE); // Jangan sampai mengecil
+                Button check = new Button();
+                check.getStyleClass().addAll("todo-check-box", "todo-check-btn");
                 if (isCompletedList) {
                     check.setText("❎");
                     check.getStyleClass().add("todo-checked");
                 }
 
-                // Hitbox pada kotak
-                check.setOnMouseClicked(e -> {
+                check.setOnAction(e -> {
                     e.consume();
                     if (taskId != null) {
-                        if (isCompletedList) markTaskActive(taskId);
-                        else markTaskDone(taskId);
+                        if (isCompletedList) {
+                            check.setText("");
+                            check.getStyleClass().remove("todo-checked");
+                            check.setStyle("");
+                            markTaskActive(taskId);
+                        } else {
+                            check.setText("❎");
+                            check.getStyleClass().add("todo-checked");
+                            check.setStyle("-fx-background-color: #C084FC; -fx-border-color: #C084FC; -fx-text-fill: white;");
+                            markTaskDone(taskId);
+                        }
                     }
                 });
 
                 if (!isCompletedList) {
                     check.setOnMouseEntered(e -> {
-                        check.setText("✅");
-                        check.setStyle("-fx-border-color: #22C55E; -fx-text-fill: #22C55E;");
+                        if (!check.getStyleClass().contains("todo-checked")) {
+                            check.setText("✅");
+                            check.setStyle("-fx-border-color: #22C55E; -fx-text-fill: #22C55E;");
+                        }
                     });
                     check.setOnMouseExited(e -> {
-                        check.setText("");
-                        check.setStyle("");
+                        if (!check.getStyleClass().contains("todo-checked")) {
+                            check.setText("");
+                            check.setStyle("");
+                        }
                     });
                     Tooltip.install(check, new Tooltip("Selesai?"));
                 }

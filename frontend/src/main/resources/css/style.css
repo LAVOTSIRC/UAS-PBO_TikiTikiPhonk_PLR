@@ -189,6 +189,9 @@
     -fx-alignment: top-center;
     -fx-padding: 12 0 12 0;
     -fx-spacing: 4;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 10, 0, 3, 0);
+    -fx-border-color: transparent #1A1722 transparent transparent;
+    -fx-border-width: 0 1 0 0;
 }
 
 .sidebar-avatar {
@@ -264,6 +267,9 @@
     -fx-max-width: 240;
     -fx-padding: 16 14 16 14;
     -fx-spacing: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 6, 0, 2, 0);
+    -fx-border-color: transparent #1A1722 transparent transparent;
+    -fx-border-width: 0 1 0 0;
 }
 
 /* Label Section (TO-DO, AKTIF, dll) */
@@ -406,10 +412,8 @@
 .timer-panel {
     -fx-background-color: #0E0C10;
     -fx-alignment: center;
-    -fx-padding: 24 24 24 24;
+    -fx-padding: 24;
     -fx-spacing: 20;
-    -fx-border-color: transparent transparent transparent #1A1722;
-    -fx-border-width: 0 0 0 1;
 }
 
 .timer-tab-bar {
@@ -575,6 +579,30 @@
     -fx-wrap-text: true;
 }
 
+/* ── Timer Card Wrapper (bungkus timer di panel tengah) ── */
+
+.timer-card-wrapper {
+    -fx-background-color: #140F1C;
+    -fx-border-color: #2D2936;
+    -fx-border-width: 1;
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+    -fx-padding: 32;
+    -fx-spacing: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 20, 0, 0, 8);
+}
+
+.light-mode .timer-card-wrapper {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #C8BED8;
+    -fx-border-width: 1;
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+    -fx-padding: 32;
+    -fx-spacing: 20;
+    -fx-effect: dropshadow(gaussian, rgba(124,58,237,0.1), 20, 0, 0, 5);
+}
+
 .timer-points {
     -fx-font-size: 14px;
     -fx-text-fill: #C084FC;
@@ -593,13 +621,14 @@
 
 .audio-panel {
     -fx-background-color: #0C0A10;
-    -fx-border-color: transparent transparent transparent #1A1722;
-    -fx-border-width: 0 0 0 1;
     -fx-pref-width: 220;
     -fx-min-width: 220;
     -fx-max-width: 220;
     -fx-padding: 16 14 0 14;
     -fx-spacing: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 6, 0, -2, 0);
+    -fx-border-color: transparent transparent transparent #1A1722;
+    -fx-border-width: 0 0 0 1;
 }
 
 .audio-header {
@@ -1490,7 +1519,25 @@
     -fx-font-size: 14px;
     -fx-cursor: hand;
     -fx-padding: 0;
+    -fx-text-fill: #D4C8E8;
 }
+
+.todo-check-btn {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-effect: none;
+    -fx-padding: 0;
+}
+.todo-check-btn:hover {
+    -fx-background-color: transparent;
+}
+.todo-check-btn:focused {
+    -fx-background-color: transparent;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
 .todo-check-box.todo-checked {
     -fx-background-color: #C084FC;
     -fx-border-color: #C084FC;
@@ -1637,6 +1684,9 @@
 
 .light-mode .sidebar {
     -fx-background-color: #D6CDE4;
+    -fx-effect: dropshadow(gaussian, rgba(80,60,120,0.12), 10, 0, 3, 0);
+    -fx-border-color: transparent #C8BED8 transparent transparent;
+    -fx-border-width: 0 1 0 0;
 }
 
 .light-mode .sidebar-avatar {
@@ -1670,6 +1720,9 @@
 
 .light-mode .todo-panel {
     -fx-background-color: #E2D9EE;
+    -fx-effect: dropshadow(gaussian, rgba(80,60,120,0.08), 6, 0, 2, 0);
+    -fx-border-color: transparent #C8BED8 transparent transparent;
+    -fx-border-width: 0 1 0 0;
 }
 
 .light-mode .panel-label {
@@ -1738,7 +1791,6 @@
 
 .light-mode .timer-panel {
     -fx-background-color: #EDE8F4;
-    -fx-border-color: transparent transparent transparent #D4CCE0;
 }
 
 .light-mode .timer-tab-bar {
@@ -1856,7 +1908,9 @@
 
 .light-mode .audio-panel {
     -fx-background-color: #E2D9EE;
-    -fx-border-color: transparent transparent transparent #D4CCE0;
+    -fx-effect: dropshadow(gaussian, rgba(80,60,120,0.06), 6, 0, -2, 0);
+    -fx-border-color: transparent transparent transparent #C8BED8;
+    -fx-border-width: 0 0 0 1;
 }
 
 .light-mode .audio-header {

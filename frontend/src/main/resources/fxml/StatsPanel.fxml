@@ -46,14 +46,14 @@
     </HBox>
 
     <!-- Charts Area -->
-    <HBox styleClass="stats-charts-area" spacing="16" VBox.vgrow="ALWAYS">
+    <HBox styleClass="stats-charts-area" spacing="16" VBox.vgrow="ALWAYS" fillHeight="true">
         <!-- BarChart -->
         <VBox styleClass="stats-chart-box" HBox.hgrow="ALWAYS" spacing="8">
             <Label text="Waktu Fokus 7 Hari Terakhir" styleClass="stats-chart-title"/>
             <BarChart fx:id="focusBarChart" styleClass="stats-bar-chart"
                       animated="false" legendVisible="false" VBox.vgrow="ALWAYS">
                 <xAxis>
-                    <CategoryAxis side="BOTTOM" styleClass="stats-axis"/>
+                    <CategoryAxis side="BOTTOM" animated="false" styleClass="stats-axis"/>
                 </xAxis>
                 <yAxis>
                     <NumberAxis side="LEFT" label="Menit" styleClass="stats-axis"/>

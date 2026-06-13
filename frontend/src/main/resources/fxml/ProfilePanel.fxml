@@ -3,11 +3,12 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
 
@@ -18,20 +19,26 @@
       fillWidth="true"
       spacing="0">
 
-    <!-- ========== HEADER SECTION ========== -->
-    <VBox styleClass="profile-header" spacing="16">
-        <VBox.margin><Insets top="24" right="24" bottom="24" left="24"/></VBox.margin>
+    <!-- ========== HEADER CARD ========== -->
+    <VBox styleClass="profile-header-card" spacing="0">
+        <VBox.margin><Insets top="24" right="28" bottom="0" left="28"/></VBox.margin>
 
         <!-- User Avatar & Basic Info -->
         <HBox alignment="CENTER_LEFT" spacing="20">
-            <!-- Avatar Circle -->
-            <Circle fx:id="userAvatarCircle"
-                    radius="48"
-                    styleClass="profile-avatar"
-                    fill="#C084FC"/>
 
-            <!-- User Basic Info -->
-            <VBox spacing="6" HBox.hgrow="ALWAYS">
+            <!-- Avatar Stack: Circle + Initial Letter -->
+            <StackPane prefWidth="80" prefHeight="80">
+                <Circle fx:id="userAvatarCircle"
+                        radius="40"
+                        styleClass="profile-avatar-bg"
+                        fill="#C084FC"/>
+                <Label fx:id="avatarInitialLabel"
+                       text="U"
+                       styleClass="profile-avatar-initial"/>
+            </StackPane>
+
+            <!-- User Info -->
+            <VBox spacing="4" HBox.hgrow="ALWAYS">
                 <Label fx:id="usernameLabel"
                        text="username"
                        styleClass="profile-username"/>
@@ -50,90 +57,72 @@
                     onAction="#handleEditProfile"
                     prefWidth="120"/>
         </HBox>
-    </VBox>
 
-    <!-- Separator -->
-    <Separator styleClass="profile-separator"/>
+        <!-- Quick Stats Row under header -->
+        <HBox styleClass="profile-quick-stats" spacing="12">
+            <VBox.margin><Insets top="20" bottom="0"/></VBox.margin>
 
-    <!-- ========== STATISTICS SECTION ========== -->
-    <VBox styleClass="profile-stats-section" spacing="12">
-        <VBox.margin><Insets top="16" right="24" bottom="16" left="24"/></VBox.margin>
-
-        <Label text="STATISTIK KESELURUHAN" styleClass="section-label"/>
-
-        <!-- Stats Grid (2x2) -->
-        <HBox spacing="12">
-            <!-- Total Sesi -->
-            <VBox styleClass="stat-card">
-                <Label text="Total Sesi" styleClass="stat-label"/>
-                <Label fx:id="totalSessionsLabel"
-                       text="0"
-                       styleClass="stat-value"/>
+            <VBox styleClass="quick-stat-item" HBox.hgrow="ALWAYS">
+                <Label fx:id="totalSessionsLabel" text="0" styleClass="quick-stat-value"/>
+                <Label text="Total Sesi" styleClass="quick-stat-label"/>
             </VBox>
 
-            <!-- Total Fokus Minutes -->
-            <VBox styleClass="stat-card">
-                <Label text="Total Fokus" styleClass="stat-label"/>
-                <Label fx:id="totalFocusMinutesLabel"
-                       text="0 menit"
-                       styleClass="stat-value"/>
+            <Region prefWidth="1" styleClass="quick-stat-divider"/>
+
+            <VBox styleClass="quick-stat-item" HBox.hgrow="ALWAYS">
+                <Label fx:id="totalFocusMinutesLabel" text="0 mnt" styleClass="quick-stat-value"/>
+                <Label text="Total Fokus" styleClass="quick-stat-label"/>
             </VBox>
 
-            <!-- Tasks Completed -->
-            <VBox styleClass="stat-card">
-                <Label text="Tugas Selesai" styleClass="stat-label"/>
-                <Label fx:id="tasksCompletedLabel"
-                       text="0"
-                       styleClass="stat-value"/>
+            <Region prefWidth="1" styleClass="quick-stat-divider"/>
+
+            <VBox styleClass="quick-stat-item" HBox.hgrow="ALWAYS">
+                <Label fx:id="tasksCompletedLabel" text="0" styleClass="quick-stat-value"/>
+                <Label text="Tugas Selesai" styleClass="quick-stat-label"/>
             </VBox>
 
-            <!-- Current Streak -->
-            <VBox styleClass="stat-card">
-                <Label text="Streak Hari Ini" styleClass="stat-label"/>
-                <Label fx:id="currentStreakLabel"
-                       text="0"
-                       styleClass="stat-value"/>
+            <Region prefWidth="1" styleClass="quick-stat-divider"/>
+
+            <VBox styleClass="quick-stat-item" HBox.hgrow="ALWAYS">
+                <Label fx:id="currentStreakLabel" text="0" styleClass="quick-stat-value"/>
+                <Label text="Streak" styleClass="quick-stat-label"/>
             </VBox>
         </HBox>
     </VBox>
 
-    <!-- Separator -->
-    <Separator styleClass="profile-separator"/>
-
-    <!-- ========== SCROLLABLE SETTINGS SECTION ========== -->
+    <!-- ========== SCROLLABLE SETTINGS ========== -->
     <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true" hbarPolicy="NEVER"
-                style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
-        <VBox styleClass="profile-settings-section" spacing="20">
-            <VBox.margin><Insets top="16" right="24" bottom="24" left="24"/></VBox.margin>
+                styleClass="profile-scroll">
+        <VBox styleClass="profile-scroll-content" spacing="20">
+            <VBox.margin><Insets top="24" right="28" bottom="28" left="28"/></VBox.margin>
 
-            <!-- ========== PERSONAL INFO ========== -->
-            <VBox spacing="12">
-                <Label text="INFORMASI PRIBADI" styleClass="section-label"/>
+            <!-- ========== PERSONAL INFO CARD ========== -->
+            <VBox styleClass="profile-card">
+                <Label text="INFORMASI PRIBADI" styleClass="profile-card-title"/>
 
-                <VBox spacing="6">
-                    <Label text="Username" styleClass="setting-label"/>
+                <VBox spacing="6" styleClass="profile-field">
+                    <Label text="Username" styleClass="profile-field-label"/>
                     <TextField fx:id="editUsernameField"
                                promptText="Masukkan username baru"
                                styleClass="profile-input"
                                visible="false"/>
                     <Label fx:id="usernameDisplayLabel"
                            text="username"
-                           styleClass="setting-value"/>
+                           styleClass="profile-field-value"/>
                 </VBox>
 
-                <VBox spacing="6">
-                    <Label text="Email" styleClass="setting-label"/>
+                <VBox spacing="6" styleClass="profile-field">
+                    <Label text="Email" styleClass="profile-field-label"/>
                     <TextField fx:id="editEmailField"
                                promptText="Masukkan email baru"
                                styleClass="profile-input"
                                visible="false"/>
                     <Label fx:id="emailDisplayLabel"
                            text="user@example.com"
-                           styleClass="setting-value"/>
+                           styleClass="profile-field-value"/>
                 </VBox>
 
-                <!-- Edit/Save Buttons for Personal Info -->
-                <HBox spacing="8" fx:id="personalInfoButtonsBox">
+                <HBox spacing="8" fx:id="personalInfoButtonsBox" styleClass="profile-btn-row">
                     <Button fx:id="editPersonalInfoBtn"
                             text="Edit"
                             styleClass="button, button-outline"
@@ -151,40 +140,36 @@
                 </HBox>
             </VBox>
 
-            <!-- Separator -->
-            <Separator styleClass="profile-separator"/>
-
-            <!-- ========== PASSWORD & SECURITY ========== -->
-            <VBox spacing="12">
-                <Label text="KEAMANAN" styleClass="section-label"/>
+            <!-- ========== PASSWORD CARD ========== -->
+            <VBox styleClass="profile-card">
+                <Label text="KEAMANAN" styleClass="profile-card-title"/>
 
                 <VBox spacing="6" fx:id="passwordSectionBox">
-                    <Label text="Ubah Password" styleClass="setting-label"/>
+                    <Label text="Ubah Password" styleClass="profile-field-label"/>
 
                     <VBox spacing="8" fx:id="passwordInputsBox" visible="false">
-                        <Label text="Password Lama" styleClass="setting-label-small"/>
+                        <Label text="Password Lama" styleClass="profile-field-label-sub"/>
                         <PasswordField fx:id="oldPasswordField"
                                        promptText="Masukkan password lama"
                                        styleClass="profile-input"/>
 
-                        <Label text="Password Baru" styleClass="setting-label-small"/>
+                        <Label text="Password Baru" styleClass="profile-field-label-sub"/>
                         <PasswordField fx:id="newPasswordField"
                                        promptText="Minimal 6 karakter"
                                        styleClass="profile-input"/>
 
-                        <Label text="Konfirmasi Password Baru" styleClass="setting-label-small"/>
+                        <Label text="Konfirmasi Password Baru" styleClass="profile-field-label-sub"/>
                         <PasswordField fx:id="confirmPasswordField"
                                        promptText="Ulangi password baru"
                                        styleClass="profile-input"/>
 
                         <Label fx:id="passwordErrorLabel"
                                text=""
-                               styleClass="error-label"
+                               styleClass="profile-error"
                                visible="false"/>
                     </VBox>
 
-                    <!-- Password Change Buttons -->
-                    <HBox spacing="8" fx:id="passwordButtonsBox">
+                    <HBox spacing="8" fx:id="passwordButtonsBox" styleClass="profile-btn-row">
                         <Button fx:id="changePasswordBtn"
                                 text="Ubah Password"
                                 styleClass="button, button-outline"
@@ -203,28 +188,29 @@
                 </VBox>
             </VBox>
 
-            <!-- Separator -->
-            <Separator styleClass="profile-separator"/>
+            <!-- ========== PREFERENSI CARD ========== -->
+            <VBox styleClass="profile-card">
+                <Label text="PREFERENSI" styleClass="profile-card-title"/>
 
-            <!-- ========== ACCOUNT PREFERENCES ========== -->
-            <VBox spacing="12">
-                <Label text="PREFERENSI" styleClass="section-label"/>
-
-                <VBox spacing="8">
-                    <Label text="Notifikasi Default Audio" styleClass="setting-label"/>
+                <VBox spacing="6" styleClass="profile-field">
+                    <Label text="Notifikasi Default Audio" styleClass="profile-field-label"/>
                     <Label text="Ambient noise akan otomatis diputar saat sesi fokus dimulai (dapat diubah kapan saja)."
-                           styleClass="setting-description"/>
-                    <Button text="Informasi Lebih Lanjut"
-                            styleClass="link-button"/>
+                           styleClass="profile-field-desc" wrapText="true"/>
                 </VBox>
+
+                <Button text="Informasi Lebih Lanjut"
+                        styleClass="link-button"/>
             </VBox>
 
-            <!-- ========== DANGER ZONE ========== -->
-            <VBox spacing="12" styleClass="profile-danger-zone">
-                <Label text="ZONA BAHAYA" styleClass="section-label-danger"/>
+            <!-- ========== DANGER ZONE CARD ========== -->
+            <VBox styleClass="profile-danger-zone">
+                <Label text="ZONA BAHAYA" styleClass="profile-card-title-danger"/>
+
+                <Label text="Menghapus akun akan menghilangkan semua data Anda secara permanen. Tindakan ini tidak dapat dibatalkan."
+                       styleClass="profile-field-desc" wrapText="true"/>
 
                 <Button fx:id="deleteAccountBtn"
-                        text="🗑 Hapus Akun (Tidak dapat dibatalkan)"
+                        text="Hapus Akun Saya"
                         styleClass="button, button-danger"
                         onAction="#handleDeleteAccount"
                         maxWidth="Infinity"/>

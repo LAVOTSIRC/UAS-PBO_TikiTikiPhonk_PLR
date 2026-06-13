@@ -1,6 +1,6 @@
 package com.plr.backend.dto;
 
-import java.util.List;
+import java.util.Map;
 
 public class StatSummaryResponse {
 
@@ -10,7 +10,7 @@ public class StatSummaryResponse {
     private int activeTasks;
     private int totalPoints;
     private int currentStreak;
-    private List<DaySummary> focusMinutesByDay;
+    private Map<String, Long> focusMinutesByDay;
 
     public StatSummaryResponse() {}
 
@@ -26,23 +26,6 @@ public class StatSummaryResponse {
     public void setTotalPoints(int totalPoints) { this.totalPoints = totalPoints; }
     public int getCurrentStreak() { return currentStreak; }
     public void setCurrentStreak(int currentStreak) { this.currentStreak = currentStreak; }
-    public List<DaySummary> getFocusMinutesByDay() { return focusMinutesByDay; }
-    public void setFocusMinutesByDay(List<DaySummary> focusMinutesByDay) { this.focusMinutesByDay = focusMinutesByDay; }
-
-    public static class DaySummary {
-        private String date;
-        private int minutes;
-
-        public DaySummary() {}
-
-        public DaySummary(String date, int minutes) {
-            this.date = date;
-            this.minutes = minutes;
-        }
-
-        public String getDate() { return date; }
-        public void setDate(String date) { this.date = date; }
-        public int getMinutes() { return minutes; }
-        public void setMinutes(int minutes) { this.minutes = minutes; }
-    }
+    public Map<String, Long> getFocusMinutesByDay() { return focusMinutesByDay; }
+    public void setFocusMinutesByDay(Map<String, Long> focusMinutesByDay) { this.focusMinutesByDay = focusMinutesByDay; }
 }
