@@ -139,18 +139,18 @@ public class AudioPanelController {
                         setStyle("-fx-background-color: transparent; -fx-padding: 0;");
                     } else {
                         Label iconLabel = new Label("\uD83C\uDFB6");
-                        iconLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: #C084FC; -fx-min-width: 28; -fx-alignment: center-left;");
+                        iconLabel.getStyleClass().add("playlist-cell-icon");
                         Label nameLabel = new Label(pl.getName());
-                        nameLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #F0EAFF; -fx-font-weight: bold;");
+                        nameLabel.getStyleClass().add("playlist-cell-name");
                         Label countLabel = new Label(pl.getTrackCount() + " lagu");
-                        countLabel.setStyle("-fx-font-size: 9px; -fx-text-fill: #C084FC; -fx-font-weight: bold;");
+                        countLabel.getStyleClass().add("playlist-cell-count");
                         Label descLabel = new Label(pl.getDescription());
-                        descLabel.setStyle("-fx-font-size: 9px; -fx-text-fill: #7C6E8A;");
+                        descLabel.getStyleClass().add("playlist-cell-info");
                         descLabel.setVisible(!pl.getDescription().isEmpty());
                         descLabel.setManaged(!pl.getDescription().isEmpty());
                         VBox textBox = new VBox(1, nameLabel, countLabel, descLabel);
                         javafx.scene.layout.HBox root = new javafx.scene.layout.HBox(8, iconLabel, textBox);
-                        root.setStyle("-fx-padding: 8 10; -fx-background-color: #140F1C; -fx-background-radius: 8; -fx-border-color: #2D2936; -fx-border-radius: 8; -fx-border-width: 1;");
+                        root.getStyleClass().add("playlist-cell");
                         VBox wrapper = new VBox(root);
                         wrapper.setStyle("-fx-padding: 3 0;");
                         setGraphic(wrapper);

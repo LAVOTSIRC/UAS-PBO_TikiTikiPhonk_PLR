@@ -5,6 +5,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -22,8 +23,12 @@ public class JavaFXApp extends Application {
     public void start(Stage stage) throws IOException {
         primaryStage = stage;
         primaryStage.setTitle("TikiTikiPhonk");
+        primaryStage.getIcons().add(new Image(
+            JavaFXApp.class.getClassLoader().getResourceAsStream("images/TikiTikiPhonk Logo.png")
+        ));
         primaryStage.setMinWidth(900);
         primaryStage.setMinHeight(600);
+        primaryStage.setMaximized(true);
 
         showScene("fxml/login.fxml", "TikiTikiPhonk - Login", 480, 580);
         primaryStage.show();
@@ -31,6 +36,7 @@ public class JavaFXApp extends Application {
 
     /**
      * Switches the primary stage to a new scene from the given FXML classpath path.
+     * The window stays maximized across all scene transitions.
      */
     public static void showScene(String fxmlPath, String title, double width, double height) {
         try {
@@ -38,7 +44,9 @@ public class JavaFXApp extends Application {
                 JavaFXApp.class.getClassLoader().getResource(fxmlPath)
             );
             Parent root = loader.load();
-            Scene scene = new Scene(root, width, height);
+            double w = primaryStage.getWidth() > 0 ? primaryStage.getWidth() : width;
+            double h = primaryStage.getHeight() > 0 ? primaryStage.getHeight() : height;
+            Scene scene = new Scene(root, w, h);
 
             String css = Objects.requireNonNull(
                 JavaFXApp.class.getClassLoader().getResource("css/style.css"),
@@ -51,6 +59,7 @@ public class JavaFXApp extends Application {
             primaryStage.setTitle(title);
             primaryStage.setScene(scene);
             primaryStage.centerOnScreen();
+            primaryStage.setMaximized(true);
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("Cannot load FXML: " + fxmlPath, e);

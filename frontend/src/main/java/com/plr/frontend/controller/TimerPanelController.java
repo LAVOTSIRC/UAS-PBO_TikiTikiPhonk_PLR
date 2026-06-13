@@ -329,7 +329,7 @@ public class TimerPanelController {
             if ("FOCUS".equals(currentMode)) return light ? "#d06a84" : "#f38ba8";
             return light ? "#5a7fc8" : "#7aa2f7";
         }
-        return "#C084FC";
+        return light ? "#7C3AED" : "#C084FC";
     }
 
     private void updateAccentColors() {
