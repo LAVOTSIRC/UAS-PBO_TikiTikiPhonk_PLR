@@ -804,21 +804,23 @@
 
 /* Progress Bar */
 .audio-progress-bar {
-    -fx-pref-width: Infinity;
-    -fx-pref-height: 4;
-    -fx-min-height: 4;
-    -fx-max-height: 4;
+    -fx-pref-height: 6;
+    -fx-min-height: 6;
+    -fx-max-height: 6;
 }
 
 .audio-progress-bar .track {
     -fx-background-color: #2D2936;
-    -fx-background-radius: 2;
-    -fx-pref-height: 4;
+    -fx-background-radius: 3;
+    -fx-pref-height: 6;
+    -fx-min-height: 6;
 }
 
 .audio-progress-bar .bar {
     -fx-background-color: linear-gradient(to right, #9B59F5, #C084FC);
-    -fx-background-radius: 2;
+    -fx-background-radius: 3;
+    -fx-pref-height: 6;
+    -fx-min-height: 6;
 }
 
 /* Time Labels */
@@ -832,16 +834,18 @@
 .audio-ctrl-btn {
     -fx-background-color: transparent;
     -fx-text-fill: #7C6E8A;
-    -fx-font-size: 11px;
+    -fx-font-size: 12px;
     -fx-cursor: hand;
-    -fx-pref-width: 30;
-    -fx-pref-height: 30;
-    -fx-min-width: 30;
-    -fx-min-height: 30;
+    -fx-pref-width: 32;
+    -fx-pref-height: 32;
+    -fx-min-width: 32;
+    -fx-min-height: 32;
     -fx-border-radius: 50%;
     -fx-background-radius: 50%;
     -fx-border-color: transparent;
     -fx-alignment: center;
+    -fx-padding: 0;
+    -fx-font-family: 'Segoe UI', 'Segoe UI Symbol', 'Arial Unicode MS', sans-serif;
 }
 
 .audio-ctrl-btn:hover {
@@ -857,7 +861,7 @@
 .audio-play-btn {
     -fx-background-color: #C084FC;
     -fx-text-fill: #0E0C10;
-    -fx-font-size: 13px;
+    -fx-font-size: 15px;
     -fx-font-weight: bold;
     -fx-pref-width: 38;
     -fx-pref-height: 38;
@@ -867,6 +871,8 @@
     -fx-background-radius: 50%;
     -fx-border-color: transparent;
     -fx-cursor: hand;
+    -fx-padding: 0;
+    -fx-font-family: 'Segoe UI', 'Segoe UI Symbol', 'Arial Unicode MS', sans-serif;
     -fx-effect: dropshadow(gaussian, rgba(192,132,252,0.4), 8, 0, 0, 0);
 }
 

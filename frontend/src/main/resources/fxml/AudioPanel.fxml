@@ -233,28 +233,24 @@
         <!-- Controls Row: ⏮  ⏹  ▶/⏸  ⏭ -->
         <HBox alignment="CENTER" spacing="6">
 
-            <!-- Previous -->
             <Button fx:id="prevBtn"
-                    text="&#9664;&#9664;"
+                    text="⏮"
                     styleClass="audio-ctrl-btn"
                     onAction="#handlePrevious"/>
 
-            <!-- Stop -->
             <Button fx:id="stopBtn"
-                    text="&#9646;&#9646;"
+                    text="⏹"
                     styleClass="audio-ctrl-btn"
                     onAction="#handleStop"/>
 
-            <!-- Play / Pause (utama, lebih besar) -->
             <Button fx:id="playPauseBtn"
-                    text="&#9654;"
+                    text="▶"
                     styleClass="audio-play-btn"
                     onAction="#handlePlayPause"
                     disable="true"/>
 
-            <!-- Next -->
             <Button fx:id="nextBtn"
-                    text="&#9654;&#9654;"
+                    text="⏭"
                     styleClass="audio-ctrl-btn"
                     onAction="#handleNext"/>
 
