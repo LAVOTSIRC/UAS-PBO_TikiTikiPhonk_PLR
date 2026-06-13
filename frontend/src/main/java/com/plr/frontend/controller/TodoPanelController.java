@@ -22,15 +22,14 @@ public class TodoPanelController {
 
     private final ObservableList<String> activeTasks = FXCollections.observableArrayList();
     private final ObservableList<String> completedTasks = FXCollections.observableArrayList();
-    // Map to store task title -> id mapping for deletion/update
     private final Map<String, Long> taskIdMap = new HashMap<>();
+    private Runnable onTasksChanged;
 
     @FXML
     public void initialize() {
         activeTasksList.setItems(activeTasks);
         completedTasksList.setItems(completedTasks);
 
-        // Double-click active task to mark as done
         activeTasksList.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 String selected = activeTasksList.getSelectionModel().getSelectedItem();
@@ -41,7 +40,22 @@ public class TodoPanelController {
         });
     }
 
+    public void setOnTasksChanged(Runnable callback) {
+        this.onTasksChanged = callback;
+    }
+
+    public String getFirstActiveTask() {
+        if (!activeTasks.isEmpty()) {
+            return activeTasks.get(0);
+        }
+        return null;
+    }
+
     public void loadTasks() {
+        loadTasks(null);
+    }
+
+    public void loadTasks(Runnable onComplete) {
         Task<List<Map<String, Object>>> fetchTask = new Task<>() {
             @Override
             protected List<Map<String, Object>> call() throws Exception {
@@ -63,7 +77,7 @@ public class TodoPanelController {
                 taskIdMap.put(title, id);
 
                 if ("DONE".equals(status)) {
-                    completedTasks.add("✓ " + title);
+                    completedTasks.add("\u2713 " + title);
                     doneCount++;
                 } else {
                     activeTasks.add(title);
@@ -75,6 +89,8 @@ public class TodoPanelController {
                 if (sessionCountLabel != null) {
                     sessionCountLabel.setText(finalDone + " dari " + tasks.size() + " selesai");
                 }
+                if (onTasksChanged != null) onTasksChanged.run();
+                if (onComplete != null) onComplete.run();
             });
         });
 
@@ -146,7 +162,7 @@ public class TodoPanelController {
         if (selected == null) selected = completedTasksList.getSelectionModel().getSelectedItem();
         if (selected == null) return;
 
-        String cleanTitle = selected.startsWith("✓ ") ? selected.substring(2) : selected;
+        String cleanTitle = selected.startsWith("\u2713 ") ? selected.substring(2) : selected;
         Long id = taskIdMap.get(cleanTitle);
         if (id == null) return;
 

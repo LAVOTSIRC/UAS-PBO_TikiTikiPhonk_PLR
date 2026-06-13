@@ -483,6 +483,27 @@
     -fx-background-color: #A86EDE;
 }
 
+.timer-active-task {
+    -fx-font-size: 12px;
+    -fx-text-fill: #C084FC;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 4 0;
+    -fx-max-width: 280;
+    -fx-wrap-text: true;
+}
+
+.timer-points {
+    -fx-font-size: 14px;
+    -fx-text-fill: #C084FC;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 2 0;
+}
+
+.session-dots {
+    -fx-padding: 2 0 2 0;
+    -fx-spacing: 6;
+}
+
 /* ============================================================
    AUDIO PANEL
    ============================================================ */
