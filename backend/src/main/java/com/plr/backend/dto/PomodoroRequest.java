@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 public class PomodoroRequest {
-    @Min(value = 1, message = "Durasi minimal 1 menit")
+    @Min(value = 0, message = "Durasi minimal 0 menit")
     private int durationMinutes;
 
     @NotNull(message = "Tipe sesi tidak boleh null")
