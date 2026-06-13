@@ -6,10 +6,12 @@ package com.plr.frontend.model;
  */
 public enum NoiseType {
 
-    WHITE_NOISE("audio/white_noise.mp3", "White Noise", "\uD83C\uDF07"),   // 🌇
+    WHITE_NOISE("audio/white_noise.mp3", "White Noise", "\uD83C\uDF0A"),   // 🌊
     BROWN_NOISE("audio/brown_noise.mp3", "Brown Noise", "\u2615"),          // ☕
     RAIN      ("audio/rain.mp3",         "Rain",        "\uD83C\uDF27"),    // 🌧
-    FOREST    ("audio/forest.mp3",       "Forest",      "\uD83C\uDF3F");    // 🌿
+    FOREST    ("audio/forest.mp3",       "Forest",      "\uD83C\uDF3F"),   // 🌿
+    TIKI      ("audio/tikitiki.mp3",     "TikiTiki Phonk", "\uD83D\uDD25"), // 🔥
+    CRICKET   ("audio/cricket.mp3",      "Jangkrik",    "\uD83C\uDFB5");    // 🎵
 
     private final String resourcePath;
     private final String displayName;

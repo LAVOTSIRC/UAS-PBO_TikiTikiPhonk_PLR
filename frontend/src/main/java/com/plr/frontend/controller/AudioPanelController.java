@@ -34,6 +34,8 @@ public class AudioPanelController {
     @FXML private Button brownNoiseBtn;
     @FXML private Button rainNoiseBtn;
     @FXML private Button forestNoiseBtn;
+    @FXML private Button tikiNoiseBtn;
+    @FXML private Button cricketNoiseBtn;
 
     @FXML private ListView<Playlist>   playlistView;
     @FXML private ListView<AudioTrack> trackView;
@@ -524,6 +526,16 @@ public class AudioPanelController {
         handleNoiseButton(forestNoiseBtn, NoiseType.FOREST);
     }
 
+    @FXML
+    public void playTikiNoise() {
+        handleNoiseButton(tikiNoiseBtn, NoiseType.TIKI);
+    }
+
+    @FXML
+    public void playCricketNoise() {
+        handleNoiseButton(cricketNoiseBtn, NoiseType.CRICKET);
+    }
+
     private void handleNoiseButton(Button clickedBtn, NoiseType type) {
         setNoiseActiveState(clickedBtn);
         clearPlaylistSelection();
@@ -635,7 +647,7 @@ public class AudioPanelController {
     // ── Helpers ────────────────────────────────────────────
 
     private void setNoiseActiveState(Button activeBtn) {
-        Button[] noiseBtns = { whiteNoiseBtn, brownNoiseBtn, rainNoiseBtn, forestNoiseBtn };
+        Button[] noiseBtns = { whiteNoiseBtn, brownNoiseBtn, rainNoiseBtn, forestNoiseBtn, tikiNoiseBtn, cricketNoiseBtn };
         for (Button btn : noiseBtns) {
             if (btn != null) btn.getStyleClass().remove("noise-btn-active");
         }

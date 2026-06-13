@@ -60,7 +60,7 @@
                                 prefWidth="90" prefHeight="72">
                             <graphic>
                                 <VBox alignment="CENTER" spacing="4">
-                                    <Label text="&#128267;"
+                                    <Label text="&#127754;"
                                            styleClass="noise-icon-label"/>
                                     <Label text="White"
                                            styleClass="noise-title-label"/>
@@ -118,6 +118,42 @@
                                     <Label text="Forest"
                                            styleClass="noise-title-label"/>
                                     <Label text="Hutan"
+                                           styleClass="noise-sub-label"/>
+                                </VBox>
+                            </graphic>
+                        </Button>
+                    </HBox>
+
+                    <HBox spacing="8">
+                        <!-- TikiTiki Phonk -->
+                        <Button fx:id="tikiNoiseBtn"
+                                styleClass="noise-btn"
+                                onAction="#playTikiNoise"
+                                prefWidth="90" prefHeight="72">
+                            <graphic>
+                                <VBox alignment="CENTER" spacing="4">
+                                    <Label text="&#x1F525;"
+                                           styleClass="noise-icon-label"/>
+                                    <Label text="TikiTiki"
+                                           styleClass="noise-title-label"/>
+                                    <Label text="Phonk"
+                                           styleClass="noise-sub-label"/>
+                                </VBox>
+                            </graphic>
+                        </Button>
+
+                        <!-- Jangkrik -->
+                        <Button fx:id="cricketNoiseBtn"
+                                styleClass="noise-btn"
+                                onAction="#playCricketNoise"
+                                prefWidth="90" prefHeight="72">
+                            <graphic>
+                                <VBox alignment="CENTER" spacing="4">
+                                    <Label text="&#127925;"
+                                           styleClass="noise-icon-label"/>
+                                    <Label text="Jangkrik"
+                                           styleClass="noise-title-label"/>
+                                    <Label text="Ambience"
                                            styleClass="noise-sub-label"/>
                                 </VBox>
                             </graphic>
