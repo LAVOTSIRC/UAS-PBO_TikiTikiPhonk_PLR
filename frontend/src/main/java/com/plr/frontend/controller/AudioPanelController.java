@@ -134,13 +134,25 @@ public class AudioPanelController {
                     if (empty || pl == null) {
                         setText(null);
                         setGraphic(null);
+                        setStyle("-fx-background-color: transparent; -fx-padding: 0;");
                     } else {
+                        Label iconLabel = new Label("\uD83C\uDFB6");
+                        iconLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: #C084FC; -fx-min-width: 28; -fx-alignment: center-left;");
                         Label nameLabel = new Label(pl.getName());
-                        nameLabel.getStyleClass().add("playlist-cell-name");
-                        Label infoLabel = new Label(pl.getTrackCount() + " lagu" + (pl.getDescription().isEmpty() ? "" : " — " + pl.getDescription()));
-                        infoLabel.getStyleClass().add("playlist-cell-info");
-                        VBox vb = new VBox(2, nameLabel, infoLabel);
-                        setGraphic(vb);
+                        nameLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #F0EAFF; -fx-font-weight: bold;");
+                        Label countLabel = new Label(pl.getTrackCount() + " lagu");
+                        countLabel.setStyle("-fx-font-size: 9px; -fx-text-fill: #C084FC; -fx-font-weight: bold;");
+                        Label descLabel = new Label(pl.getDescription());
+                        descLabel.setStyle("-fx-font-size: 9px; -fx-text-fill: #7C6E8A;");
+                        descLabel.setVisible(!pl.getDescription().isEmpty());
+                        descLabel.setManaged(!pl.getDescription().isEmpty());
+                        VBox textBox = new VBox(1, nameLabel, countLabel, descLabel);
+                        javafx.scene.layout.HBox root = new javafx.scene.layout.HBox(8, iconLabel, textBox);
+                        root.setStyle("-fx-padding: 8 10; -fx-background-color: #140F1C; -fx-background-radius: 8; -fx-border-color: #2D2936; -fx-border-radius: 8; -fx-border-width: 1;");
+                        VBox wrapper = new VBox(root);
+                        wrapper.setStyle("-fx-padding: 3 0;");
+                        setGraphic(wrapper);
+                        setStyle("-fx-background-color: transparent; -fx-padding: 0;");
                     }
                 }
             };
@@ -222,8 +234,8 @@ public class AudioPanelController {
         createPlaylistBtn.setManaged(true);
         playButtons.setVisible(false);
         playButtons.setManaged(false);
-        addTracksBtn.setVisible(true);
-        addTracksBtn.setManaged(true);
+        addTracksBtn.setVisible(false);
+        addTracksBtn.setManaged(false);
         backNavBar.setVisible(false);
         backNavBar.setManaged(false);
         playlistHeader.setText("DAFTAR PLAYLIST");
