@@ -12,6 +12,10 @@ import java.util.Optional;
 @Repository
 public interface PomodoroSessionRepository extends JpaRepository<PomodoroSession, Long> {
     List<PomodoroSession> findByUser(User user);
+    List<PomodoroSession> findByUserOrderByStartTimeAsc(User user);
     List<PomodoroSession> findByUserAndSessionType(User user, SessionType sessionType);
     Optional<PomodoroSession> findByIdAndUser(Long id, User user);
+    List<PomodoroSession> findByTaskIdAndUser(Long taskId, User user);
+    List<PomodoroSession> findByTaskIdAndUserOrderByStartTimeAsc(Long taskId, User user);
+    List<PomodoroSession> findByTaskId(Long taskId);
 }

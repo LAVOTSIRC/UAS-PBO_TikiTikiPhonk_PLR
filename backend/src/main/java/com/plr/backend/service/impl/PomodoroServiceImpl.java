@@ -45,6 +45,7 @@ public class PomodoroServiceImpl implements IPomodoroService {
             : LocalDateTime.now());
         session.setNotes(request.getNotes());
         session.setUser(user);
+        session.setTaskId(request.getTaskId());
 
         if (request.getTaskId() != null) {
             taskRepository.findByIdAndUser(request.getTaskId(), user).ifPresent(task -> {
@@ -65,7 +66,17 @@ public class PomodoroServiceImpl implements IPomodoroService {
     @Transactional(readOnly = true)
     public List<PomodoroResponse> getAllSessions(String username) {
         User user = findUser(username);
-        return pomodoroRepository.findByUser(user)
+        return pomodoroRepository.findByUserOrderByStartTimeAsc(user)
+            .stream()
+            .map(this::toResponse)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PomodoroResponse> getSessionsByTask(Long taskId, String username) {
+        User user = findUser(username);
+        return pomodoroRepository.findByTaskIdAndUserOrderByStartTimeAsc(taskId, user)
             .stream()
             .map(this::toResponse)
             .collect(Collectors.toList());
@@ -104,6 +115,7 @@ public class PomodoroServiceImpl implements IPomodoroService {
         response.setStartTime(session.getStartTime());
         response.setNotes(session.getNotes());
         response.setPoints(session.getPoints());
+        response.setTaskId(session.getTaskId());
         response.setCreatedAt(session.getCreatedAt());
         return response;
     }

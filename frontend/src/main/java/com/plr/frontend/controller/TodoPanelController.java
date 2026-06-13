@@ -13,8 +13,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
+
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -71,6 +70,26 @@ public class TodoPanelController {
         activeTasksList.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
                 completedTasksList.getSelectionModel().clearSelection();
+                Long taskId = extractId(newVal);
+                if (taskId != null && focusCallback != null) {
+                    TaskClientDto dto = taskCache.get(taskId);
+                    if (dto != null) {
+                        focusCallback.accept(dto);
+                    }
+                }
+            }
+        });
+
+        activeTasksList.setOnMouseClicked(e -> {
+            String selected = activeTasksList.getSelectionModel().getSelectedItem();
+            if (selected != null && e.getClickCount() == 1) {
+                Long taskId = extractId(selected);
+                if (taskId != null && focusCallback != null) {
+                    TaskClientDto dto = taskCache.get(taskId);
+                    if (dto != null) {
+                        focusCallback.accept(dto);
+                    }
+                }
             }
         });
         
@@ -161,8 +180,8 @@ public class TodoPanelController {
         }
 
         int finalDone = doneCount;
-        if (sessionCountLabel != null) {
-            sessionCountLabel.setText(finalDone + " dari " + taskCache.size() + " selesai");
+        if (tasksDoneLabel != null) {
+            tasksDoneLabel.setText(finalDone + " tugas selesai");
         }
     }
 
@@ -474,28 +493,38 @@ public class TodoPanelController {
                 HBox root = new HBox(8);
                 root.setAlignment(Pos.CENTER_LEFT);
                 root.setStyle("-fx-cursor: hand;");
+                root.getStyleClass().add("todo-cell");
                 
-                Circle check = new Circle(8);
-                check.getStyleClass().add("todo-check-circle");
+                Label check = new Label();
+                check.getStyleClass().add("todo-check-box");
                 if (isCompletedList) {
+                    check.setText("❎");
                     check.getStyleClass().add("todo-checked");
                 }
-                
-                // Hitbox pada lingkaran
+
+                // Hitbox pada kotak
                 check.setOnMouseClicked(e -> {
-                    e.consume(); // Jangan teruskan klik ke HBox
+                    e.consume();
                     if (taskId != null) {
                         if (isCompletedList) markTaskActive(taskId);
                         else markTaskDone(taskId);
                     }
                 });
+
+                if (!isCompletedList) {
+                    check.setOnMouseEntered(e -> {
+                        check.setText("✅");
+                        check.setStyle("-fx-border-color: #22C55E; -fx-text-fill: #22C55E;");
+                    });
+                    check.setOnMouseExited(e -> {
+                        check.setText("");
+                        check.setStyle("");
+                    });
+                    Tooltip.install(check, new Tooltip("Selesai?"));
+                }
                 
-                // Jika baris (HBox) diklik 2x, buka edit modal
-                root.setOnMouseClicked(e -> {
-                    if (e.getClickCount() == 2 && taskId != null) {
-                        openEditModal(taskId, isCompletedList);
-                    }
-                });
+                // Event handling untuk klik tugas sudah dipindahkan ke activeTasksList (List level)
+                // agar klik di bagian kosong row tetap terdeteksi dengan baik.
 
                 Label text = new Label(displayTitle);
                 text.getStyleClass().add("todo-text");
@@ -537,22 +566,15 @@ public class TodoPanelController {
                     }
                 }
                 
-                // Tambahkan Tombol Fokus jika belum selesai
-                if (!isCompletedList && taskId != null) {
-                    javafx.scene.control.Button focusBtn = new javafx.scene.control.Button("🎯");
-                    focusBtn.getStyleClass().add("focus-btn");
-                    focusBtn.setOnMouseClicked(e -> {
+                // Tombol detail (📋) — selalu tampak, buka popup edit
+                if (taskId != null) {
+                    javafx.scene.control.Button detailBtn = new javafx.scene.control.Button("📋");
+                    detailBtn.getStyleClass().addAll("focus-btn", "detail-btn");
+                    detailBtn.setOnMouseClicked(e -> {
                         e.consume();
-                        if (focusCallback != null) {
-                            TaskClientDto dto = taskCache.get(taskId);
-                            if (dto != null) focusCallback.accept(dto);
-                        }
+                        openEditModal(taskId, isCompletedList);
                     });
-                    
-                    // Tombol target hanya muncul & bisa ditekan jika baris ini dipilih
-                    focusBtn.visibleProperty().bind(selectedProperty());
-                    
-                    root.getChildren().add(focusBtn);
+                    root.getChildren().add(detailBtn);
                 }
                 
                 setGraphic(root);

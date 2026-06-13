@@ -27,6 +27,9 @@ public class PomodoroSession extends BaseEntity {
     @Column(name = "points")
     private int points = 0;
 
+    @Column(name = "task_id")
+    private Long taskId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -52,6 +55,8 @@ public class PomodoroSession extends BaseEntity {
     public void setNotes(String notes) { this.notes = notes; }
     public int getPoints() { return points; }
     public void setPoints(int points) { this.points = points; }
+    public Long getTaskId() { return taskId; }
+    public void setTaskId(Long taskId) { this.taskId = taskId; }
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
 

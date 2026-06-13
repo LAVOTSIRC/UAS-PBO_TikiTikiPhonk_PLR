@@ -10,6 +10,7 @@ public class PomodoroResponse {
     private LocalDateTime startTime;
     private String notes;
     private int points;
+    private Long taskId;
     private LocalDateTime createdAt;
 
     public PomodoroResponse() {}
@@ -26,6 +27,8 @@ public class PomodoroResponse {
     public void setNotes(String notes) { this.notes = notes; }
     public int getPoints() { return points; }
     public void setPoints(int points) { this.points = points; }
+    public Long getTaskId() { return taskId; }
+    public void setTaskId(Long taskId) { this.taskId = taskId; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }
