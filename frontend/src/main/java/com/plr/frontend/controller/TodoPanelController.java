@@ -19,6 +19,8 @@ public class TodoPanelController {
     @FXML private ListView<String> activeTasksList;
     @FXML private ListView<String> completedTasksList;
     @FXML private Label sessionCountLabel;
+    @FXML private Label focusMinutesLabel;
+    @FXML private Label tasksDoneLabel;
     @FXML private Label statusLabel;
 
     private final ObservableList<String> activeTasks = FXCollections.observableArrayList();
@@ -34,6 +36,7 @@ public class TodoPanelController {
     public void initialize() {
         activeTasksList.setItems(activeTasks);
         completedTasksList.setItems(completedTasks);
+        loadSessionStats();
 
         // Gunakan CellFactory kustom untuk merender checkbox lingkaran + teks seperti desain referensi
         activeTasksList.setCellFactory(lv -> new ListCell<>() {
@@ -49,13 +52,58 @@ public class TodoPanelController {
                     
                     javafx.scene.shape.Circle check = new javafx.scene.shape.Circle(8);
                     check.getStyleClass().add("todo-check-circle");
-                    
+                    String captured = item;
+                    check.setOnMouseClicked(e -> {
+                        e.consume();
+                        markTaskDone(captured);
+                    });
+
                     Label text = new Label(extractTitle(item));
                     text.getStyleClass().add("todo-text");
-                    
+
                     root.getChildren().addAll(check, text);
                     setGraphic(root);
                     setText(null);
+                }
+            }
+        });
+
+        completedTasksList.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    // Hapus prefix "✓ " karena kita merender GUI kustom
+                    String displayTitle = extractTitle(item);
+                    if (displayTitle.startsWith("✓ ")) {
+                        displayTitle = displayTitle.substring(2);
+                    }
+
+                    javafx.scene.layout.HBox root = new javafx.scene.layout.HBox(8);
+                    root.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+                    javafx.scene.shape.Circle check = new javafx.scene.shape.Circle(8);
+                    check.getStyleClass().addAll("todo-check-circle", "todo-checked");
+
+                    Label text = new Label(displayTitle);
+                    text.getStyleClass().addAll("todo-text", "todo-text-done");
+
+                    root.getChildren().addAll(check, text);
+                    setGraphic(root);
+                    setText(null);
+                }
+            }
+        });
+
+        // Klik lingkaran atau double-click untuk menandai selesai
+        activeTasksList.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                String selected = activeTasksList.getSelectionModel().getSelectedItem();
+                if (selected != null) {
+                    markTaskDone(selected);
                 }
             }
         });
@@ -137,8 +185,8 @@ public class TodoPanelController {
 
             final int finalDone = doneCount;
             Platform.runLater(() -> {
-                if (sessionCountLabel != null) {
-                    sessionCountLabel.setText(finalDone + " dari " + tasks.size() + " selesai");
+                if (tasksDoneLabel != null) {
+                    tasksDoneLabel.setText(finalDone + " tugas");
                 }
                 if (onTasksChanged != null) onTasksChanged.run();
             });
@@ -153,6 +201,7 @@ public class TodoPanelController {
         });
 
         new Thread(fetchTask).start();
+        loadSessionStats();
     }
 
     @FXML
@@ -289,6 +338,41 @@ public class TodoPanelController {
                 javafx.application.Platform.runLater(callback);
             }).start();
         }
+    }
+
+    public void loadSessionStats() {
+        Task<List<Map<String, Object>>> loadTask = new Task<>() {
+            @Override
+            protected List<Map<String, Object>> call() throws Exception {
+                return ApiClient.getInstance().getPomodoroSessions();
+            }
+        };
+
+        loadTask.setOnSucceeded(e -> {
+            List<Map<String, Object>> sessions = loadTask.getValue();
+            Platform.runLater(() -> {
+                long totalSessions = sessions.size();
+                long focusCount = sessions.stream()
+                    .filter(s -> "FOCUS".equals(s.get("sessionType")))
+                    .count();
+                int totalMinutes = sessions.stream()
+                    .mapToInt(s -> {
+                        Object dur = s.get("durationMinutes");
+                        return dur instanceof Number ? ((Number) dur).intValue() : 0;
+                    })
+                    .sum();
+
+                if (sessionCountLabel != null) {
+                    sessionCountLabel.setText(focusCount + " fokus");
+                }
+                if (focusMinutesLabel != null) {
+                    focusMinutesLabel.setText(totalMinutes + " mnt");
+                }
+            });
+        });
+
+        loadTask.setOnFailed(e -> {});
+        new Thread(loadTask).start();
     }
 
     // ========== HELPER METHODS ==========

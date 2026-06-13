@@ -1076,6 +1076,7 @@
     -fx-fill: transparent;
     -fx-stroke: #4A4055;
     -fx-stroke-width: 1.5;
+    -fx-cursor: hand;
 }
 
 .todo-check-circle.todo-checked {
