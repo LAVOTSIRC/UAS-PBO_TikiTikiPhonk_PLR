@@ -26,6 +26,14 @@ public class PomodoroRestController {
         return ResponseEntity.ok(sessions);
     }
 
+    @GetMapping("/sessions/task/{taskId}")
+    public ResponseEntity<List<PomodoroResponse>> getSessionsByTask(
+            @PathVariable Long taskId,
+            Authentication authentication) {
+        List<PomodoroResponse> sessions = pomodoroService.getSessionsByTask(taskId, authentication.getName());
+        return ResponseEntity.ok(sessions);
+    }
+
     @PostMapping("/sessions")
     public ResponseEntity<PomodoroResponse> logSession(
             @Valid @RequestBody PomodoroRequest request,

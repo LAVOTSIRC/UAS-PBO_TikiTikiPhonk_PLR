@@ -1477,6 +1477,35 @@
     -fx-stroke: transparent;
 }
 
+/* ── Task list item: check box (empty square → filled on hover/completed) ──── */
+
+.todo-check-box {
+    -fx-min-width: 24;
+    -fx-min-height: 20;
+    -fx-border-color: #4A4055;
+    -fx-border-width: 2;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-alignment: center;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-padding: 0;
+}
+.todo-check-box.todo-checked {
+    -fx-background-color: #C084FC;
+    -fx-border-color: #C084FC;
+    -fx-text-fill: white;
+}
+
+/* ── Task list item: detail button (show on row hover) ──── */
+
+.detail-btn {
+    -fx-opacity: 0;
+}
+.todo-cell:hover .detail-btn {
+    -fx-opacity: 1;
+}
+
 /* ── Task list item: label ──────────────────────────────── */
 
 .todo-text {
@@ -2205,6 +2234,15 @@
 
 .light-mode .todo-check-circle.todo-checked {
     -fx-fill: #7C3AED;
+}
+
+.light-mode .todo-check-box {
+    -fx-border-color: #8A7A9E;
+}
+.light-mode .todo-check-box.todo-checked {
+    -fx-background-color: #7C3AED;
+    -fx-border-color: #7C3AED;
+    -fx-text-fill: white;
 }
 
 .light-mode .todo-text {

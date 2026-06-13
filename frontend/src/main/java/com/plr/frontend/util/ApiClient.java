@@ -186,6 +186,24 @@ public class ApiClient {
         }
     }
 
+    public List<Map<String, Object>> getPomodoroSessionsByTask(Long taskId) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/api/pomodoro/sessions/task/" + taskId))
+            .header("Authorization", SessionManager.getInstance().getAuthorizationHeader())
+            .GET()
+            .build();
+
+        HttpResponse<String> response = httpClient.send(request,
+            HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200) {
+            return objectMapper.readValue(response.body(),
+                new TypeReference<List<Map<String, Object>>>() {});
+        } else {
+            throw new Exception("Gagal mengambil sesi tugas: " + response.statusCode());
+        }
+    }
+
     public Map<String, Object> logPomodoroSession(Map<String, Object> sessionData) throws Exception {
         String json = objectMapper.writeValueAsString(sessionData);
 

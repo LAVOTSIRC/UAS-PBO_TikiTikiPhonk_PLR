@@ -9,6 +9,7 @@ public class PomodoroResponse {
     private SessionType sessionType;
     private LocalDateTime startTime;
     private int points;
+    private Long taskId;
     private LocalDateTime createdAt;
 
     public PomodoroResponse() {}
@@ -23,6 +24,8 @@ public class PomodoroResponse {
     public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
     public int getPoints() { return points; }
     public void setPoints(int points) { this.points = points; }
+    public Long getTaskId() { return taskId; }
+    public void setTaskId(Long taskId) { this.taskId = taskId; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }
