@@ -49,6 +49,58 @@ public class ApiClient {
         return builder;
     }
 
+    // ========== GENERIC AUTH HELPERS ==========
+
+    public static String get(String path) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + path))
+            .header("Authorization", SessionManager.getInstance().getAuthorizationHeader())
+            .GET()
+            .build();
+
+        HttpResponse<String> response = instance.httpClient.send(request,
+            HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() >= 200 && response.statusCode() < 300) {
+            return response.body();
+        }
+        throw new Exception("Request GET gagal (" + response.statusCode() + "): " + response.body());
+    }
+
+    public static String put(String path, String jsonBody) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + path))
+            .header("Content-Type", "application/json")
+            .header("Authorization", SessionManager.getInstance().getAuthorizationHeader())
+            .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
+            .build();
+
+        HttpResponse<String> response = instance.httpClient.send(request,
+            HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() >= 200 && response.statusCode() < 300) {
+            return response.body();
+        }
+        throw new Exception("Request PUT gagal (" + response.statusCode() + "): " + response.body());
+    }
+
+    public static String delete(String path, String jsonBody) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + path))
+            .header("Content-Type", "application/json")
+            .header("Authorization", SessionManager.getInstance().getAuthorizationHeader())
+            .method("DELETE", HttpRequest.BodyPublishers.ofString(jsonBody))
+            .build();
+
+        HttpResponse<String> response = instance.httpClient.send(request,
+            HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() >= 200 && response.statusCode() < 300) {
+            return response.body();
+        }
+        throw new Exception("Request DELETE gagal (" + response.statusCode() + "): " + response.body());
+    }
+
     // ========== AUTH ENDPOINTS ==========
 
     public Map<String, Object> login(String username, String password) throws Exception {

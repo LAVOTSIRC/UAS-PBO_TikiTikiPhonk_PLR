@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+
+<!--
+    ProfilePanel.fxml — Panel Profil Pengguna
+    Menampilkan informasi user, statistik, dan pengaturan akun
+-->
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.plr.frontend.controller.ProfilePanelController"
+      styleClass="profile-panel"
+      prefWidth="800" minWidth="600"
+      fillWidth="true"
+      spacing="0">
+
+    <!-- ========== HEADER SECTION ========== -->
+    <VBox styleClass="profile-header" spacing="16">
+        <VBox.margin><Insets top="24" right="24" bottom="24" left="24"/></VBox.margin>
+
+        <!-- User Avatar & Basic Info -->
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <!-- Avatar Circle -->
+            <Circle fx:id="userAvatarCircle"
+                    radius="48"
+                    styleClass="profile-avatar"
+                    fill="#C084FC"/>
+
+            <!-- User Basic Info -->
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label fx:id="usernameLabel"
+                       text="username"
+                       styleClass="profile-username"/>
+                <Label fx:id="emailLabel"
+                       text="user@example.com"
+                       styleClass="profile-email"/>
+                <Label fx:id="joinedDateLabel"
+                       text="Bergabung 14 Juni 2026"
+                       styleClass="profile-joined-date"/>
+            </VBox>
+
+            <!-- Edit Profile Button -->
+            <Button fx:id="editProfileBtn"
+                    text="Edit Profil"
+                    styleClass="button, button-primary"
+                    onAction="#handleEditProfile"
+                    prefWidth="120"/>
+        </HBox>
+    </VBox>
+
+    <!-- Separator -->
+    <Separator styleClass="profile-separator"/>
+
+    <!-- ========== STATISTICS SECTION ========== -->
+    <VBox styleClass="profile-stats-section" spacing="12">
+        <VBox.margin><Insets top="16" right="24" bottom="16" left="24"/></VBox.margin>
+
+        <Label text="STATISTIK KESELURUHAN" styleClass="section-label"/>
+
+        <!-- Stats Grid (2x2) -->
+        <HBox spacing="12">
+            <!-- Total Sesi -->
+            <VBox styleClass="stat-card">
+                <Label text="Total Sesi" styleClass="stat-label"/>
+                <Label fx:id="totalSessionsLabel"
+                       text="0"
+                       styleClass="stat-value"/>
+            </VBox>
+
+            <!-- Total Fokus Minutes -->
+            <VBox styleClass="stat-card">
+                <Label text="Total Fokus" styleClass="stat-label"/>
+                <Label fx:id="totalFocusMinutesLabel"
+                       text="0 menit"
+                       styleClass="stat-value"/>
+            </VBox>
+
+            <!-- Tasks Completed -->
+            <VBox styleClass="stat-card">
+                <Label text="Tugas Selesai" styleClass="stat-label"/>
+                <Label fx:id="tasksCompletedLabel"
+                       text="0"
+                       styleClass="stat-value"/>
+            </VBox>
+
+            <!-- Current Streak -->
+            <VBox styleClass="stat-card">
+                <Label text="Streak Hari Ini" styleClass="stat-label"/>
+                <Label fx:id="currentStreakLabel"
+                       text="0"
+                       styleClass="stat-value"/>
+            </VBox>
+        </HBox>
+    </VBox>
+
+    <!-- Separator -->
+    <Separator styleClass="profile-separator"/>
+
+    <!-- ========== SCROLLABLE SETTINGS SECTION ========== -->
+    <VBox styleClass="profile-settings-section"
+          spacing="20"
+          VBox.vgrow="ALWAYS">
+        <VBox.margin><Insets top="16" right="24" bottom="24" left="24"/></VBox.margin>
+
+        <!-- ========== PERSONAL INFO ========== -->
+        <VBox spacing="12">
+            <Label text="INFORMASI PRIBADI" styleClass="section-label"/>
+
+            <VBox spacing="6">
+                <Label text="Username" styleClass="setting-label"/>
+                <TextField fx:id="editUsernameField"
+                           promptText="Masukkan username baru"
+                           styleClass="profile-input"
+                           visible="false"/>
+                <Label fx:id="usernameDisplayLabel"
+                       text="username"
+                       styleClass="setting-value"/>
+            </VBox>
+
+            <VBox spacing="6">
+                <Label text="Email" styleClass="setting-label"/>
+                <TextField fx:id="editEmailField"
+                           promptText="Masukkan email baru"
+                           styleClass="profile-input"
+                           visible="false"/>
+                <Label fx:id="emailDisplayLabel"
+                       text="user@example.com"
+                       styleClass="setting-value"/>
+            </VBox>
+
+            <!-- Edit/Save Buttons for Personal Info -->
+            <HBox spacing="8" fx:id="personalInfoButtonsBox">
+                <Button fx:id="editPersonalInfoBtn"
+                        text="Edit"
+                        styleClass="button, button-outline"
+                        onAction="#handleEditPersonalInfo"/>
+                <Button fx:id="savePersonalInfoBtn"
+                        text="Simpan"
+                        styleClass="button, button-primary"
+                        onAction="#handleSavePersonalInfo"
+                        visible="false"/>
+                <Button fx:id="cancelPersonalInfoBtn"
+                        text="Batal"
+                        styleClass="button, button-secondary"
+                        onAction="#handleCancelPersonalInfo"
+                        visible="false"/>
+            </HBox>
+        </VBox>
+
+        <!-- Separator -->
+        <Separator styleClass="profile-separator"/>
+
+        <!-- ========== PASSWORD & SECURITY ========== -->
+        <VBox spacing="12">
+            <Label text="KEAMANAN" styleClass="section-label"/>
+
+            <VBox spacing="6" fx:id="passwordSectionBox">
+                <Label text="Ubah Password" styleClass="setting-label"/>
+
+                <VBox spacing="8" fx:id="passwordInputsBox" visible="false">
+                    <Label text="Password Lama" styleClass="setting-label-small"/>
+                    <PasswordField fx:id="oldPasswordField"
+                                   promptText="Masukkan password lama"
+                                   styleClass="profile-input"/>
+
+                    <Label text="Password Baru" styleClass="setting-label-small"/>
+                    <PasswordField fx:id="newPasswordField"
+                                   promptText="Minimal 6 karakter"
+                                   styleClass="profile-input"/>
+
+                    <Label text="Konfirmasi Password Baru" styleClass="setting-label-small"/>
+                    <PasswordField fx:id="confirmPasswordField"
+                                   promptText="Ulangi password baru"
+                                   styleClass="profile-input"/>
+
+                    <Label fx:id="passwordErrorLabel"
+                           text=""
+                           styleClass="error-label"
+                           visible="false"/>
+                </VBox>
+
+                <!-- Password Change Buttons -->
+                <HBox spacing="8" fx:id="passwordButtonsBox">
+                    <Button fx:id="changePasswordBtn"
+                            text="Ubah Password"
+                            styleClass="button, button-outline"
+                            onAction="#handleChangePasswordClick"/>
+                    <Button fx:id="savePasswordBtn"
+                            text="Simpan"
+                            styleClass="button, button-primary"
+                            onAction="#handleSavePassword"
+                            visible="false"/>
+                    <Button fx:id="cancelPasswordBtn"
+                            text="Batal"
+                            styleClass="button, button-secondary"
+                            onAction="#handleCancelPassword"
+                            visible="false"/>
+                </HBox>
+            </VBox>
+        </VBox>
+
+        <!-- Separator -->
+        <Separator styleClass="profile-separator"/>
+
+        <!-- ========== ACCOUNT PREFERENCES ========== -->
+        <VBox spacing="12">
+            <Label text="PREFERENSI" styleClass="section-label"/>
+
+            <VBox spacing="8">
+                <Label text="Notifikasi Default Audio" styleClass="setting-label"/>
+                <Label text="Ambient noise akan otomatis diputar saat sesi fokus dimulai (dapat diubah kapan saja)."
+                       styleClass="setting-description"/>
+                <Button text="Informasi Lebih Lanjut"
+                        styleClass="link-button"/>
+            </VBox>
+        </VBox>
+
+        <!-- Spacer -->
+        <Region VBox.vgrow="ALWAYS"/>
+
+        <!-- ========== DANGER ZONE ========== -->
+        <VBox spacing="12" styleClass="profile-danger-zone">
+            <Label text="ZONA BAHAYA" styleClass="section-label-danger"/>
+
+            <Button fx:id="deleteAccountBtn"
+                    text="🗑 Hapus Akun (Tidak dapat dibatalkan)"
+                    styleClass="button, button-danger"
+                    onAction="#handleDeleteAccount"
+                    maxWidth="Infinity"/>
+        </VBox>
+
+    </VBox>
+
+</VBox>

@@ -16,10 +16,10 @@
         <!-- Sidebar -->
         <fx:include fx:id="sidebar" source="Sidebar.fxml"/>
 
-        <!-- Content area: switch between task view & stats view -->
+        <!-- Content area: switch between views -->
         <StackPane HBox.hgrow="ALWAYS">
-            <!-- Task View: Todo + Timer + Audio -->
-            <HBox fx:id="taskView" managed="true" visible="true">
+            <!-- Task View / Dashboard: Todo + Timer + Audio -->
+            <HBox fx:id="dashboardContent" fillHeight="true" managed="true" visible="true">
                 <fx:include fx:id="todoPanel" source="TodoPanel.fxml"/>
                 <fx:include fx:id="timerPanel" source="TimerPanel.fxml"/>
                 <fx:include fx:id="audioPanel" source="AudioPanel.fxml"/>
@@ -27,8 +27,10 @@
 
             <!-- Stats View -->
             <fx:include fx:id="statsPanel" source="StatsPanel.fxml" managed="false" visible="false"/>
+            
+            <!-- Profile Panel -->
+            <fx:include fx:id="profilePanel" source="ProfilePanel.fxml" managed="false" visible="false"/>
         </StackPane>
-
     </HBox>
 
     <!-- Global Notification Overlay -->
