@@ -4,11 +4,12 @@ import com.plr.frontend.dto.TaskClientDto;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import javafx.util.Callback;
+import javafx.util.StringConverter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import javafx.util.Callback;
 
 public class TaskModalController {
 
@@ -16,8 +17,8 @@ public class TaskModalController {
     @FXML private TextField titleField;
     @FXML private ComboBox<String> categoryComboBox;
     @FXML private DatePicker dueDatePicker;
-    @FXML private ComboBox<String> hourComboBox;
-    @FXML private ComboBox<String> minuteComboBox;
+    @FXML private Spinner<Integer> hourSpinner;
+    @FXML private Spinner<Integer> minuteSpinner;
     @FXML private TextArea descriptionArea;
     @FXML private Label errorLabel;
     @FXML private Button deleteBtn;
@@ -33,13 +34,52 @@ public class TaskModalController {
 
     @FXML
     public void initialize() {
-        categoryComboBox.getItems().addAll("Tidak Ada", "Kerja", "Fokus", "Cepat");
+        categoryComboBox.getItems().addAll("Tidak Ada", "Kerja", "Fokus", "Cepat", "Belajar", "Olahraga", "Meeting", "Baca", "Personal");
         categoryComboBox.getSelectionModel().selectFirst();
 
-        for (int i = 0; i <= 23; i++) hourComboBox.getItems().add(String.format("%02d", i));
-        for (int i = 0; i <= 59; i++) minuteComboBox.getItems().add(String.format("%02d", i));
+        dueDatePicker.setEditable(false);
+        dueDatePicker.setPromptText("Pilih tanggal");
+        dueDatePicker.setValue(LocalDate.now());
 
-        // Disable past dates in Calendar UI
+        // Spinner jam — bisa diketik, format 2 digit
+        SpinnerValueFactory.IntegerSpinnerValueFactory hourFactory =
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 23, LocalTime.now().getHour());
+        hourSpinner.setValueFactory(hourFactory);
+        hourSpinner.setEditable(true);
+        hourSpinner.getValueFactory().setConverter(new StringConverter<Integer>() {
+            @Override public String toString(Integer value) {
+                return value == null ? "00" : String.format("%02d", value);
+            }
+            @Override public Integer fromString(String string) {
+                try {
+                    int val = Integer.parseInt(string);
+                    return Math.max(0, Math.min(23, val));
+                } catch (NumberFormatException e) {
+                    return hourSpinner.getValue();
+                }
+            }
+        });
+
+        // Spinner menit — bisa diketik, format 2 digit
+        SpinnerValueFactory.IntegerSpinnerValueFactory minuteFactory =
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 59, LocalTime.now().getMinute());
+        minuteSpinner.setValueFactory(minuteFactory);
+        minuteSpinner.setEditable(true);
+        minuteSpinner.getValueFactory().setConverter(new StringConverter<Integer>() {
+            @Override public String toString(Integer value) {
+                return value == null ? "00" : String.format("%02d", value);
+            }
+            @Override public Integer fromString(String string) {
+                try {
+                    int val = Integer.parseInt(string);
+                    return Math.max(0, Math.min(59, val));
+                } catch (NumberFormatException e) {
+                    return minuteSpinner.getValue();
+                }
+            }
+        });
+
+        // Disable past dates in Calendar UI (styling via CSS)
         dueDatePicker.setDayCellFactory(new Callback<DatePicker, DateCell>() {
             @Override
             public DateCell call(DatePicker param) {
@@ -49,12 +89,13 @@ public class TaskModalController {
                         super.updateItem(item, empty);
                         if (item.isBefore(LocalDate.now())) {
                             setDisable(true);
-                            setStyle("-fx-background-color: #1A1722; -fx-text-fill: #7C6E8A; -fx-opacity: 0.5;");
                         }
                     }
                 };
             }
         });
+
+        // Ukuran TextArea deskripsi diatur langsung di FXML (prefRowCount=4, prefHeight=95)
     }
 
     public void setDialogStage(Stage dialogStage) {
@@ -82,13 +123,18 @@ public class TaskModalController {
                     case "KERJA": categoryComboBox.getSelectionModel().select("Kerja"); break;
                     case "FOKUS": categoryComboBox.getSelectionModel().select("Fokus"); break;
                     case "CEPAT": categoryComboBox.getSelectionModel().select("Cepat"); break;
+                    case "BELAJAR": categoryComboBox.getSelectionModel().select("Belajar"); break;
+                    case "OLAHRAGA": categoryComboBox.getSelectionModel().select("Olahraga"); break;
+                    case "MEETING": categoryComboBox.getSelectionModel().select("Meeting"); break;
+                    case "BACA": categoryComboBox.getSelectionModel().select("Baca"); break;
+                    case "PERSONAL": categoryComboBox.getSelectionModel().select("Personal"); break;
                     default: categoryComboBox.getSelectionModel().selectFirst(); break;
                 }
             }
             if (task.getDueDate() != null) {
                 dueDatePicker.setValue(task.getDueDate().toLocalDate());
-                hourComboBox.getSelectionModel().select(String.format("%02d", task.getDueDate().getHour()));
-                minuteComboBox.getSelectionModel().select(String.format("%02d", task.getDueDate().getMinute()));
+                hourSpinner.getValueFactory().setValue(task.getDueDate().getHour());
+                minuteSpinner.getValueFactory().setValue(task.getDueDate().getMinute());
             }
 
             if (isCompleted) {
@@ -96,8 +142,8 @@ public class TaskModalController {
                 descriptionArea.setEditable(false);
                 categoryComboBox.setDisable(true);
                 dueDatePicker.setDisable(true);
-                hourComboBox.setDisable(true);
-                minuteComboBox.setDisable(true);
+                hourSpinner.setDisable(true);
+                minuteSpinner.setDisable(true);
                 saveBtn.setVisible(false);
                 saveBtn.setManaged(false);
                 deleteBtn.setVisible(true);
@@ -136,17 +182,24 @@ public class TaskModalController {
         if (isInputValid()) {
             task.setTitle(titleField.getText());
             task.setDescription(descriptionArea.getText());
-            
+
             LocalDate date = dueDatePicker.getValue();
-            int hour = Integer.parseInt(hourComboBox.getValue());
-            int min = Integer.parseInt(minuteComboBox.getValue());
+            int hour = hourSpinner.getValue();
+            int min = minuteSpinner.getValue();
             task.setDueDate(LocalDateTime.of(date, LocalTime.of(hour, min)));
-            
+
             String selectedCat = categoryComboBox.getSelectionModel().getSelectedItem();
-            if ("Kerja".equals(selectedCat)) task.setCategory("KERJA");
-            else if ("Fokus".equals(selectedCat)) task.setCategory("FOKUS");
-            else if ("Cepat".equals(selectedCat)) task.setCategory("CEPAT");
-            else task.setCategory(null);
+            switch (selectedCat) {
+                case "Kerja": task.setCategory("KERJA"); break;
+                case "Fokus": task.setCategory("FOKUS"); break;
+                case "Cepat": task.setCategory("CEPAT"); break;
+                case "Belajar": task.setCategory("BELAJAR"); break;
+                case "Olahraga": task.setCategory("OLAHRAGA"); break;
+                case "Meeting": task.setCategory("MEETING"); break;
+                case "Baca": task.setCategory("BACA"); break;
+                case "Personal": task.setCategory("PERSONAL"); break;
+                default: task.setCategory(null); break;
+            }
 
             saveClicked = true;
             dialogStage.close();
@@ -172,32 +225,32 @@ public class TaskModalController {
 
     private boolean isInputValid() {
         if (titleField.getText() == null || titleField.getText().trim().isEmpty()) {
-            errorLabel.setText("⚠ Judul tugas harus diisi!");
+            errorLabel.setText("Judul tugas harus diisi!");
             return false;
         }
-        
+
         if ("Tidak Ada".equals(categoryComboBox.getValue()) || categoryComboBox.getValue() == null) {
-            errorLabel.setText("⚠ Kategori harus dipilih!");
+            errorLabel.setText("Kategori harus dipilih!");
             return false;
         }
 
         if (dueDatePicker.getValue() == null) {
-            errorLabel.setText("⚠ Tanggal tenggat waktu harus diisi!");
+            errorLabel.setText("Tanggal tenggat waktu harus diisi!");
             return false;
         }
 
-        if (hourComboBox.getValue() == null || minuteComboBox.getValue() == null) {
-            errorLabel.setText("⚠ Jam dan menit harus dipilih!");
+        if (hourSpinner.getValue() == null || minuteSpinner.getValue() == null) {
+            errorLabel.setText("Jam dan menit harus dipilih!");
             return false;
         }
 
         LocalDate date = dueDatePicker.getValue();
-        int hour = Integer.parseInt(hourComboBox.getValue());
-        int min = Integer.parseInt(minuteComboBox.getValue());
+        int hour = hourSpinner.getValue();
+        int min = minuteSpinner.getValue();
         LocalDateTime selectedDateTime = LocalDateTime.of(date, LocalTime.of(hour, min));
 
         if (selectedDateTime.isBefore(LocalDateTime.now())) {
-            errorLabel.setText("⚠ Tanggal dan jam tidak boleh berlalu!");
+            errorLabel.setText("Tanggal dan jam tidak boleh berlalu!");
             return false;
         }
 

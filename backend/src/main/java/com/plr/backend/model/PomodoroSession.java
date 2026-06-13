@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Table(name = "pomodoro_sessions")
 public class PomodoroSession extends BaseEntity {
 
-    @Min(value = 1, message = "Durasi minimal 1 menit")
+    @Min(value = 0, message = "Durasi minimal 0 menit")
     @Column(name = "duration_minutes", nullable = false)
     private int durationMinutes;
 
@@ -21,9 +21,6 @@ public class PomodoroSession extends BaseEntity {
     @Column(name = "start_time")
     private LocalDateTime startTime;
 
-    @Column(columnDefinition = "TEXT")
-    private String notes;
-
     @Column(name = "points")
     private int points = 0;
 
@@ -34,11 +31,10 @@ public class PomodoroSession extends BaseEntity {
     public PomodoroSession() {}
 
     public PomodoroSession(int durationMinutes, SessionType sessionType,
-                           LocalDateTime startTime, String notes, User user) {
+                           LocalDateTime startTime, User user) {
         this.durationMinutes = durationMinutes;
         this.sessionType = sessionType;
         this.startTime = startTime;
-        this.notes = notes;
         this.user = user;
     }
 
@@ -48,8 +44,6 @@ public class PomodoroSession extends BaseEntity {
     public void setSessionType(SessionType sessionType) { this.sessionType = sessionType; }
     public LocalDateTime getStartTime() { return startTime; }
     public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
-    public String getNotes() { return notes; }
-    public void setNotes(String notes) { this.notes = notes; }
     public int getPoints() { return points; }
     public void setPoints(int points) { this.points = points; }
     public User getUser() { return user; }

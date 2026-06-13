@@ -96,6 +96,11 @@
     -fx-background-color: #C084FC;
     -fx-text-fill: #1A1722;
 }
+.date-picker-popup .day-cell:disabled {
+    -fx-background-color: #1A1722;
+    -fx-text-fill: #7C6E8A;
+    -fx-opacity: 0.5;
+}
 .date-picker-popup .day-name-cell {
     -fx-background-color: #2D2936;
     -fx-text-fill: #B0A3C6;
@@ -107,6 +112,73 @@
 .date-picker-popup .left-button:hover,
 .date-picker-popup .right-button:hover {
     -fx-background-color: #4A4258;
+}
+
+/* Tanggal bulan lalu/berikutnya — Dark Mode */
+.date-picker-popup .day-cell.previous-month {
+    -fx-background-color: #12101A;
+    -fx-text-fill: #453B57;
+    -fx-font-style: italic;
+}
+.date-picker-popup .day-cell.next-month {
+    -fx-background-color: #12101A;
+    -fx-text-fill: #453B57;
+    -fx-font-style: italic;
+}
+.date-picker-popup .day-cell.previous-month:hover,
+.date-picker-popup .day-cell.next-month:hover {
+    -fx-background-color: #2D2936;
+    -fx-text-fill: #7C6E8A;
+}
+
+/* Spinner Dark Theme */
+.todo-spinner {
+    -fx-background-color: #1A1722;
+    -fx-border-color: #3D2E52;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-text-fill: #F0EAFF;
+}
+.todo-spinner > .text-field {
+    -fx-background-color: #1A1722;
+    -fx-text-fill: #F0EAFF;
+    -fx-alignment: center;
+    -fx-font-size: 13px;
+}
+.todo-spinner .increment-arrow-button,
+.todo-spinner .decrement-arrow-button {
+    -fx-background-color: #2D2936;
+    -fx-cursor: hand;
+}
+.todo-spinner .increment-arrow-button:hover,
+.todo-spinner .decrement-arrow-button:hover {
+    -fx-background-color: #4A4055;
+}
+.todo-spinner .increment-arrow,
+.todo-spinner .decrement-arrow {
+    -fx-background-color: #F0EAFF;
+}
+
+.light-mode .todo-spinner {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E2D9EE;
+    -fx-text-fill: #1E1A29;
+}
+.light-mode .todo-spinner > .text-field {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #1E1A29;
+}
+.light-mode .todo-spinner .increment-arrow-button,
+.light-mode .todo-spinner .decrement-arrow-button {
+    -fx-background-color: #F8F6FA;
+}
+.light-mode .todo-spinner .increment-arrow-button:hover,
+.light-mode .todo-spinner .decrement-arrow-button:hover {
+    -fx-background-color: #E2D9EE;
+}
+.light-mode .todo-spinner .increment-arrow,
+.light-mode .todo-spinner .decrement-arrow {
+    -fx-background-color: #1E1A29;
 }
 
 /* Combo Box Popup Fix */
@@ -186,6 +258,16 @@
     -fx-text-fill: #F0EAFF;
     -fx-font-size: 18px;
     -fx-font-weight: bold;
+}
+
+/* Override task-input khusus untuk TextArea agar tidak dipaksa tinggi 36px */
+.text-area.task-input {
+    -fx-pref-height: 95;
+    -fx-min-height: 95;
+}
+.light-mode .text-area.task-input {
+    -fx-pref-height: 95;
+    -fx-min-height: 95;
 }
 .task-modal-label {
     -fx-text-fill: #B0A3C6;
@@ -306,6 +388,28 @@
 .light-mode .date-picker-popup .day-cell:selected {
     -fx-background-color: #7C3AED;
     -fx-text-fill: #FFFFFF;
+}
+
+/* Tanggal bulan lalu/berikutnya — Light Mode */
+/* Pakai double class selector untuk menang dari aturan .day-cell biasa */
+.light-mode .date-picker-popup .day-cell.previous-month,
+.light-mode .date-picker-popup .day-cell.previous-month:focused {
+    -fx-background-color: #EEE9F7;
+    -fx-text-fill: #B8A8D4;
+    -fx-font-style: italic;
+    -fx-opacity: 1;
+}
+.light-mode .date-picker-popup .day-cell.next-month,
+.light-mode .date-picker-popup .day-cell.next-month:focused {
+    -fx-background-color: #EEE9F7;
+    -fx-text-fill: #B8A8D4;
+    -fx-font-style: italic;
+    -fx-opacity: 1;
+}
+.light-mode .date-picker-popup .day-cell.previous-month:hover,
+.light-mode .date-picker-popup .day-cell.next-month:hover {
+    -fx-background-color: #DDD4F0;
+    -fx-text-fill: #9880BE;
 }
 .light-mode .combo-box-popup .list-view {
     -fx-background-color: #FFFFFF;

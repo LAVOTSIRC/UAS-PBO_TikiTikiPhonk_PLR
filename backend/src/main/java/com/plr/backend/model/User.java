@@ -9,9 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Entity
 @Table(name = "users",
@@ -36,27 +34,17 @@ public class User extends BaseEntity implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "role")
-    private Set<String> roles = new HashSet<>();
-
-    public User() {
-        this.roles.add("ROLE_USER");
-    }
+    public User() {}
 
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.roles.add("ROLE_USER");
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream()
-            .map(SimpleGrantedAuthority::new)
-            .collect(Collectors.toList());
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
     @Override public boolean isAccountNonExpired() { return true; }
@@ -70,9 +58,6 @@ public class User extends BaseEntity implements UserDetails {
     public void setEmail(String email) { this.email = email; }
     @Override public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
-    public Set<String> getRoles() { return roles; }
-    public void setRoles(Set<String> roles) { this.roles = roles; }
-
     @Override
     public String getEntityDescription() {
         return "User[id=" + getId() + ", username=" + username + ", email=" + email + "]";

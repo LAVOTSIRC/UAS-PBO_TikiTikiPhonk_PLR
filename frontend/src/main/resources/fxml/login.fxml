@@ -6,6 +6,8 @@
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
@@ -24,8 +26,10 @@
           StackPane.alignment="CENTER">
 
         <!-- Logo -->
-        <Label text="🎵" styleClass="auth-logo"/>
-        <VBox.margin><Insets bottom="8"/></VBox.margin>
+        <ImageView styleClass="auth-logo" fitWidth="140" preserveRatio="true">
+            <Image url="@../images/TikiTikiPhonk%20Logo.png"/>
+            <VBox.margin><Insets bottom="8"/></VBox.margin>
+        </ImageView>
 
         <!-- Title -->
         <Label text="TikiTikiPhonk" styleClass="auth-title">

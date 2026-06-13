@@ -34,6 +34,8 @@ public class AudioPanelController {
     @FXML private Button brownNoiseBtn;
     @FXML private Button rainNoiseBtn;
     @FXML private Button forestNoiseBtn;
+    @FXML private Button tikiNoiseBtn;
+    @FXML private Button cricketNoiseBtn;
 
     @FXML private ListView<Playlist>   playlistView;
     @FXML private ListView<AudioTrack> trackView;
@@ -134,13 +136,25 @@ public class AudioPanelController {
                     if (empty || pl == null) {
                         setText(null);
                         setGraphic(null);
+                        setStyle("-fx-background-color: transparent; -fx-padding: 0;");
                     } else {
+                        Label iconLabel = new Label("\uD83C\uDFB6");
+                        iconLabel.getStyleClass().add("playlist-cell-icon");
                         Label nameLabel = new Label(pl.getName());
                         nameLabel.getStyleClass().add("playlist-cell-name");
-                        Label infoLabel = new Label(pl.getTrackCount() + " lagu" + (pl.getDescription().isEmpty() ? "" : " — " + pl.getDescription()));
-                        infoLabel.getStyleClass().add("playlist-cell-info");
-                        VBox vb = new VBox(2, nameLabel, infoLabel);
-                        setGraphic(vb);
+                        Label countLabel = new Label(pl.getTrackCount() + " lagu");
+                        countLabel.getStyleClass().add("playlist-cell-count");
+                        Label descLabel = new Label(pl.getDescription());
+                        descLabel.getStyleClass().add("playlist-cell-info");
+                        descLabel.setVisible(!pl.getDescription().isEmpty());
+                        descLabel.setManaged(!pl.getDescription().isEmpty());
+                        VBox textBox = new VBox(1, nameLabel, countLabel, descLabel);
+                        javafx.scene.layout.HBox root = new javafx.scene.layout.HBox(8, iconLabel, textBox);
+                        root.getStyleClass().add("playlist-cell");
+                        VBox wrapper = new VBox(root);
+                        wrapper.setStyle("-fx-padding: 3 0;");
+                        setGraphic(wrapper);
+                        setStyle("-fx-background-color: transparent; -fx-padding: 0;");
                     }
                 }
             };
@@ -222,8 +236,8 @@ public class AudioPanelController {
         createPlaylistBtn.setManaged(true);
         playButtons.setVisible(false);
         playButtons.setManaged(false);
-        addTracksBtn.setVisible(true);
-        addTracksBtn.setManaged(true);
+        addTracksBtn.setVisible(false);
+        addTracksBtn.setManaged(false);
         backNavBar.setVisible(false);
         backNavBar.setManaged(false);
         playlistHeader.setText("DAFTAR PLAYLIST");
@@ -512,6 +526,16 @@ public class AudioPanelController {
         handleNoiseButton(forestNoiseBtn, NoiseType.FOREST);
     }
 
+    @FXML
+    public void playTikiNoise() {
+        handleNoiseButton(tikiNoiseBtn, NoiseType.TIKI);
+    }
+
+    @FXML
+    public void playCricketNoise() {
+        handleNoiseButton(cricketNoiseBtn, NoiseType.CRICKET);
+    }
+
     private void handleNoiseButton(Button clickedBtn, NoiseType type) {
         setNoiseActiveState(clickedBtn);
         clearPlaylistSelection();
@@ -623,7 +647,7 @@ public class AudioPanelController {
     // ── Helpers ────────────────────────────────────────────
 
     private void setNoiseActiveState(Button activeBtn) {
-        Button[] noiseBtns = { whiteNoiseBtn, brownNoiseBtn, rainNoiseBtn, forestNoiseBtn };
+        Button[] noiseBtns = { whiteNoiseBtn, brownNoiseBtn, rainNoiseBtn, forestNoiseBtn, tikiNoiseBtn, cricketNoiseBtn };
         for (Button btn : noiseBtns) {
             if (btn != null) btn.getStyleClass().remove("noise-btn-active");
         }

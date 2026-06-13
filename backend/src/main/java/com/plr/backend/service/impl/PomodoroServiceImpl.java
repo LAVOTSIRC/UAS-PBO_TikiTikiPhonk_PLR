@@ -43,7 +43,6 @@ public class PomodoroServiceImpl implements IPomodoroService {
         session.setStartTime(request.getStartTime() != null
             ? request.getStartTime()
             : LocalDateTime.now());
-        session.setNotes(request.getNotes());
         session.setUser(user);
 
         if (request.getTaskId() != null) {
@@ -102,7 +101,6 @@ public class PomodoroServiceImpl implements IPomodoroService {
         response.setDurationMinutes(session.getDurationMinutes());
         response.setSessionType(session.getSessionType());
         response.setStartTime(session.getStartTime());
-        response.setNotes(session.getNotes());
         response.setPoints(session.getPoints());
         response.setCreatedAt(session.getCreatedAt());
         return response;

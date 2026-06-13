@@ -18,17 +18,19 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (!userRepository.existsByUsername("admin")) {
-            User admin = new User("admin", "admin@tikitiphkonk.com", passwordEncoder.encode("admin123"));
-            admin.getRoles().add("ROLE_ADMIN");
-            userRepository.save(admin);
-            System.out.println("=== Default user created: admin / admin123 ===");
+        if (!userRepository.existsByUsername("user1")) {
+            userRepository.save(new User("user1", "user1@tikitikiphonk.com", passwordEncoder.encode("user123")));
+            System.out.println("=== Default user created: user1 / user123 ===");
         }
 
-        if (!userRepository.existsByUsername("user")) {
-            User user = new User("user", "user@tikitiphkonk.com", passwordEncoder.encode("user123"));
-            userRepository.save(user);
-            System.out.println("=== Default user created: user / user123 ===");
+        if (!userRepository.existsByUsername("user2")) {
+            userRepository.save(new User("user2", "user2@tikitikiphonk.com", passwordEncoder.encode("user123")));
+            System.out.println("=== Default user created: user2 / user123 ===");
+        }
+
+        if (!userRepository.existsByUsername("user3")) {
+            userRepository.save(new User("user3", "user3@tikitikiphonk.com", passwordEncoder.encode("user123")));
+            System.out.println("=== Default user created: user3 / user123 ===");
         }
     }
 }
