@@ -1,6 +1,7 @@
 package com.plr.frontend.controller;
 
 import com.plr.frontend.util.ApiClient;
+import com.plr.frontend.util.ThemeManager;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -9,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.media.AudioClip;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Arc;
 import javafx.scene.shape.Circle;
@@ -52,9 +54,26 @@ public class TimerPanelController {
     private int focusCountInCycle = 0;
     private boolean modeInitialized = false;
 
+    private AudioClip clickSound;
+    private AudioClip completeSound;
+
     @FXML
     public void initialize() {
+        try {
+            clickSound = new AudioClip(getClass().getResource("/audio/click.wav").toExternalForm());
+            completeSound = new AudioClip(getClass().getResource("/audio/complete.wav").toExternalForm());
+        } catch (Exception e) {
+            System.err.println("Failed to load audio: " + e.getMessage());
+        }
+        ThemeManager.getInstance().addChangeListener(this::onThemeChanged);
         loadSessionHistory();
+    }
+
+    private void onThemeChanged() {
+        Platform.runLater(() -> {
+            updateAccentColors();
+            updateTimerDisplay();
+        });
     }
 
     public void setActiveTask(String taskTitle) {
@@ -71,6 +90,7 @@ public class TimerPanelController {
 
     @FXML
     public void handlePlayPause() {
+        if (clickSound != null) clickSound.play();
         if (!isRunning && !isPaused) {
             startTimer();
         } else if (isPaused) {
@@ -82,6 +102,7 @@ public class TimerPanelController {
 
     @FXML
     public void handleSkip() {
+        if (clickSound != null) clickSound.play();
         stopTimer();
         onTimerComplete();
     }
@@ -167,6 +188,7 @@ public class TimerPanelController {
     }
 
     private void onTimerComplete() {
+        if (completeSound != null) completeSound.play();
         stopTimer();
         if (remainingSeconds < 0) remainingSeconds = 0;
         updateTimerDisplay();
@@ -257,8 +279,10 @@ public class TimerPanelController {
     }
 
     private String getCurrentAccentColor() {
+        boolean light = ThemeManager.getInstance().isLightMode();
         if (isRunning) {
-            return "FOCUS".equals(currentMode) ? "#f38ba8" : "#7aa2f7";
+            if ("FOCUS".equals(currentMode)) return light ? "#d06a84" : "#f38ba8";
+            return light ? "#5a7fc8" : "#7aa2f7";
         }
         return "#C084FC";
     }

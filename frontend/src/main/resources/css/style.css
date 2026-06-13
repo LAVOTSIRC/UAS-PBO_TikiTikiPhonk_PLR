@@ -898,25 +898,25 @@
     -fx-font-size: 10px;
 }
 
-/* Progress Bar */
+/* Progress Bar — YouTube-style */
 .audio-progress-bar {
-    -fx-pref-height: 6;
-    -fx-min-height: 6;
-    -fx-max-height: 6;
+    -fx-pref-height: 12;
+    -fx-min-height: 12;
+    -fx-max-height: 12;
 }
 
 .audio-progress-bar .track {
     -fx-background-color: #2D2936;
-    -fx-background-radius: 3;
-    -fx-pref-height: 6;
-    -fx-min-height: 6;
+    -fx-background-radius: 6;
+    -fx-pref-height: 12;
+    -fx-min-height: 12;
 }
 
 .audio-progress-bar .bar {
-    -fx-background-color: linear-gradient(to right, #9B59F5, #C084FC);
-    -fx-background-radius: 3;
-    -fx-pref-height: 6;
-    -fx-min-height: 6;
+    -fx-background-color: #C084FC;
+    -fx-background-radius: 6;
+    -fx-pref-height: 12;
+    -fx-min-height: 12;
 }
 
 /* Time Labels */
@@ -1057,7 +1057,7 @@
 }
 
 .timer-progress-ring {
-    -fx-stroke: #C084FC;
+    /* stroke dikontrol oleh Java (updateTimerDisplay) */
 }
 
 /* ── Audio misc labels ───────────────────────────────────── */
@@ -1066,6 +1066,19 @@
     -fx-font-size: 9px;
     -fx-text-fill: #7C6E8A;
     -fx-font-weight: bold;
+}
+
+/* ── Playlist Cell Labels ────────────────────────────────── */
+
+.playlist-cell-name {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F0EAFF;
+}
+
+.playlist-cell-info {
+    -fx-font-size: 9px;
+    -fx-text-fill: #7C6E8A;
 }
 
 .speaker-icon-label {
@@ -1177,6 +1190,10 @@
     -fx-background-radius: 6;
     -fx-padding: 6 10;
     -fx-font-size: 12px;
+}
+
+.audio-form-field-error {
+    -fx-border-color: #f38ba8;
 }
 
 .audio-form-textarea {
@@ -1293,7 +1310,7 @@
 /* ── Timer session dots ─────────────────────────────────── */
 
 .timer-dot-filled {
-    -fx-fill: #C084FC;
+    /* fill dikontrol oleh Java (updateSessionDots) */
 }
 
 .timer-dot-empty {
@@ -1528,6 +1545,10 @@
 }
 
 .light-mode .timer-progress-ring {
+    /* stroke dikontrol oleh Java (updateTimerDisplay) */
+}
+
+.light-mode .timer-progress-ring {
     -fx-stroke: #7C3AED;
 }
 
@@ -1720,6 +1741,14 @@
     -fx-text-fill: #6B5E7E;
 }
 
+.light-mode .playlist-cell-name {
+    -fx-text-fill: #1E1A29;
+}
+
+.light-mode .playlist-cell-info {
+    -fx-text-fill: #6B5E7E;
+}
+
 .light-mode .speaker-icon-label {
     -fx-text-fill: #6B5E7E;
 }
@@ -1827,6 +1856,10 @@
     -fx-border-color: #C8BED8;
     -fx-text-fill: #1E1A29;
     -fx-prompt-text-fill: #9A8AAA;
+}
+
+.light-mode .audio-form-field-error {
+    -fx-border-color: #DC2626;
 }
 
 .light-mode .audio-form-textarea {
@@ -1938,7 +1971,7 @@
 }
 
 .light-mode .audio-progress-bar .bar {
-    -fx-background-color: linear-gradient(to right, #7C3AED, #A78BFA);
+    -fx-background-color: #7C3AED;
 }
 
 .light-mode .time-label {
@@ -2000,7 +2033,7 @@
 }
 
 .light-mode .timer-dot-filled {
-    -fx-fill: #7C3AED;
+    /* fill dikontrol oleh Java (updateSessionDots) */
 }
 
 .light-mode .timer-dot-empty {
