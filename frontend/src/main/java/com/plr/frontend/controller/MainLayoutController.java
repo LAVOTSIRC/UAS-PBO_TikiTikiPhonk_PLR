@@ -4,6 +4,8 @@ import com.plr.frontend.util.SessionManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 public class MainLayoutController {
 
@@ -11,6 +13,10 @@ public class MainLayoutController {
     @FXML private TodoPanelController todoPanelController;
     @FXML private TimerPanelController timerPanelController;
     @FXML private AudioPanelController audioPanelController;
+    @FXML private ProfilePanelController profilePanelController;
+
+    @FXML private HBox dashboardContent;
+    @FXML private VBox profilePanel;
     
     @FXML private Label globalStatusLabel;
     private static MainLayoutController instance;
@@ -22,6 +28,8 @@ public class MainLayoutController {
         String username = SessionManager.getInstance().getUsername();
         if (sidebarController != null) {
             sidebarController.setUsername(username);
+            sidebarController.setOnTasksNav(this::showDashboard);
+            sidebarController.setOnProfileNav(this::showProfile);
         }
 
         if (timerPanelController != null) {
@@ -41,6 +49,30 @@ public class MainLayoutController {
                     timerPanelController.setFocusedTaskId(taskDto.getId());
                 }
             });
+        }
+
+        showDashboard();
+    }
+
+    private void showDashboard() {
+        if (dashboardContent != null) {
+            dashboardContent.setVisible(true);
+            dashboardContent.setManaged(true);
+        }
+        if (profilePanel != null) {
+            profilePanel.setVisible(false);
+            profilePanel.setManaged(false);
+        }
+    }
+
+    private void showProfile() {
+        if (dashboardContent != null) {
+            dashboardContent.setVisible(false);
+            dashboardContent.setManaged(false);
+        }
+        if (profilePanel != null) {
+            profilePanel.setVisible(true);
+            profilePanel.setManaged(true);
         }
     }
 

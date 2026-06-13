@@ -24,6 +24,11 @@
     <!-- Sidebar: ikon navigasi kiri -->
     <fx:include fx:id="sidebar" source="Sidebar.fxml"/>
 
+    <!-- Content host: dashboard/profile -->
+    <StackPane HBox.hgrow="ALWAYS">
+
+    <HBox fx:id="dashboardContent" fillHeight="true" visible="true" managed="true">
+
     <!-- Todo Panel: daftar tugas -->
     <fx:include fx:id="todoPanel" source="TodoPanel.fxml"/>
 
@@ -32,6 +37,13 @@
 
     <!-- Audio Panel: noise & playlist -->
     <fx:include fx:id="audioPanel" source="AudioPanel.fxml"/>
+
+    </HBox>
+
+    <!-- Profile Panel -->
+    <fx:include fx:id="profilePanel" source="ProfilePanel.fxml" visible="false" managed="false"/>
+
+    </StackPane>
 
     </HBox>
 
