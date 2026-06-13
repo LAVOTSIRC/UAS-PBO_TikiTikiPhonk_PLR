@@ -2,6 +2,9 @@ package com.plr.frontend.service;
 
 import com.plr.frontend.model.AudioTrack;
 import com.plr.frontend.model.NoiseType;
+import com.plr.frontend.model.Playlist;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,7 +12,10 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 
+import java.io.File;
 import java.net.URL;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -27,6 +33,8 @@ import java.util.function.Consumer;
  */
 public class AudioPlayerService {
 
+    public enum LoopMode { NONE, ALL, ONE }
+
     // ── State ──────────────────────────────────────────────────────────────
 
     private MediaPlayer     mediaPlayer;
@@ -36,6 +44,13 @@ public class AudioPlayerService {
     private double          currentVolume   = 0.7;
     private NoiseType       activeNoiseType = null;
     private boolean         isNoiseMode     = false; // true = noise, false = playlist
+    private LoopMode        loopMode        = LoopMode.NONE;
+    private boolean         shuffle         = false;
+    private Timeline        progressTimer;
+
+    // ── Named Playlists ────────────────────────────────────────────────────
+
+    private final ObservableList<Playlist> playlists = FXCollections.observableArrayList();
 
     // ── Callbacks ke Controller ────────────────────────────────────────────
 
@@ -47,6 +62,8 @@ public class AudioPlayerService {
     private Consumer<Boolean>   onPlayStateChanged;
     /** Dipanggil saat lagu selesai (untuk auto-next). */
     private Runnable            onTrackEnded;
+    /** Dipanggil saat mode loop atau shuffle berubah. */
+    private Runnable            onModeChanged;
 
     // ── Setter Callbacks ───────────────────────────────────────────────────
 
@@ -54,6 +71,7 @@ public class AudioPlayerService {
     public void setOnTrackChanged(Consumer<String> cb)      { this.onTrackChanged      = cb; }
     public void setOnPlayStateChanged(Consumer<Boolean> cb) { this.onPlayStateChanged  = cb; }
     public void setOnTrackEnded(Runnable cb)                { this.onTrackEnded        = cb; }
+    public void setOnModeChanged(Runnable cb)               { this.onModeChanged       = cb; }
 
     // ── Playlist Management ────────────────────────────────────────────────
 
@@ -80,7 +98,16 @@ public class AudioPlayerService {
     /** Lanjut ke track berikutnya di playlist. Wrap-around ke awal jika sudah di akhir. */
     public void nextTrack() {
         if (playlist.isEmpty()) return;
-        int next = (currentIndex + 1) % playlist.size();
+        int next;
+        if (shuffle) {
+            List<Integer> indices = java.util.stream.IntStream.range(0, playlist.size())
+                .boxed()
+                .collect(java.util.stream.Collectors.toList());
+            Collections.shuffle(indices);
+            next = indices.get(0);
+        } else {
+            next = (currentIndex + 1) % playlist.size();
+        }
         playTrackAt(next);
     }
 
@@ -94,6 +121,47 @@ public class AudioPlayerService {
     /** Mengembalikan index track yang sedang diputar (-1 jika tidak ada). */
     public int getCurrentIndex() {
         return currentIndex;
+    }
+
+    // ── Named Playlists ────────────────────────────────────────────────────
+
+    public ObservableList<Playlist> getPlaylists() {
+        return playlists;
+    }
+
+    public Playlist createPlaylist(String name, String description, java.util.List<File> files) {
+        Playlist pl = new Playlist(name, description);
+        for (File f : files) {
+            pl.addTrack(new AudioTrack(f));
+        }
+        playlists.add(pl);
+        return pl;
+    }
+
+    public Playlist getPlaylistById(String id) {
+        for (Playlist p : playlists) {
+            if (p.getId().equals(id)) return p;
+        }
+        return null;
+    }
+
+    /** Muat semua track dari playlist ke antrian dan putar track pertama. */
+    public void playPlaylist(Playlist pl) {
+        if (pl.getTracks().isEmpty()) return;
+        playlist.setAll(pl.getTracks());
+        playTrackAt(0);
+    }
+
+    /** Muat semua track dan putar secara acak. */
+    public void playPlaylistShuffled(Playlist pl) {
+        if (pl.getTracks().isEmpty()) return;
+        playlist.setAll(pl.getTracks());
+        java.util.List<Integer> indices = java.util.stream.IntStream.range(0, playlist.size())
+            .boxed()
+            .collect(java.util.stream.Collectors.toList());
+        Collections.shuffle(indices);
+        currentIndex = indices.get(0);
+        playTrackAt(currentIndex);
     }
 
     // ── Noise Playback ─────────────────────────────────────────────────────
@@ -130,6 +198,31 @@ public class AudioPlayerService {
 
     public boolean isNoiseMode() {
         return isNoiseMode;
+    }
+
+    // ── Loop / Shuffle ─────────────────────────────────────────────────────
+
+    public LoopMode getLoopMode() {
+        return loopMode;
+    }
+
+    public boolean isShuffle() {
+        return shuffle;
+    }
+
+    /** Cycles: NONE → ALL → ONE → NONE */
+    public void toggleLoopMode() {
+        loopMode = switch (loopMode) {
+            case NONE -> LoopMode.ALL;
+            case ALL  -> LoopMode.ONE;
+            case ONE  -> LoopMode.NONE;
+        };
+        if (onModeChanged != null) onModeChanged.run();
+    }
+
+    public void toggleShuffle() {
+        shuffle = !shuffle;
+        if (onModeChanged != null) onModeChanged.run();
     }
 
     // ── Playback Controls ──────────────────────────────────────────────────
@@ -217,24 +310,39 @@ public class AudioPlayerService {
             Media media = new Media(uri);
             mediaPlayer = new MediaPlayer(media);
             mediaPlayer.setVolume(currentVolume);
-            mediaPlayer.setCycleCount(loop ? MediaPlayer.INDEFINITE : 1);
+            int cycles = (loop || (!loop && loopMode == LoopMode.ONE))
+                ? MediaPlayer.INDEFINITE : 1;
+            mediaPlayer.setCycleCount(cycles);
 
-            // Update progress bar secara real-time
-            mediaPlayer.currentTimeProperty().addListener((obs, oldTime, newTime) -> {
+            // Perbarui progress setiap 1 detik via Timeline
+            if (progressTimer != null) progressTimer.stop();
+            progressTimer = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+                if (mediaPlayer == null) return;
+                Duration total = mediaPlayer.getMedia().getDuration();
+                Duration cur   = mediaPlayer.getCurrentTime();
+                if (total == null || total.equals(Duration.UNKNOWN))
+                    total = mediaPlayer.getTotalDuration();
+                if (cur != null) {
+                    double currentSec = cur.toSeconds();
+                    double totalSec = (total != null && total.greaterThan(Duration.ZERO))
+                        ? total.toSeconds() : 0;
+                    if (totalSec > 0) {
+                        notifyProgress(currentSec / totalSec, currentSec, totalSec);
+                    }
+                }
+            }));
+            progressTimer.setCycleCount(Timeline.INDEFINITE);
+
+            // Ketika media siap: mulai timeline + notify
+            mediaPlayer.setOnReady(() -> {
                 Duration total = media.getDuration();
                 if (total != null && total.greaterThan(Duration.ZERO)) {
-                    double progress   = newTime.toSeconds() / total.toSeconds();
-                    double currentSec = newTime.toSeconds();
-                    double totalSec   = total.toSeconds();
-                    Platform.runLater(() -> notifyProgress(progress, currentSec, totalSec));
+                    notifyProgress(0, 0, total.toSeconds());
                 }
-            });
-
-            // Ketika media siap, aktifkan kontrol dan umumkan track
-            mediaPlayer.setOnReady(() -> Platform.runLater(() -> {
+                progressTimer.play();
                 notifyTrackChanged(displayName);
                 notifyPlayState(true);
-            }));
+            });
 
             // Saat track selesai (mode playlist), notifikasi controller
             mediaPlayer.setOnEndOfMedia(() -> Platform.runLater(() -> {
@@ -262,6 +370,7 @@ public class AudioPlayerService {
 
     /** Menghentikan dan membuang MediaPlayer yang sedang aktif. */
     private void disposeCurrentPlayer() {
+        if (progressTimer != null) { progressTimer.stop(); progressTimer = null; }
         if (mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer.dispose();

@@ -25,7 +25,9 @@ public class TimerPanelController {
     private static final int FOCUS_MINUTES = 25;
     private static final int SHORT_BREAK_MINUTES = 5;
     private static final int LONG_BREAK_MINUTES = 15;
-    private static final int CYCLE_LENGTH = 5;
+    private static final int CYCLE_LENGTH = 4;
+    private static final String ACCENT_RED = "timer-accent-red";
+    private static final String ACCENT_BLUE = "timer-accent-blue";
 
     @FXML private Label timerLabel;
     @FXML private Label sessionTypeLabel;
@@ -91,6 +93,7 @@ public class TimerPanelController {
         updateTimerDisplay();
         sessionTypeLabel.setText("Sesi Fokus");
         updateCycleLabel();
+        updateAccentColors();
     }
 
     private void applyShortBreakMode() {
@@ -100,6 +103,7 @@ public class TimerPanelController {
         updateTimerDisplay();
         sessionTypeLabel.setText("Istirahat Pendek");
         updateCycleLabel();
+        updateAccentColors();
     }
 
     private void applyLongBreakMode() {
@@ -109,6 +113,7 @@ public class TimerPanelController {
         updateTimerDisplay();
         sessionTypeLabel.setText("Istirahat Panjang");
         updateCycleLabel();
+        updateAccentColors();
     }
 
     private void startTimer() {
@@ -122,6 +127,7 @@ public class TimerPanelController {
         playPauseBtn.setText("\u23F8");
         if (statusLabel != null) statusLabel.setText("");
         if (pointsLabel != null) pointsLabel.setText("");
+        updateAccentColors();
 
         pomodoroTimeline = new Timeline(
             new KeyFrame(Duration.seconds(1), event -> {
@@ -141,6 +147,7 @@ public class TimerPanelController {
         isRunning = false;
         isPaused = true;
         playPauseBtn.setText("\u25B6");
+        updateAccentColors();
     }
 
     private void resumeTimer() {
@@ -148,6 +155,7 @@ public class TimerPanelController {
         isPaused = false;
         playPauseBtn.setText("\u23F8");
         if (pomodoroTimeline != null) pomodoroTimeline.play();
+        updateAccentColors();
     }
 
     private void stopTimer() {
@@ -155,6 +163,7 @@ public class TimerPanelController {
         isRunning = false;
         isPaused = false;
         playPauseBtn.setText("\u25B6");
+        updateAccentColors();
     }
 
     private void onTimerComplete() {
@@ -247,6 +256,29 @@ public class TimerPanelController {
         }
     }
 
+    private String getCurrentAccentColor() {
+        if (isRunning) {
+            return "FOCUS".equals(currentMode) ? "#f38ba8" : "#7aa2f7";
+        }
+        return "#C084FC";
+    }
+
+    private void updateAccentColors() {
+        playPauseBtn.getStyleClass().removeAll(ACCENT_RED, ACCENT_BLUE);
+        pointsLabel.getStyleClass().removeAll(ACCENT_RED, ACCENT_BLUE);
+        activeTaskLabel.getStyleClass().removeAll(ACCENT_RED, ACCENT_BLUE);
+
+        if (isRunning) {
+            String cls = "FOCUS".equals(currentMode) ? ACCENT_RED : ACCENT_BLUE;
+            playPauseBtn.getStyleClass().add(cls);
+            pointsLabel.getStyleClass().add(cls);
+            activeTaskLabel.getStyleClass().add(cls);
+        }
+
+        timerArc.setStroke(Color.web(getCurrentAccentColor()));
+        updateSessionDots();
+    }
+
     private void updateTimerDisplay() {
         int minutes = remainingSeconds / 60;
         int seconds = remainingSeconds % 60;
@@ -255,13 +287,7 @@ public class TimerPanelController {
         if (totalSeconds > 0) {
             double progress = (double) remainingSeconds / totalSeconds;
             timerArc.setLength(360.0 * progress);
-            if (progress > 0.5) {
-                timerArc.setStroke(Color.web("#C084FC"));
-            } else if (progress > 0.25) {
-                timerArc.setStroke(Color.web("#f9e2af"));
-            } else {
-                timerArc.setStroke(Color.web("#f38ba8"));
-            }
+            timerArc.setStroke(Color.web(getCurrentAccentColor()));
         }
     }
 
@@ -315,12 +341,14 @@ public class TimerPanelController {
         sessionDots.getChildren().clear();
         int filled = focusCountInCycle;
         if (filled > CYCLE_LENGTH) filled = CYCLE_LENGTH;
+        String filledColor = getCurrentAccentColor();
         for (int i = 0; i < CYCLE_LENGTH; i++) {
             Circle dot = new Circle(5);
             if (i < filled) {
-                dot.setFill(Color.web("#C084FC"));
+                dot.getStyleClass().add("timer-dot-filled");
+                dot.setFill(Color.web(filledColor));
             } else {
-                dot.setFill(Color.web("#2D2936"));
+                dot.getStyleClass().add("timer-dot-empty");
             }
             sessionDots.getChildren().add(dot);
         }

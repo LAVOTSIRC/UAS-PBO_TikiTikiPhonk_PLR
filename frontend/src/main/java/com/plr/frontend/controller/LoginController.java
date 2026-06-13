@@ -28,7 +28,6 @@ public class LoginController {
     @FXML
     public void handleLogin() {
         String username = usernameField.getText().trim();
-        // BUG-16 FIX: Jangan trim() password — spasi di awal/akhir adalah bagian valid dari password
         String password = passwordField.getText();
 
         if (username.isEmpty() || password.isEmpty()) {
@@ -51,16 +50,29 @@ public class LoginController {
             String uname = (String) response.get("username");
             Long uid = ((Number) response.get("userId")).longValue();
             SessionManager.getInstance().setSession(token, uname, uid);
-            // BUG-03 FIX: Eksplisit Platform.runLater() untuk semua UI update pasca async
             Platform.runLater(() -> {
-                setLoading(false);
+                loginButton.setDisable(false);
+                loadingIndicator.setVisible(false);
                 JavaFXApp.showScene("fxml/MainLayout.fxml", "TikiTikiPhonk - " + uname, 1100, 700);
             });
         });
 
         loginTask.setOnFailed(event -> {
-            setLoading(false);
-            showError("Login gagal: " + loginTask.getException().getMessage());
+            loginButton.setDisable(false);
+            loadingIndicator.setVisible(false);
+            Throwable ex = loginTask.getException();
+            String msg = (ex != null && ex.getMessage() != null) ? ex.getMessage() : "Terjadi kesalahan";
+            if (ex != null) {
+                StringBuilder chain = new StringBuilder(msg);
+                Throwable cause = ex.getCause();
+                while (cause != null) {
+                    chain.append(" \u2192 ").append(cause.getMessage());
+                    cause = cause.getCause();
+                }
+                showError(chain.toString());
+            } else {
+                showError(msg);
+            }
         });
 
         new Thread(loginTask).start();

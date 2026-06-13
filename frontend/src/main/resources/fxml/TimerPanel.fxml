@@ -38,7 +38,7 @@
 
         <Circle radius="120"
                 fill="transparent"
-                stroke="#2D2936"
+                styleClass="timer-bg-ring"
                 strokeWidth="10"/>
 
         <Arc fx:id="timerArc"
@@ -46,7 +46,7 @@
              startAngle="90" length="360"
              type="OPEN"
              fill="transparent"
-             stroke="#C084FC"
+             styleClass="timer-progress-ring"
              strokeWidth="10"
              strokeLineCap="ROUND"/>
 
