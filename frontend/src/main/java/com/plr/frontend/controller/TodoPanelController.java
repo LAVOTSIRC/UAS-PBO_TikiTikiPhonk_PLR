@@ -31,9 +31,12 @@ public class TodoPanelController {
     @FXML private ListView<String> activeTasksList;
     @FXML private ListView<String> completedTasksList;
     @FXML private Label sessionCountLabel;
+    @FXML private Label focusMinutesLabel;
+    @FXML private Label tasksDoneLabel;
 
     private final ObservableList<String> activeTasks = FXCollections.observableArrayList();
     private final ObservableList<String> completedTasks = FXCollections.observableArrayList();
+    private Runnable onTasksChanged;
 
     private final Map<Long, TaskClientDto> taskCache = new HashMap<>();
 
@@ -44,6 +47,7 @@ public class TodoPanelController {
     public void initialize() {
         activeTasksList.setItems(activeTasks);
         completedTasksList.setItems(completedTasks);
+        loadSessionStats();
 
         filterCategoryComboBox.getItems().addAll("Semua Kategori", "Kerja", "Fokus", "Cepat");
         filterCategoryComboBox.getSelectionModel().selectFirst();
@@ -89,7 +93,14 @@ public class TodoPanelController {
             for (TaskClientDto t : tasks) {
                 taskCache.put(t.getId(), t);
             }
-            Platform.runLater(this::refreshListViews);
+            Platform.runLater(() -> {
+                refreshListViews();
+                if (tasksDoneLabel != null) {
+                    long doneCount = tasks.stream().filter(t -> "DONE".equals(t.getStatus())).count();
+                    tasksDoneLabel.setText(doneCount + " tugas");
+                }
+                if (onTasksChanged != null) onTasksChanged.run();
+            });
         });
 
         fetchTask.setOnFailed(e -> {
@@ -99,6 +110,7 @@ public class TodoPanelController {
         });
 
         new Thread(fetchTask).start();
+        loadSessionStats();
     }
 
     private void refreshListViews() {
@@ -358,6 +370,62 @@ public class TodoPanelController {
         Runnable undoAction = isUndoOption ? this::undoDelete : null;
         MainLayoutController.showGlobalNotification(text, isUndoOption, undoAction);
     }
+
+    public void setOnTasksChanged(Runnable callback) {
+        this.onTasksChanged = callback;
+    }
+
+    public String getFirstActiveTask() {
+        if (activeTasks.isEmpty()) return null;
+        return extractTitle(activeTasks.get(0));
+    }
+
+    public void loadTasks(Runnable callback) {
+        loadTasks();
+        if (callback != null) {
+            new Thread(() -> {
+                try { Thread.sleep(100); } catch (InterruptedException ignored) {}
+                javafx.application.Platform.runLater(callback);
+            }).start();
+        }
+    }
+
+    public void loadSessionStats() {
+        Task<List<Map<String, Object>>> loadTask = new Task<>() {
+            @Override
+            protected List<Map<String, Object>> call() throws Exception {
+                return ApiClient.getInstance().getPomodoroSessions();
+            }
+        };
+
+        loadTask.setOnSucceeded(e -> {
+            List<Map<String, Object>> sessions = loadTask.getValue();
+            Platform.runLater(() -> {
+                long totalSessions = sessions.size();
+                long focusCount = sessions.stream()
+                    .filter(s -> "FOCUS".equals(s.get("sessionType")))
+                    .count();
+                int totalMinutes = sessions.stream()
+                    .mapToInt(s -> {
+                        Object dur = s.get("durationMinutes");
+                        return dur instanceof Number ? ((Number) dur).intValue() : 0;
+                    })
+                    .sum();
+
+                if (sessionCountLabel != null) {
+                    sessionCountLabel.setText(focusCount + " fokus");
+                }
+                if (focusMinutesLabel != null) {
+                    focusMinutesLabel.setText(totalMinutes + " mnt");
+                }
+            });
+        });
+
+        loadTask.setOnFailed(e -> {});
+        new Thread(loadTask).start();
+    }
+
+    // ========== HELPER METHODS ==========
 
     private Long extractId(String displayString) {
         if (displayString == null) return null;

@@ -91,12 +91,26 @@
         <VBox.margin><Insets top="8"/></VBox.margin>
         <Label text="SESI HARI INI" styleClass="panel-label"/>
         
-        <HBox spacing="10" alignment="CENTER_LEFT">
+        <HBox spacing="16" alignment="CENTER_LEFT">
             <VBox.margin><Insets top="8"/></VBox.margin>
             
             <HBox spacing="6" alignment="CENTER_LEFT">
                 <Region styleClass="session-dot, dot-purple"/>
                 <Label fx:id="sessionCountLabel" text="0 sesi" styleClass="session-stat"/>
+            </HBox>
+            
+            <Label text="|" styleClass="session-stat"/>
+            
+            <HBox spacing="6" alignment="CENTER_LEFT">
+                <Label text="⏱" styleClass="session-stat"/>
+                <Label fx:id="focusMinutesLabel" text="0 mnt" styleClass="session-stat"/>
+            </HBox>
+            
+            <Label text="|" styleClass="session-stat"/>
+            
+            <HBox spacing="6" alignment="CENTER_LEFT">
+                <Label text="✓" styleClass="session-stat"/>
+                <Label fx:id="tasksDoneLabel" text="0 tugas" styleClass="session-stat"/>
             </HBox>
         </HBox>
     </VBox>

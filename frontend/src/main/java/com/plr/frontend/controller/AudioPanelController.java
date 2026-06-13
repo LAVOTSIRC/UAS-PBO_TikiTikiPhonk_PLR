@@ -1,165 +1,524 @@
 package com.plr.frontend.controller;
 
+import com.plr.frontend.model.AudioTrack;
+import com.plr.frontend.model.NoiseType;
+import com.plr.frontend.model.Playlist;
+import com.plr.frontend.service.AudioPlayerService;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import javafx.util.Duration;
+import javafx.stage.Stage;
 
 import java.io.File;
-import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AudioPanelController {
 
-    @FXML private Label nowPlayingLabel;
-    @FXML private Button playPauseBtn;
-    @FXML private Slider volumeSlider;
-    @FXML private Label volumeLabel;
-    @FXML private ProgressBar audioProgressBar;
+    @FXML private Button noiseTabBtn;
+    @FXML private Button playlistTabBtn;
+
+    @FXML private VBox noiseContent;
+    @FXML private VBox playlistContent;
+
     @FXML private Button whiteNoiseBtn;
     @FXML private Button brownNoiseBtn;
-    @FXML private Button pinkNoiseBtn;
-    @FXML private Button blueNoiseBtn;
-    @FXML private TextField filePathField;
+    @FXML private Button rainNoiseBtn;
+    @FXML private Button forestNoiseBtn;
 
-    private MediaPlayer mediaPlayer;
-    private boolean isPlaying = false;
-    private Button activeNoiseBtn = null;
+    @FXML private ListView<Playlist>   playlistView;
+    @FXML private ListView<AudioTrack> trackView;
+    @FXML private VBox                 emptyPlaylistLabel;
+    @FXML private HBox                 backNavBar;
+    @FXML private Label                trackListTitle;
+    @FXML private Label                playlistHeader;
+    @FXML private Button               createPlaylistBtn;
+    @FXML private HBox                 playButtons;
+    @FXML private Button               addTracksBtn;
+
+    @FXML private VBox       createForm;
+    @FXML private TextField  formNameField;
+    @FXML private TextArea   formDescField;
+    @FXML private ListView<String> formFileList;
+
+    @FXML private Slider volumeSlider;
+    @FXML private Label  volumeLabel;
+
+    @FXML private Label       playStateIcon;
+    @FXML private Label       nowPlayingLabel;
+    @FXML private Label       currentTimeLabel;
+    @FXML private Label       totalDurationLabel;
+    @FXML private ProgressBar audioProgressBar;
+    @FXML private Button      prevBtn;
+    @FXML private Button      playPauseBtn;
+    @FXML private Button      nextBtn;
+    @FXML private Button      stopBtn;
+    @FXML private Button      loopBtn;
+    @FXML private Button      shuffleBtn;
+
+    private final AudioPlayerService audioService = new AudioPlayerService();
+
+    private Playlist viewingPlaylist = null;
+    private final List<File> pendingFiles = new ArrayList<>();
 
     @FXML
     public void initialize() {
-        volumeSlider.setValue(0.7);
-        volumeSlider.valueProperty().addListener((obs, old, val) -> {
-            if (volumeLabel != null)
-                volumeLabel.setText((int)(val.doubleValue() * 100) + "%");
-            if (mediaPlayer != null)
-                mediaPlayer.setVolume(val.doubleValue());
+        setupServiceCallbacks();
+        setupVolumeSlider();
+        setupPlaylistView();
+        setupTrackView();
+        setupModeButtons();
+        resetPlayerBar();
+        showPlaylistList();
+    }
+
+    private void setupServiceCallbacks() {
+        audioService.setOnProgressUpdate(data -> {
+            audioProgressBar.setProgress(data[0]);
+            currentTimeLabel.setText(formatTime(data[1]));
+            totalDurationLabel.setText(formatTime(data[2]));
         });
-        if (volumeLabel != null) volumeLabel.setText("70%");
-        if (playPauseBtn != null) playPauseBtn.setDisable(true);
-        if (audioProgressBar != null) audioProgressBar.setProgress(0);
-        if (nowPlayingLabel != null) nowPlayingLabel.setText("Tidak ada audio");
+
+        audioService.setOnTrackChanged(name -> {
+            nowPlayingLabel.setText(name);
+        });
+
+        audioService.setOnPlayStateChanged(playing -> {
+            playPauseBtn.setText(playing ? "\u23F8" : "\u25B6");
+            playPauseBtn.setDisable(false);
+        });
+
+        audioService.setOnTrackEnded(() -> {
+            audioService.nextTrack();
+        });
+    }
+
+    private void setupVolumeSlider() {
+        volumeSlider.setValue(audioService.getCurrentVolume());
+        updateVolumeLabel(audioService.getCurrentVolume());
+
+        volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            double vol = newVal.doubleValue();
+            audioService.setVolume(vol);
+            updateVolumeLabel(vol);
+        });
+    }
+
+    private void setupPlaylistView() {
+        playlistView.setItems(audioService.getPlaylists());
+
+        playlistView.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 1) {
+                Playlist pl = playlistView.getSelectionModel().getSelectedItem();
+                if (pl != null) {
+                    showPlaylistTracks(pl);
+                }
+            }
+        });
+
+        playlistView.setCellFactory(lv -> {
+            ListCell<Playlist> cell = new ListCell<>() {
+                @Override
+                protected void updateItem(Playlist pl, boolean empty) {
+                    super.updateItem(pl, empty);
+                    if (empty || pl == null) {
+                        setText(null);
+                        setGraphic(null);
+                    } else {
+                        Label nameLabel = new Label(pl.getName());
+                        nameLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #F0EAFF; -fx-font-weight: bold;");
+                        Label infoLabel = new Label(pl.getTrackCount() + " lagu" + (pl.getDescription().isEmpty() ? "" : " — " + pl.getDescription()));
+                        infoLabel.setStyle("-fx-font-size: 9px; -fx-text-fill: #7C6E8A;");
+                        VBox vb = new VBox(2, nameLabel, infoLabel);
+                        setGraphic(vb);
+                    }
+                }
+            };
+            return cell;
+        });
+
+        updateEmptyPlaylistVisibility();
+    }
+
+    private void setupTrackView() {
+        trackView.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 1) {
+                Object target = event.getTarget();
+                boolean cellClicked = false;
+                if (target instanceof javafx.scene.Node) {
+                    javafx.scene.Node n = (javafx.scene.Node) target;
+                    while (n != null) {
+                        if (n instanceof ListCell) { cellClicked = true; break; }
+                        n = n.getParent();
+                    }
+                }
+                if (!cellClicked) return;
+                AudioTrack track = trackView.getSelectionModel().getSelectedItem();
+                if (track != null && viewingPlaylist != null) {
+                    int idx = viewingPlaylist.getTracks().indexOf(track);
+                    if (idx >= 0) {
+                        clearNoiseActiveState();
+                        audioService.playPlaylist(viewingPlaylist);
+                        audioService.playTrackAt(idx);
+                        playPauseBtn.setDisable(false);
+                    }
+                }
+            }
+        });
+
+        trackView.setCellFactory(lv -> {
+            ListCell<AudioTrack> cell = new ListCell<>() {
+                @Override
+                protected void updateItem(AudioTrack track, boolean empty) {
+                    super.updateItem(track, empty);
+                    if (empty || track == null) {
+                        setText(null);
+                    } else {
+                        setText(track.getDisplayName());
+                    }
+                }
+            };
+            return cell;
+        });
+    }
+
+    // ── View Switching ────────────────────────────────────
+
+    private void showPlaylistList() {
+        viewingPlaylist = null;
+        hideAllStackContent();
+        playlistView.setVisible(true);
+        playlistView.setManaged(true);
+        createPlaylistBtn.setVisible(true);
+        createPlaylistBtn.setManaged(true);
+        playButtons.setVisible(false);
+        playButtons.setManaged(false);
+        addTracksBtn.setVisible(true);
+        addTracksBtn.setManaged(true);
+        backNavBar.setVisible(false);
+        backNavBar.setManaged(false);
+        playlistHeader.setText("DAFTAR PLAYLIST");
+        updateEmptyPlaylistVisibility();
+        if (audioService.getPlaylists().isEmpty()) {
+            emptyPlaylistLabel.toFront();
+        }
+    }
+
+    private void showPlaylistTracks(Playlist pl) {
+        viewingPlaylist = pl;
+        hideAllStackContent();
+        trackView.setItems(pl.getTracks());
+        trackView.setVisible(true);
+        trackView.setManaged(true);
+        trackView.getSelectionModel().clearSelection();
+        createPlaylistBtn.setVisible(false);
+        createPlaylistBtn.setManaged(false);
+        playButtons.setVisible(true);
+        playButtons.setManaged(true);
+        addTracksBtn.setVisible(true);
+        addTracksBtn.setManaged(true);
+        backNavBar.setVisible(true);
+        backNavBar.setManaged(true);
+        trackListTitle.setText(pl.getName());
+        playlistHeader.setText("DAFTAR LAGU");
+        emptyPlaylistLabel.setVisible(false);
+        emptyPlaylistLabel.setManaged(false);
+    }
+
+    private void showCreateForm() {
+        hideAllStackContent();
+        createForm.setVisible(true);
+        createForm.setManaged(true);
+        createPlaylistBtn.setVisible(false);
+        createPlaylistBtn.setManaged(false);
+        playButtons.setVisible(false);
+        playButtons.setManaged(false);
+        addTracksBtn.setVisible(false);
+        addTracksBtn.setManaged(false);
+        backNavBar.setVisible(true);
+        backNavBar.setManaged(true);
+        trackListTitle.setText("Buat Playlist Baru");
+        playlistHeader.setText("");
+        emptyPlaylistLabel.setVisible(false);
+        emptyPlaylistLabel.setManaged(false);
+        formNameField.clear();
+        formDescField.clear();
+        pendingFiles.clear();
+        formFileList.setItems(FXCollections.observableArrayList());
+    }
+
+    private void hideAllStackContent() {
+        playlistView.setVisible(false); playlistView.setManaged(false);
+        trackView.setVisible(false);    trackView.setManaged(false);
+        createForm.setVisible(false);   createForm.setManaged(false);
+        emptyPlaylistLabel.setVisible(false); emptyPlaylistLabel.setManaged(false);
+    }
+
+    @FXML
+    public void handleBackToPlaylists() {
+        if (createForm.isVisible()) {
+            showPlaylistList();
+        } else {
+            showPlaylistList();
+        }
+    }
+
+    // ── Form Handlers ──────────────────────────────────────
+
+    @FXML
+    public void handleCreatePlaylist() {
+        showCreateForm();
+    }
+
+    @FXML
+    public void handlePickFormFiles() {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Pilih File Audio");
+        fc.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("Audio Files (MP3, WAV)", "*.mp3", "*.wav"),
+            new FileChooser.ExtensionFilter("MP3 Files", "*.mp3"),
+            new FileChooser.ExtensionFilter("WAV Files", "*.wav")
+        );
+        Stage stage = (Stage) playlistView.getScene().getWindow();
+        List<File> files = fc.showOpenMultipleDialog(stage);
+        if (files != null) {
+            pendingFiles.addAll(files);
+            ObservableList<String> names = FXCollections.observableArrayList();
+            for (File f : pendingFiles) {
+                names.add(f.getName());
+            }
+            formFileList.setItems(names);
+        }
+    }
+
+    @FXML
+    public void handleSavePlaylist() {
+        String name = formNameField.getText().trim();
+        if (name.isEmpty()) {
+            formNameField.setStyle("-fx-border-color: #f38ba8; -fx-background-color:#1A1722; -fx-text-fill:#F0EAFF; -fx-border-radius:6; -fx-background-radius:6; -fx-padding:6 10; -fx-font-size:12px;");
+            return;
+        }
+        String desc = formDescField.getText().trim();
+        Playlist pl = new Playlist(name, desc);
+        for (File f : pendingFiles) {
+            pl.addTrack(new AudioTrack(f));
+        }
+        audioService.getPlaylists().add(pl);
+        showPlaylistTracks(pl);
+    }
+
+    @FXML
+    public void handleCancelCreate() {
+        showPlaylistList();
+    }
+
+    // ── Player Controls ────────────────────────────────────
+
+    private void resetPlayerBar() {
+        nowPlayingLabel.setText("Tidak ada audio");
+        currentTimeLabel.setText("0:00");
+        totalDurationLabel.setText("0:00");
+        audioProgressBar.setProgress(0);
+        playPauseBtn.setDisable(true);
+        playPauseBtn.setText("\u25B6");
+        if (playStateIcon != null) playStateIcon.setText("\u25B6");
+    }
+
+    private void setupModeButtons() {
+        audioService.setOnModeChanged(() -> updateModeButtons());
+        updateModeButtons();
+    }
+
+    private void updateModeButtons() {
+        switch (audioService.getLoopMode()) {
+            case NONE -> {
+                loopBtn.setText("LP");
+                loopBtn.getStyleClass().remove("active");
+            }
+            case ALL -> {
+                loopBtn.setText("LP");
+                if (!loopBtn.getStyleClass().contains("active"))
+                    loopBtn.getStyleClass().add("active");
+            }
+            case ONE -> {
+                loopBtn.setText("L1");
+                if (!loopBtn.getStyleClass().contains("active"))
+                    loopBtn.getStyleClass().add("active");
+            }
+        }
+        if (audioService.isShuffle()) {
+            if (!shuffleBtn.getStyleClass().contains("active"))
+                shuffleBtn.getStyleClass().add("active");
+        } else {
+            shuffleBtn.getStyleClass().remove("active");
+        }
+    }
+
+    @FXML
+    public void showNoiseTab() {
+        setActiveTab(noiseTabBtn, playlistTabBtn, noiseContent, playlistContent);
+    }
+
+    @FXML
+    public void showPlaylistTab() {
+        setActiveTab(playlistTabBtn, noiseTabBtn, playlistContent, noiseContent);
+    }
+
+    private void setActiveTab(Button activeBtn, Button inactiveBtn,
+                              VBox activeContent, VBox inactiveContent) {
+        activeBtn.getStyleClass().add("active");
+        inactiveBtn.getStyleClass().remove("active");
+        activeContent.setVisible(true);
+        activeContent.setManaged(true);
+        inactiveContent.setVisible(false);
+        inactiveContent.setManaged(false);
     }
 
     @FXML
     public void playWhiteNoise() {
-        setActiveNoise(whiteNoiseBtn);
-        playBundledAudio("audio/rain.mp3", "🌧 White Noise");
+        handleNoiseButton(whiteNoiseBtn, NoiseType.WHITE_NOISE);
     }
 
     @FXML
     public void playBrownNoise() {
-        setActiveNoise(brownNoiseBtn);
-        playBundledAudio("audio/coffee_shop.mp3", "☕ Brown Noise");
+        handleNoiseButton(brownNoiseBtn, NoiseType.BROWN_NOISE);
     }
 
     @FXML
-    public void playPinkNoise() {
-        setActiveNoise(pinkNoiseBtn);
-        playBundledAudio("audio/forest.mp3", "🌿 Pink Noise");
+    public void playRainNoise() {
+        handleNoiseButton(rainNoiseBtn, NoiseType.RAIN);
     }
 
     @FXML
-    public void playBlueNoise() {
-        setActiveNoise(blueNoiseBtn);
-        playBundledAudio("audio/keyboard.mp3", "⌨ Blue Noise");
+    public void playForestNoise() {
+        handleNoiseButton(forestNoiseBtn, NoiseType.FOREST);
     }
 
-    private void playBundledAudio(String resourcePath, String displayName) {
-        URL resourceUrl = getClass().getClassLoader().getResource(resourcePath);
-        if (resourceUrl == null) {
-            if (nowPlayingLabel != null)
-                nowPlayingLabel.setText("⚠ File tidak ditemukan: " + resourcePath);
-            return;
-        }
-        playMedia(resourceUrl.toExternalForm(), displayName);
+    private void handleNoiseButton(Button clickedBtn, NoiseType type) {
+        setNoiseActiveState(clickedBtn);
+        clearPlaylistSelection();
+        audioService.playNoise(type);
+        playPauseBtn.setDisable(false);
     }
 
     @FXML
-    public void browseLocalFile() {
+    public void handleSequentialPlay() {
+        if (viewingPlaylist == null || viewingPlaylist.getTracks().isEmpty()) return;
+        clearNoiseActiveState();
+        audioService.playPlaylist(viewingPlaylist);
+        playPauseBtn.setDisable(false);
+    }
+
+    @FXML
+    public void handleShufflePlay() {
+        if (viewingPlaylist == null || viewingPlaylist.getTracks().isEmpty()) return;
+        clearNoiseActiveState();
+        audioService.playPlaylistShuffled(viewingPlaylist);
+        playPauseBtn.setDisable(false);
+    }
+
+    @FXML
+    public void handleAddTracks() {
+        if (viewingPlaylist == null) return;
+
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Pilih File Audio");
+        fileChooser.setTitle("Tambah File Audio ke \"" + viewingPlaylist.getName() + "\"");
         fileChooser.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter("Audio Files", "*.mp3", "*.wav", "*.aac"),
-            new FileChooser.ExtensionFilter("All Files", "*.*")
+            new FileChooser.ExtensionFilter("Audio Files (MP3, WAV)", "*.mp3", "*.wav"),
+            new FileChooser.ExtensionFilter("MP3 Files", "*.mp3"),
+            new FileChooser.ExtensionFilter("WAV Files", "*.wav")
         );
-        File selectedFile = fileChooser.showOpenDialog(null);
-        if (selectedFile != null) {
-            if (filePathField != null) filePathField.setText(selectedFile.getAbsolutePath());
-            setActiveNoise(null);
-            playMedia(selectedFile.toURI().toString(), selectedFile.getName());
-        }
-    }
 
-    private void playMedia(String mediaUri, String displayName) {
-        if (mediaPlayer != null) {
-            mediaPlayer.stop();
-            mediaPlayer.dispose();
-        }
+        Stage stage = (Stage) playlistView.getScene().getWindow();
+        List<File> selectedFiles = fileChooser.showOpenMultipleDialog(stage);
 
-        try {
-            Media media = new Media(mediaUri);
-            mediaPlayer = new MediaPlayer(media);
-            mediaPlayer.setVolume(volumeSlider.getValue());
-            mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
-
-            mediaPlayer.currentTimeProperty().addListener((obs, old, now) -> {
-                if (media.getDuration().greaterThan(Duration.ZERO)) {
-                    double progress = now.toSeconds() / media.getDuration().toSeconds();
-                    if (audioProgressBar != null) audioProgressBar.setProgress(progress);
-                }
-            });
-
-            mediaPlayer.setOnReady(() -> {
-                if (playPauseBtn != null) playPauseBtn.setDisable(false);
-            });
-
-            mediaPlayer.play();
-            isPlaying = true;
-            if (playPauseBtn != null) playPauseBtn.setText("⏸");
-            if (nowPlayingLabel != null) nowPlayingLabel.setText("▶ " + displayName);
-
-        } catch (Exception e) {
-            if (nowPlayingLabel != null) nowPlayingLabel.setText("⚠ Error: " + e.getMessage());
+        if (selectedFiles != null && !selectedFiles.isEmpty()) {
+            for (File file : selectedFiles) {
+                viewingPlaylist.addTrack(new AudioTrack(file));
+            }
+            trackView.setItems(viewingPlaylist.getTracks());
         }
     }
 
     @FXML
     public void handlePlayPause() {
-        if (mediaPlayer == null) return;
-        if (isPlaying) {
-            mediaPlayer.pause();
-            isPlaying = false;
-            if (playPauseBtn != null) playPauseBtn.setText("▶");
-        } else {
-            mediaPlayer.play();
-            isPlaying = true;
-            if (playPauseBtn != null) playPauseBtn.setText("⏸");
-        }
+        audioService.togglePlayPause();
     }
 
     @FXML
     public void handleStop() {
-        if (mediaPlayer != null) {
-            mediaPlayer.stop();
-            isPlaying = false;
-            if (playPauseBtn != null) playPauseBtn.setText("▶");
-            if (audioProgressBar != null) audioProgressBar.setProgress(0);
-            if (nowPlayingLabel != null) nowPlayingLabel.setText("⏹ Dihentikan");
-            setActiveNoise(null);
+        audioService.stop();
+        clearNoiseActiveState();
+        clearPlaylistSelection();
+        playPauseBtn.setDisable(true);
+        playPauseBtn.setText("\u25B6");
+    }
+
+    @FXML
+    public void handleNext() {
+        if (audioService.isNoiseMode() || audioService.getPlaylist().isEmpty()) return;
+        audioService.nextTrack();
+    }
+
+    @FXML
+    public void handlePrevious() {
+        if (audioService.isNoiseMode() || audioService.getPlaylist().isEmpty()) return;
+        audioService.previousTrack();
+    }
+
+    @FXML
+    public void handleToggleLoop() {
+        audioService.toggleLoopMode();
+    }
+
+    @FXML
+    public void handleToggleShuffle() {
+        audioService.toggleShuffle();
+    }
+
+    public void shutdown() {
+        audioService.dispose();
+    }
+
+    // ── Helpers ────────────────────────────────────────────
+
+    private void setNoiseActiveState(Button activeBtn) {
+        Button[] noiseBtns = { whiteNoiseBtn, brownNoiseBtn, rainNoiseBtn, forestNoiseBtn };
+        for (Button btn : noiseBtns) {
+            if (btn != null) btn.getStyleClass().remove("noise-btn-active");
+        }
+        if (activeBtn != null && !activeBtn.getStyleClass().contains("noise-btn-active")) {
+            activeBtn.getStyleClass().add("noise-btn-active");
         }
     }
 
-    private void setActiveNoise(Button btn) {
-        Button[] noiseBtns = {whiteNoiseBtn, brownNoiseBtn, pinkNoiseBtn, blueNoiseBtn};
-        for (Button b : noiseBtns) {
-            if (b != null) b.getStyleClass().remove("active");
-        }
-        if (btn != null) {
-            if (!btn.getStyleClass().contains("active"))
-                btn.getStyleClass().add("active");
-        }
-        activeNoiseBtn = btn;
+    private void clearNoiseActiveState() {
+        setNoiseActiveState(null);
+    }
+
+    private void clearPlaylistSelection() {
+        playlistView.getSelectionModel().clearSelection();
+        trackView.getSelectionModel().clearSelection();
+    }
+
+    private void updateEmptyPlaylistVisibility() {
+        boolean empty = audioService.getPlaylists().isEmpty();
+        emptyPlaylistLabel.setVisible(empty);
+        emptyPlaylistLabel.setManaged(empty);
+    }
+
+    private String formatTime(double totalSeconds) {
+        if (totalSeconds < 0 || Double.isNaN(totalSeconds)) return "0:00";
+        int minutes = (int) totalSeconds / 60;
+        int seconds = (int) totalSeconds % 60;
+        return String.format("%d:%02d", minutes, seconds);
+    }
+
+    private void updateVolumeLabel(double volume) {
+        volumeLabel.setText((int) (volume * 100) + "%");
     }
 }

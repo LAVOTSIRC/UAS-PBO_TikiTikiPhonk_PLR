@@ -2,10 +2,10 @@ package com.plr.frontend.controller;
 
 import com.plr.frontend.JavaFXApp;
 import com.plr.frontend.util.SessionManager;
+import com.plr.frontend.util.ThemeManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
 
 public class SidebarController {
 
@@ -14,11 +14,28 @@ public class SidebarController {
     @FXML private Button timerNavBtn;
     @FXML private Button audioNavBtn;
     @FXML private Button settingsNavBtn;
+    @FXML private Button themeToggleBtn;
+    @FXML private Label themeIconLabel;
     @FXML private Button logoutBtn;
 
     @FXML
     public void initialize() {
         setActiveButton(tasksNavBtn);
+        updateThemeIcon();
+    }
+
+    @FXML
+    public void handleThemeToggle() {
+        ThemeManager tm = ThemeManager.getInstance();
+        tm.toggle();
+        tm.applyToScene(logoutBtn.getScene());
+        updateThemeIcon();
+    }
+
+    private void updateThemeIcon() {
+        if (themeIconLabel != null) {
+            themeIconLabel.setText(ThemeManager.getInstance().isLightMode() ? "\u2600" : "\u263E");
+        }
     }
 
     public void setUsername(String username) {

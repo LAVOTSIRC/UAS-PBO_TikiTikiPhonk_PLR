@@ -9,12 +9,14 @@ build/
 *.class
 
 # ========================
-# Maven Wrapper (keep mvnw scripts, ignore jar)
+# Maven
 # ========================
 .mvn/wrapper/maven-wrapper.jar
+.mvn/timing/
+.mvn/.maven.config
 
 # ========================
-# IntelliJ IDEA
+# IntelliJ IDEA - ALL files
 # ========================
 .idea/
 *.iml
@@ -22,6 +24,7 @@ build/
 *.ipr
 **/*.iml
 out/
+**/.idea/
 
 # ========================
 # VS Code
@@ -43,22 +46,42 @@ nbproject/private/
 nbbuild/
 nbdist/
 .nb-gradle/
-build/
 
 # ========================
-# H2 Database (runtime data)
+# H2 Database (auto-created at runtime, JANGAN DIKOMIT)
 # ========================
 data/
+**/data/
 *.db
 *.mv.db
 *.trace.db
+*.lock.db
+**/data/**/*.db
 
 # ========================
-# Logs
+# JVM Crash Logs
 # ========================
+hs_err_pid*.log
 *.log
 logs/
 **/logs/
+
+# ========================
+#*.mp3
+#*.wav
+#*.aac
+#*.ogg
+#*.flac
+#frontend/src/main/resources/audio/*.mp3
+#frontend/src/main/resources/audio/*.wav
+#frontend/src/main/resources/audio/*.aac
+#frontend/src/main/resources/audio/*.ogg
+#frontend/src/main/resources/audio/README.md
+
+# ========================
+# Unused Default Template
+# ========================
+frontend/src/main/resources/com/plr/hello-view.fxml
 
 # ========================
 # OS Files
@@ -71,34 +94,36 @@ logs/
 ehthumbs.db
 Thumbs.db
 Desktop.ini
+$RECYCLE.BIN/
 
 # ========================
-# Environment & Config
+# Environment & Secrets
 # ========================
 .env
 .env.local
 *.env
 application-local.properties
 application-local.yml
+*.secret
+*.key
 
 # ========================
-# Temp Files
+# Temp & Editor Files
 # ========================
 *.tmp
 *.swp
 *.swo
 *~
 ~$*
+*.bak
+*.orig
 
 # ========================
-# Node (if any frontend npm later)
+# Node / npm (future-proof)
 # ========================
 node_modules/
 npm-debug.log*
+package-lock.json
+yarn.lock
 
-# ========================
-# Project-specific
-# ========================
-frontend/src/main/resources/audio/*.mp3
-frontend/src/main/resources/audio/*.wav
-frontend/src/main/resources/audio/*.aac
+
