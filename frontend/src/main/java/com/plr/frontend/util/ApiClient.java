@@ -263,6 +263,26 @@ public class ApiClient {
         }
     }
 
+    public Map<String, Object> updatePlaylist(Long id, Map<String, Object> data) throws Exception {
+        String json = objectMapper.writeValueAsString(data);
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/api/playlists/" + id))
+            .header("Content-Type", "application/json")
+            .header("Authorization", SessionManager.getInstance().getAuthorizationHeader())
+            .PUT(HttpRequest.BodyPublishers.ofString(json))
+            .build();
+
+        HttpResponse<String> response = httpClient.send(request,
+            HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200) {
+            return objectMapper.readValue(response.body(),
+                new TypeReference<Map<String, Object>>() {});
+        } else {
+            throw new Exception("Gagal memperbarui playlist: " + response.body());
+        }
+    }
+
     // ========== SONG ENDPOINTS ==========
 
     public List<Map<String, Object>> getSongs(Long playlistId) throws Exception {
@@ -305,8 +325,10 @@ public class ApiClient {
     }
 
     public void deleteSong(Long playlistId, Long songId) throws Exception {
+        String url = BASE_URL + "/api/playlists/" + playlistId + "/songs/" + songId;
+        System.out.println("[ApiClient] DELETE " + url);
         HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(BASE_URL + "/api/playlists/" + playlistId + "/songs/" + songId))
+            .uri(URI.create(url))
             .header("Authorization", SessionManager.getInstance().getAuthorizationHeader())
             .DELETE()
             .build();
@@ -314,8 +336,27 @@ public class ApiClient {
         HttpResponse<String> response = httpClient.send(request,
             HttpResponse.BodyHandlers.ofString());
 
+        System.out.println("[ApiClient] Response status: " + response.statusCode() + ", body: " + response.body());
         if (response.statusCode() != 204) {
-            throw new Exception("Gagal menghapus lagu: " + response.statusCode());
+            throw new Exception("Gagal menghapus lagu: " + response.statusCode() + " URL=" + url + " body=" + response.body());
+        }
+    }
+
+    public void reorderSongs(Long playlistId, List<Long> songIds) throws Exception {
+        Map<String, List<Long>> body = Map.of("songIds", songIds);
+        String json = objectMapper.writeValueAsString(body);
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/api/playlists/" + playlistId + "/songs/reorder"))
+            .header("Content-Type", "application/json")
+            .header("Authorization", SessionManager.getInstance().getAuthorizationHeader())
+            .PUT(HttpRequest.BodyPublishers.ofString(json))
+            .build();
+
+        HttpResponse<String> response = httpClient.send(request,
+            HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() != 200) {
+            throw new Exception("Gagal mengurutkan ulang lagu: " + response.statusCode());
         }
     }
 

@@ -21,7 +21,7 @@ public class Playlist extends BaseEntity {
     private User user;
 
     @OneToMany(mappedBy = "playlist", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @OrderBy("id ASC")
+    @OrderBy("sortOrder ASC")
     private List<Song> songs = new ArrayList<>();
 
     public Playlist() {}

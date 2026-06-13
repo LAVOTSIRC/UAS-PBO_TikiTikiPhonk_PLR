@@ -9,6 +9,8 @@ import com.plr.backend.repository.PlaylistRepository;
 import com.plr.backend.repository.SongRepository;
 import com.plr.backend.repository.UserRepository;
 import com.plr.backend.service.ISongService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,8 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class SongServiceImpl implements ISongService {
+
+    private static final Logger log = LoggerFactory.getLogger(SongServiceImpl.class);
 
     @Autowired
     private SongRepository songRepository;
@@ -32,11 +36,13 @@ public class SongServiceImpl implements ISongService {
     @Override
     public SongResponse addSong(Long playlistId, SongRequest request, String username) {
         Playlist playlist = findPlaylist(playlistId, username);
+        int nextOrder = songRepository.findByPlaylistId(playlistId).size();
         Song song = new Song();
         song.setTitle(request.getTitle());
         song.setFilePath(request.getFilePath());
         song.setDurationSeconds(request.getDurationSeconds());
         song.setFileSize(request.getFileSize());
+        song.setSortOrder(nextOrder);
         song.setPlaylist(playlist);
         Song saved = songRepository.save(song);
         return toResponse(saved);
@@ -76,9 +82,25 @@ public class SongServiceImpl implements ISongService {
         songRepository.delete(song);
     }
 
+    @Override
+    public void reorderSongs(Long playlistId, List<Long> songIds, String username) {
+        // Verify playlist ownership
+        findPlaylist(playlistId, username);
+        for (int i = 0; i < songIds.size(); i++) {
+            Long sid = songIds.get(i);
+            Song song = songRepository.findByIdAndPlaylistId(sid, playlistId)
+                .orElseThrow(() -> new RuntimeException("Lagu tidak ditemukan: " + sid));
+            song.setSortOrder(i);
+            songRepository.save(song);
+        }
+    }
+
     private Song findSong(Long playlistId, Long songId, String username) {
-        User user = findUser(username);
-        return songRepository.findByIdAndPlaylistIdAndPlaylistUser_Id(songId, playlistId, user.getId())
+        // First verify the playlist belongs to this user (security check)
+        findPlaylist(playlistId, username);
+        log.debug("findSong: songId={}, playlistId={}, username={}", songId, playlistId, username);
+        // Then find the song by id+playlistId (simpler query, ownership already verified via playlist)
+        return songRepository.findByIdAndPlaylistId(songId, playlistId)
             .orElseThrow(() -> new RuntimeException("Lagu tidak ditemukan dengan ID: " + songId + " di playlist: " + playlistId));
     }
 
@@ -100,6 +122,7 @@ public class SongServiceImpl implements ISongService {
         response.setFilePath(song.getFilePath());
         response.setDurationSeconds(song.getDurationSeconds());
         response.setFileSize(song.getFileSize());
+        response.setSortOrder(song.getSortOrder());
         response.setPlaylistId(song.getPlaylist().getId());
         response.setPlaylistName(song.getPlaylist().getName());
         response.setCreatedAt(song.getCreatedAt());

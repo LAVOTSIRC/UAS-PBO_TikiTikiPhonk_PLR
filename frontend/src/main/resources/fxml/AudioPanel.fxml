@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
@@ -194,6 +195,13 @@
                     HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
         </HBox>
 
+        <Button fx:id="editPlaylistBtn"
+                text="&#x270F; Edit"
+                styleClass="audio-add-track-btn"
+                onAction="#handleEditPlaylist"
+                maxWidth="Infinity"
+                managed="false" visible="false"/>
+
         <Button fx:id="addTracksBtn"
                 text="+ Tambah Lagu"
                 styleClass="audio-add-track-btn"
@@ -253,6 +261,32 @@
                     <Button text="Batal"
                             styleClass="audio-cancel-btn"
                             onAction="#handleCancelCreate"
+                            HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                </HBox>
+            </VBox>
+            <VBox fx:id="editForm" spacing="10"
+                  managed="false" visible="false"
+                  VBox.vgrow="ALWAYS">
+                <Label text="EDIT PLAYLIST"
+                       styleClass="audio-form-label"/>
+                <TextField fx:id="editNameField"
+                           promptText="Nama playlist"
+                           styleClass="audio-form-field"/>
+                <Label text="DAFTAR LAGU (klik &#x2716; untuk hapus)"
+                       styleClass="audio-form-label"
+                       style="-fx-font-size:10px;"/>
+                <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true"
+                            style="-fx-background:transparent;-fx-background-color:transparent;">
+                    <VBox fx:id="editTrackList" spacing="4"/>
+                </ScrollPane>
+                <HBox spacing="6">
+                    <Button text="Simpan"
+                            styleClass="audio-save-btn"
+                            onAction="#handleSaveEdit"
+                            HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                    <Button text="Batal"
+                            styleClass="audio-cancel-btn"
+                            onAction="#handleCancelEdit"
                             HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
                 </HBox>
             </VBox>
