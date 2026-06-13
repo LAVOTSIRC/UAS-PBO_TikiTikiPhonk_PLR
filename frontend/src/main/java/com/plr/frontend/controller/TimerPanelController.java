@@ -25,7 +25,7 @@ public class TimerPanelController {
     private static final int FOCUS_MINUTES = 25;
     private static final int SHORT_BREAK_MINUTES = 5;
     private static final int LONG_BREAK_MINUTES = 15;
-    private static final int CYCLE_LENGTH = 5;
+    private static final int CYCLE_LENGTH = 4;
 
     @FXML private Label timerLabel;
     @FXML private Label sessionTypeLabel;
