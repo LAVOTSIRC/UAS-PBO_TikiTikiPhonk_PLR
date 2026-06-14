@@ -147,6 +147,9 @@ public class TimerPanelController {
             updateSessionDots();
             updateTimerDisplay();
             
+            // Bersihkan label poin jika berganti tugas
+            if (pointsLabel != null) pointsLabel.setText("");
+            
             // Instantly update label from memory
             sessionCountLabel.setText(completedFocusSessions + " fokus \u00B7 " + currentTotalSessions + " total sesi");
             
@@ -158,6 +161,7 @@ public class TimerPanelController {
             focusCountInCycle = 0;
             currentTotalSessions = 0;
             sessionCountLabel.setText(""); // Kosongkan saat memuat
+            if (pointsLabel != null) pointsLabel.setText(""); // Bersihkan label poin
             applyFocusMode();
             updateSessionDots();
             loadSessionHistoryForTask(id);
@@ -186,6 +190,9 @@ public class TimerPanelController {
         if (remainingSeconds < 0) remainingSeconds = 0;
         updateTimerDisplay();
         statusLabel.setText("\u23ED Sesi dilewati");
+        javafx.animation.PauseTransition pt = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(5));
+        pt.setOnFinished(evt -> statusLabel.setText(""));
+        pt.play();
 
         String skippedType = currentMode;
         if ("FOCUS".equals(currentMode)) {

@@ -310,9 +310,20 @@ public class ProfilePanelController {
     }
 
     private void setAvatarInitial(String username) {
-        if (username != null && !username.isEmpty()) {
-            userAvatarCircle.setFill(Color.web("#C084FC"));
-            avatarInitialLabel.setText(username.substring(0, 1).toUpperCase());
+        try {
+            javafx.scene.image.Image img = new javafx.scene.image.Image(getClass().getResourceAsStream("/images/profil.png"));
+            userAvatarCircle.setFill(new javafx.scene.paint.ImagePattern(img));
+            if (avatarInitialLabel != null) {
+                avatarInitialLabel.setVisible(false);
+            }
+        } catch (Exception e) {
+            System.err.println("Gagal memuat profil.png: " + e.getMessage());
+            // Fallback
+            if (username != null && !username.isEmpty()) {
+                userAvatarCircle.setFill(Color.web("#C084FC"));
+                avatarInitialLabel.setText(username.substring(0, 1).toUpperCase());
+                avatarInitialLabel.setVisible(true);
+            }
         }
     }
 

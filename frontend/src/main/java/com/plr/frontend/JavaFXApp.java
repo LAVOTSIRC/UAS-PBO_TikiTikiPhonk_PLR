@@ -44,22 +44,32 @@ public class JavaFXApp extends Application {
                 JavaFXApp.class.getClassLoader().getResource(fxmlPath)
             );
             Parent root = loader.load();
-            double w = primaryStage.getWidth() > 0 ? primaryStage.getWidth() : width;
-            double h = primaryStage.getHeight() > 0 ? primaryStage.getHeight() : height;
-            Scene scene = new Scene(root, w, h);
-
-            String css = Objects.requireNonNull(
-                JavaFXApp.class.getClassLoader().getResource("css/style.css"),
-                "Global stylesheet 'css/style.css' not found on classpath"
-            ).toExternalForm();
-            scene.getStylesheets().add(css);
-
-            ThemeManager.getInstance().applyToScene(scene);
-
-            primaryStage.setTitle(title);
-            primaryStage.setScene(scene);
-            primaryStage.centerOnScreen();
-            primaryStage.setMaximized(true);
+            Scene currentScene = primaryStage.getScene();
+            
+            if (currentScene == null) {
+                // Untuk pertama kali buka aplikasi
+                Scene scene = new Scene(root, width, height);
+                String css = Objects.requireNonNull(
+                    JavaFXApp.class.getClassLoader().getResource("css/style.css"),
+                    "Global stylesheet 'css/style.css' not found on classpath"
+                ).toExternalForm();
+                scene.getStylesheets().add(css);
+                ThemeManager.getInstance().applyToScene(scene);
+                
+                primaryStage.setTitle(title);
+                primaryStage.setScene(scene);
+                primaryStage.centerOnScreen();
+                primaryStage.setMaximized(true);
+            } else {
+                // Untuk transisi halaman berikutnya (Login -> Main atau Main -> Login)
+                // Hanya ganti isinya (root) agar status Full Screen OS tidak rusak/overshoot
+                currentScene.setRoot(root);
+                primaryStage.setTitle(title);
+                // Memastikan maximized tetap true tanpa memancing flicker
+                if (!primaryStage.isMaximized()) {
+                    primaryStage.setMaximized(true);
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("Cannot load FXML: " + fxmlPath, e);

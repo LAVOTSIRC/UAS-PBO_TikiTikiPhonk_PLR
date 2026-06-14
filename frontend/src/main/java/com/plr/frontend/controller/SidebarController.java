@@ -9,7 +9,7 @@ import javafx.scene.control.Label;
 
 public class SidebarController {
 
-    @FXML private Label usernameInitialLabel;
+    @FXML private javafx.scene.shape.Circle userAvatarCircle;
     @FXML private Button tasksNavBtn;
     @FXML private Button statsNavBtn;
     @FXML private Button themeToggleBtn;
@@ -22,12 +22,6 @@ public class SidebarController {
 
     public void setOnNavigateTasks(Runnable r) { this.onNavigateTasks = r; }
     public void setOnNavigateStats(Runnable r) { this.onNavigateStats = r; }
-
-    @FXML
-    public void initialize() {
-        setActiveButton(tasksNavBtn);
-        updateThemeIcon();
-    }
 
     @FXML
     public void handleThemeToggle() {
@@ -43,10 +37,24 @@ public class SidebarController {
         }
     }
 
-    public void setUsername(String username) {
-        if (usernameInitialLabel != null && username != null && !username.isEmpty()) {
-            usernameInitialLabel.setText(String.valueOf(username.charAt(0)).toUpperCase());
+    @FXML
+    public void initialize() {
+        setActiveButton(tasksNavBtn);
+        updateThemeIcon();
+        
+        // Load profil.png into the sidebar circle
+        try {
+            javafx.scene.image.Image img = new javafx.scene.image.Image(getClass().getResourceAsStream("/images/profil.png"));
+            if (userAvatarCircle != null) {
+                userAvatarCircle.setFill(new javafx.scene.paint.ImagePattern(img));
+            }
+        } catch (Exception e) {
+            System.err.println("Gagal memuat gambar profil di Sidebar: " + e.getMessage());
         }
+    }
+
+    public void setUsername(String username) {
+        // Not used anymore as we use static image
     }
 
     @FXML
@@ -58,8 +66,8 @@ public class SidebarController {
     @FXML
     public void handleProfileNav() {
         setActiveButton(null);
-        if (usernameInitialLabel != null && !usernameInitialLabel.getStyleClass().contains("active")) {
-            usernameInitialLabel.getStyleClass().add("active");
+        if (userAvatarCircle != null && !userAvatarCircle.getStyleClass().contains("active")) {
+            userAvatarCircle.getStyleClass().add("active");
         }
         if (onProfileNav != null) {
             onProfileNav.run();
@@ -80,8 +88,8 @@ public class SidebarController {
     }
 
     private void setActiveButton(Button active) {
-        if (usernameInitialLabel != null) {
-            usernameInitialLabel.getStyleClass().remove("active");
+        if (userAvatarCircle != null) {
+            userAvatarCircle.getStyleClass().remove("active");
         }
         Button[] allBtns = {tasksNavBtn, statsNavBtn};
         for (Button btn : allBtns) {

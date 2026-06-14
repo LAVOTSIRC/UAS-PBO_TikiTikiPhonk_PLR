@@ -50,7 +50,7 @@ public class TodoPanelController {
         completedTasksList.setItems(completedTasks);
         loadSessionStats();
 
-        filterCategoryComboBox.getItems().addAll("Semua Kategori", "Kerja", "Fokus", "Cepat");
+        filterCategoryComboBox.getItems().addAll("Semua Kategori", "Kerja", "Fokus", "Cepat", "Belajar", "Olahraga", "Meeting", "Baca", "Personal");
         filterCategoryComboBox.getSelectionModel().selectFirst();
         
         sortTaskComboBox.getItems().addAll("Paling Baru", "Tenggat Waktu", "Sesuai Abjad");
@@ -144,10 +144,7 @@ public class TodoPanelController {
             .filter(t -> {
                 if ("Semua Kategori".equals(filterCat)) return true;
                 if (t.getCategory() == null) return false;
-                if ("Kerja".equals(filterCat) && "KERJA".equals(t.getCategory())) return true;
-                if ("Fokus".equals(filterCat) && "FOKUS".equals(t.getCategory())) return true;
-                if ("Cepat".equals(filterCat) && "CEPAT".equals(t.getCategory())) return true;
-                return false;
+                return filterCat.toUpperCase().equals(t.getCategory());
             })
             .collect(Collectors.toList());
 
@@ -226,6 +223,12 @@ public class TodoPanelController {
                 createTask.setOnSucceeded(e -> Platform.runLater(() -> {
                     showNotification("✅ Tugas ditambah!", false);
                     loadTasks();
+                }));
+
+                createTask.setOnFailed(e -> Platform.runLater(() -> {
+                    Throwable ex = createTask.getException();
+                    System.err.println("Gagal membuat tugas: " + ex.getMessage());
+                    showNotification("❌ Gagal menyimpan tugas!", true);
                 }));
 
                 new Thread(createTask).start();
