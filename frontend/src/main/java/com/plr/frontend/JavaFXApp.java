@@ -65,6 +65,10 @@ public class JavaFXApp extends Application {
                 // Hanya ganti isinya (root) agar status Full Screen OS tidak rusak/overshoot
                 currentScene.setRoot(root);
                 primaryStage.setTitle(title);
+                
+                // Menerapkan tema saat ini ke root yang baru
+                ThemeManager.getInstance().applyToScene(currentScene);
+
                 // Memastikan maximized tetap true tanpa memancing flicker
                 if (!primaryStage.isMaximized()) {
                     primaryStage.setMaximized(true);
