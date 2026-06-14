@@ -260,9 +260,9 @@
 
 .todo-panel {
     -fx-background-color: #0C0A10;
-    -fx-pref-width: 240;
-    -fx-min-width: 240;
-    -fx-max-width: 240;
+    -fx-pref-width: 300;
+    -fx-min-width: 300;
+    -fx-max-width: 300;
     -fx-padding: 16 14 16 14;
     -fx-spacing: 10;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 6, 0, 2, 0);
@@ -353,6 +353,13 @@
 .task-list-view .list-cell:empty {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
+}
+
+/* Pembatas Section Selesai */
+.todo-section-divider {
+    -fx-border-color: #2D2936 transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 12 0 0 0;
 }
 
 /* Sesi Hari Ini (Session History) */
@@ -1761,6 +1768,10 @@
 .light-mode .task-list-view .list-cell:selected {
     -fx-background-color: #D6CDE4;
     -fx-border-color: #B8A8D0;
+}
+
+.light-mode .todo-section-divider {
+    -fx-border-color: #C8BED8 transparent transparent transparent;
 }
 
 .light-mode .session-history {

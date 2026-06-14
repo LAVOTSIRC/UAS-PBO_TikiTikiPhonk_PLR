@@ -64,9 +64,10 @@
               prefHeight="180"/>
 
     <!-- Section: Selesai -->
-    <Label text="SELESAI" styleClass="panel-label">
-        <VBox.margin><Insets top="6" bottom="4"/></VBox.margin>
-    </Label>
+    <VBox styleClass="todo-section-divider">
+        <VBox.margin><Insets top="8" bottom="4"/></VBox.margin>
+        <Label text="SELESAI" styleClass="panel-label"/>
+    </VBox>
 
     <!-- Completed Tasks ListView -->
     <ListView fx:id="completedTasksList"
@@ -82,12 +83,12 @@
             styleClass="todo-delete-btn"
             maxWidth="Infinity"
             onAction="#handleDeleteSelected">
-        <VBox.margin><Insets top="8" bottom="8"/></VBox.margin>
+        <VBox.margin><Insets top="8" bottom="0"/></VBox.margin>
     </Button>
 
     <!-- Session Summary Card -->
     <VBox styleClass="session-history">
-        <VBox.margin><Insets top="8"/></VBox.margin>
+        <VBox.margin><Insets top="4"/></VBox.margin>
         <Label text="SESI HARI INI" styleClass="panel-label"/>
         
         <VBox spacing="8" alignment="CENTER_LEFT">
