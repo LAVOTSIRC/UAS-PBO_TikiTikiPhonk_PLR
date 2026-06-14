@@ -563,7 +563,19 @@ public class TodoPanelController {
                 
                 // Mengikat ukuran root agar tidak pernah melebihi lebar list view (mencegah scrollbar horizontal)
                 if (getListView() != null) {
-                    root.maxWidthProperty().bind(getListView().widthProperty().subtract(30));
+                    root.maxWidthProperty().bind(getListView().widthProperty().subtract(15));
+                }
+
+                // Tombol detail (📋) — selalu tampak, buka popup edit
+                if (taskId != null) {
+                    javafx.scene.control.Button detailBtn = new javafx.scene.control.Button("📋");
+                    detailBtn.getStyleClass().addAll("focus-btn", "detail-btn");
+                    detailBtn.setMinWidth(Region.USE_PREF_SIZE); // Jangan sampai icon tersembunyi
+                    detailBtn.setOnMouseClicked(e -> {
+                        e.consume();
+                        openEditModal(taskId, isCompletedList);
+                    });
+                    root.getChildren().add(detailBtn);
                 }
 
                 // Tambahkan Tag jika ada
@@ -586,24 +598,32 @@ public class TodoPanelController {
                                 tagLabel.setText("Cepat");
                                 tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #FCA984;");
                                 break;
+                            case "BELAJAR":
+                                tagLabel.setText("Belajar");
+                                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #818CF8;");
+                                break;
+                            case "OLAHRAGA":
+                                tagLabel.setText("Olahraga");
+                                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #FBBF24;");
+                                break;
+                            case "MEETING":
+                                tagLabel.setText("Meeting");
+                                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #F472B6;");
+                                break;
+                            case "BACA":
+                                tagLabel.setText("Baca");
+                                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #2DD4BF;");
+                                break;
+                            case "PERSONAL":
+                                tagLabel.setText("Personal");
+                                tagLabel.setStyle(tagLabel.getStyle() + "-fx-background-color: #A78BFA;");
+                                break;
                         }
                         if (isCompletedList) {
                             tagLabel.setOpacity(0.5);
                         }
                         root.getChildren().add(tagLabel);
                     }
-                }
-                
-                // Tombol detail (📋) — selalu tampak, buka popup edit
-                if (taskId != null) {
-                    javafx.scene.control.Button detailBtn = new javafx.scene.control.Button("📋");
-                    detailBtn.getStyleClass().addAll("focus-btn", "detail-btn");
-                    detailBtn.setMinWidth(Region.USE_PREF_SIZE); // Jangan sampai icon tersembunyi
-                    detailBtn.setOnMouseClicked(e -> {
-                        e.consume();
-                        openEditModal(taskId, isCompletedList);
-                    });
-                    root.getChildren().add(detailBtn);
                 }
                 
                 setGraphic(root);
