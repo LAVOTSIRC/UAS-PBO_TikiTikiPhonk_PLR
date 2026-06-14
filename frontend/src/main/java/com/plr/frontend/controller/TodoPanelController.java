@@ -44,6 +44,9 @@ public class TodoPanelController {
     // Untuk fitur Undo
     private TaskClientDto lastDeletedTask = null;
 
+    // Callback ketika tugas ditandai selesai
+    private Consumer<Long> onTaskCompletedCallback;
+
     @FXML
     public void initialize() {
         activeTasksList.setItems(activeTasks);
@@ -298,7 +301,28 @@ public class TodoPanelController {
         data.setDueDate(existing.getDueDate());
         data.setStatus("DONE");
 
-        updateTaskApi(id, data, "✓ Tugas diselesaikan!");
+        Task<TaskClientDto> updateTask = new Task<>() {
+            @Override
+            protected TaskClientDto call() throws Exception {
+                return ApiClient.getInstance().updateTask(id, data);
+            }
+        };
+
+        updateTask.setOnSucceeded(e -> Platform.runLater(() -> {
+            showNotification("✓ Tugas diselesaikan!", false);
+            loadTasks();
+            if (onTaskCompletedCallback != null) {
+                onTaskCompletedCallback.accept(id);
+            }
+        }));
+
+        updateTask.setOnFailed(e -> Platform.runLater(() -> {
+            Throwable ex = updateTask.getException();
+            System.err.println("Gagal menyelesaikan tugas: " + ex.getMessage());
+            showNotification("❌ Gagal menyelesaikan tugas!", false);
+        }));
+
+        new Thread(updateTask).start();
     }
     
     private void markTaskActive(Long id) {
@@ -403,6 +427,10 @@ public class TodoPanelController {
 
     public void setOnFocusTaskRequested(Consumer<TaskClientDto> callback) {
         this.focusCallback = callback;
+    }
+
+    public void setOnTaskCompleted(Consumer<Long> callback) {
+        this.onTaskCompletedCallback = callback;
     }
 
     public String getFirstActiveTask() {

@@ -206,6 +206,19 @@
     -fx-alignment: center;
 }
 
+.sidebar-avatar-initial {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-min-width: 28;
+    -fx-min-height: 28;
+    -fx-alignment: center;
+    -fx-pref-width: 28;
+    -fx-pref-height: 28;
+}
+
 /* Sidebar nav buttons — disederhanakan karena ikon ada di graphic Label, bukan button text */
 .sidebar-nav-btn {
     -fx-background-color: transparent;
@@ -2708,4 +2721,36 @@
 
 .light-mode .stats-pie-chart .chart-pie-label {
     -fx-text-fill: #6B5E7E;
+}
+
+/* ============================================================
+   PROFILE PANEL — Avatar Edit Overlay
+   ============================================================ */
+
+.profile-avatar-edit-overlay {
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-background-radius: 0 0 40 40;
+    -fx-pref-width: 80;
+    -fx-pref-height: 30;
+    -fx-min-width: 80;
+    -fx-min-height: 30;
+    -fx-max-width: 80;
+    -fx-max-height: 30;
+    -fx-cursor: hand;
+    -fx-alignment: center;
+}
+
+.profile-avatar-edit-icon {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.light-mode .profile-avatar-edit-overlay {
+    -fx-background-color: rgba(80, 60, 120, 0.5);
+}
+
+.light-mode .profile-avatar-edit-icon {
+    -fx-text-fill: white;
 }

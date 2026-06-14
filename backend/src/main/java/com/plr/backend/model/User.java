@@ -34,6 +34,9 @@ public class User extends BaseEntity implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    @Column(name = "profile_picture_path")
+    private String profilePicturePath;
+
     public User() {}
 
     public User(String username, String email, String password) {
@@ -58,6 +61,8 @@ public class User extends BaseEntity implements UserDetails {
     public void setEmail(String email) { this.email = email; }
     @Override public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
+    public String getProfilePicturePath() { return profilePicturePath; }
+    public void setProfilePicturePath(String profilePicturePath) { this.profilePicturePath = profilePicturePath; }
     @Override
     public String getEntityDescription() {
         return "User[id=" + getId() + ", username=" + username + ", email=" + email + "]";

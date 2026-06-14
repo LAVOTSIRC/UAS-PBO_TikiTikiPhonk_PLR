@@ -33,8 +33,8 @@
         <!-- User Avatar & Basic Info -->
         <HBox alignment="CENTER_LEFT" spacing="20">
 
-            <!-- Avatar Stack: Circle + Initial Letter -->
-            <StackPane prefWidth="80" prefHeight="80">
+            <!-- Avatar Stack: Circle + Initial Letter + Edit Overlay -->
+            <StackPane prefWidth="80" prefHeight="80" onMouseClicked="#handleEditProfilePicture">
                 <Circle fx:id="userAvatarCircle"
                         radius="40"
                         styleClass="profile-avatar-bg"
@@ -42,6 +42,9 @@
                 <Label fx:id="avatarInitialLabel"
                        text="U"
                        styleClass="profile-avatar-initial"/>
+                <StackPane styleClass="profile-avatar-edit-overlay" StackPane.alignment="BOTTOM_CENTER">
+                    <Label text="✎" styleClass="profile-avatar-edit-icon"/>
+                </StackPane>
             </StackPane>
 
             <!-- User Info -->
@@ -56,13 +59,6 @@
                        text="Bergabung 14 Juni 2026"
                        styleClass="profile-joined-date"/>
             </VBox>
-
-            <!-- Edit Profile Button -->
-            <Button fx:id="editProfileBtn"
-                    text="Edit Profil"
-                    styleClass="button, button-primary"
-                    onAction="#handleEditProfile"
-                    prefWidth="120"/>
         </HBox>
 
         <!-- Quick Stats Row under header -->

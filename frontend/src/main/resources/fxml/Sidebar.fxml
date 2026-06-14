@@ -27,7 +27,10 @@
         <VBox.margin><Insets top="8" bottom="16"/></VBox.margin>
         <tooltip><Tooltip text="Profil kamu"/></tooltip>
         <graphic>
-            <Circle fx:id="userAvatarCircle" radius="17" />
+            <StackPane>
+                <Circle fx:id="userAvatarCircle" radius="17" fill="#C084FC" />
+                <Label fx:id="avatarInitialLabel" text="" styleClass="sidebar-avatar-initial" visible="false" />
+            </StackPane>
         </graphic>
     </Label>
 

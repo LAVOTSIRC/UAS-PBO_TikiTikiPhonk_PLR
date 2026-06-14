@@ -25,8 +25,8 @@ public class TaskServiceImpl implements ITaskService {
     private UserRepository userRepository;
 
     @Override
-    public TaskResponse createTask(TaskRequest request, String username) {
-        User user = findUser(username);
+    public TaskResponse createTask(TaskRequest request, Long userId) {
+        User user = findUser(userId);
         Task task = new Task();
         task.setTitle(request.getTitle());
         task.setDescription(request.getDescription());
@@ -40,8 +40,8 @@ public class TaskServiceImpl implements ITaskService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<TaskResponse> getAllTasks(String username) {
-        User user = findUser(username);
+    public List<TaskResponse> getAllTasks(Long userId) {
+        User user = findUser(userId);
         return taskRepository.findByUser(user)
             .stream()
             .map(this::toResponse)
@@ -49,8 +49,8 @@ public class TaskServiceImpl implements ITaskService {
     }
 
     @Override
-    public TaskResponse updateTask(Long id, TaskRequest request, String username) {
-        User user = findUser(username);
+    public TaskResponse updateTask(Long id, TaskRequest request, Long userId) {
+        User user = findUser(userId);
         Task task = taskRepository.findByIdAndUser(id, user)
             .orElseThrow(() -> new RuntimeException("Tugas tidak ditemukan dengan ID: " + id));
         task.setTitle(request.getTitle());
@@ -63,8 +63,8 @@ public class TaskServiceImpl implements ITaskService {
     }
 
     @Override
-    public void deleteTask(Long id, String username) {
-        User user = findUser(username);
+    public void deleteTask(Long id, Long userId) {
+        User user = findUser(userId);
         Task task = taskRepository.findByIdAndUser(id, user)
             .orElseThrow(() -> new RuntimeException("Tugas tidak ditemukan dengan ID: " + id));
         taskRepository.delete(task);
@@ -72,16 +72,16 @@ public class TaskServiceImpl implements ITaskService {
 
     @Override
     @Transactional(readOnly = true)
-    public TaskResponse getTaskById(Long id, String username) {
-        User user = findUser(username);
+    public TaskResponse getTaskById(Long id, Long userId) {
+        User user = findUser(userId);
         Task task = taskRepository.findByIdAndUser(id, user)
             .orElseThrow(() -> new RuntimeException("Tugas tidak ditemukan dengan ID: " + id));
         return toResponse(task);
     }
 
-    private User findUser(String username) {
-        return userRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User tidak ditemukan: " + username));
+    private User findUser(Long userId) {
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User tidak ditemukan dengan ID: " + userId));
     }
 
     private TaskResponse toResponse(Task task) {

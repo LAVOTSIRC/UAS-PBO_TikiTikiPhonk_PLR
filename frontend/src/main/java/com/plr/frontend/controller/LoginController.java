@@ -53,8 +53,6 @@ public class LoginController {
             Platform.runLater(() -> {
                 loginButton.setDisable(false);
                 loadingIndicator.setVisible(false);
-                // Reset tema ke dark mode setiap kali user baru masuk (default aplikasi)
-                com.plr.frontend.util.ThemeManager.getInstance().setLightMode(false);
                 JavaFXApp.showScene("fxml/MainLayout.fxml", "TikiTikiPhonk - " + uname, 1100, 700);
             });
         });

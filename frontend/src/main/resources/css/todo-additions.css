@@ -507,7 +507,6 @@
 }
 
 .profile-avatar-bg {
-  -fx-fill: #c084fc;
   -fx-effect: dropshadow(gaussian, rgba(192,132,252,0.3), 10, 0, 0, 3);
 }
 
@@ -759,7 +758,6 @@
 }
 
 .light-mode .profile-avatar-bg {
-  -fx-fill: #7c3aed;
   -fx-effect: dropshadow(gaussian, rgba(124,58,237,0.2), 10, 0, 0, 3);
 }
 

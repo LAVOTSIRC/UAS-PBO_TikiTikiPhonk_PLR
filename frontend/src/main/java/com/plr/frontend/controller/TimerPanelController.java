@@ -230,6 +230,61 @@ public class TimerPanelController {
         new Thread(saveTask).start();
     }
 
+    // ========== External task completion ==========
+
+    /**
+     * Dipanggil dari luar (TodoPanel) ketika tugas yang sedang difokuskan
+     * ditandai selesai. Timer dihentikan, sesi berjalan disimpan, fokus dibersihkan.
+     */
+    public void handleFocusedTaskCompleted(Long taskId) {
+        if (taskId == null || !taskId.equals(focusedTaskId)) return;
+
+        boolean wasActive = isRunning || isPaused;
+
+        if (wasActive) {
+            int elapsedMinutes = Math.max(1, (totalSeconds - (Math.max(0, remainingSeconds))) / 60);
+            saveCurrentPartialSession(elapsedMinutes);
+        }
+
+        stopTimer();
+        saveCurrentTaskState();
+
+        focusedTaskId = null;
+
+        Platform.runLater(() -> {
+            setActiveTask(null);
+            completedFocusSessions = 0;
+            focusCountInCycle = 0;
+            currentTotalSessions = 0;
+            if (sessionCountLabel != null) sessionCountLabel.setText("");
+            if (pointsLabel != null) pointsLabel.setText("");
+            if (statusLabel != null) statusLabel.setText("");
+            applyFocusMode();
+            updateSessionDots();
+        });
+    }
+
+    private void saveCurrentPartialSession(int elapsedMinutes) {
+        String sessionType = currentMode;
+        Map<String, Object> sessionData = new HashMap<>();
+        sessionData.put("durationMinutes", elapsedMinutes);
+        sessionData.put("sessionType", sessionType);
+        sessionData.put("startTime", (sessionStartTime != null ? sessionStartTime : LocalDateTime.now())
+            .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        sessionData.put("taskId", focusedTaskId);
+
+        Task<Map<String, Object>> saveTask = new Task<>() {
+            @Override
+            protected Map<String, Object> call() throws Exception {
+                return ApiClient.getInstance().logPomodoroSession(sessionData);
+            }
+        };
+
+        saveTask.setOnSucceeded(e -> Platform.runLater(this::refreshSessionCountLabel));
+        saveTask.setOnFailed(e -> {});
+        new Thread(saveTask).start();
+    }
+
     // ========== Mode transitions ==========
 
     private void applyFocusMode() {

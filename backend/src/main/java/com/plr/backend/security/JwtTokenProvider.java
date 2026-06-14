@@ -1,5 +1,6 @@
 package com.plr.backend.security;
 
+import com.plr.backend.model.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -7,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -41,28 +41,40 @@ public class JwtTokenProvider {
     }
 
     public String generateToken(Authentication authentication) {
-        UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
+        User userPrincipal = (User) authentication.getPrincipal();
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
 
         return Jwts.builder()
-            .subject(userPrincipal.getUsername())
+            .subject(String.valueOf(userPrincipal.getId()))
+            .claim("username", userPrincipal.getUsername())
             .issuedAt(now)
             .expiration(expiryDate)
             .signWith(getSigningKey())
             .compact();
     }
 
-    public String generateTokenFromUsername(String username) {
+    public String generateTokenFromUserId(Long userId, String username) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
 
         return Jwts.builder()
-            .subject(username)
+            .subject(String.valueOf(userId))
+            .claim("username", username)
             .issuedAt(now)
             .expiration(expiryDate)
             .signWith(getSigningKey())
             .compact();
+    }
+
+    public Long getUserIdFromToken(String token) {
+        String subject = Jwts.parser()
+            .verifyWith(getSigningKey())
+            .build()
+            .parseSignedClaims(token)
+            .getPayload()
+            .getSubject();
+        return Long.parseLong(subject);
     }
 
     public String getUsernameFromToken(String token) {
@@ -71,7 +83,7 @@ public class JwtTokenProvider {
             .build()
             .parseSignedClaims(token)
             .getPayload()
-            .getSubject();
+            .get("username", String.class);
     }
 
     public boolean validateToken(String authToken) {

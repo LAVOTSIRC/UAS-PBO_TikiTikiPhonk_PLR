@@ -1,6 +1,5 @@
 package com.plr.frontend.controller;
 
-import com.plr.frontend.util.SessionManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -26,12 +25,19 @@ public class MainLayoutController {
     @FXML
     public void initialize() {
         instance = this;
-        String username = SessionManager.getInstance().getUsername();
         if (sidebarController != null) {
-            sidebarController.setUsername(username);
             sidebarController.setOnNavigateTasks(this::showTasksView);
             sidebarController.setOnNavigateStats(this::showStatsView);
             sidebarController.setOnProfileNav(this::showProfile);
+            sidebarController.setOnLogout(() -> {
+                if (audioPanelController != null) {
+                    audioPanelController.shutdown();
+                }
+            });
+        }
+
+        if (profilePanelController != null) {
+            profilePanelController.setOnProfilePictureChanged(this::refreshSidebarAvatar);
         }
 
         if (timerPanelController != null) {
@@ -49,6 +55,12 @@ public class MainLayoutController {
                     timerPanelController.setFocusedTaskId(taskDto.getId());
                 }
             });
+
+            todoPanelController.setOnTaskCompleted(taskId -> {
+                if (timerPanelController != null) {
+                    timerPanelController.handleFocusedTaskCompleted(taskId);
+                }
+            });
         }
 
         showTasksView();
@@ -61,6 +73,12 @@ public class MainLayoutController {
         if (profilePanelController != null) {
             profilePanelController.loadUserProfile();
             profilePanelController.loadUserStatistics();
+        }
+    }
+
+    public void refreshSidebarAvatar() {
+        if (sidebarController != null) {
+            sidebarController.loadProfilePicture();
         }
     }
 
@@ -88,6 +106,12 @@ public class MainLayoutController {
 
     public static MainLayoutController getInstance() {
         return instance;
+    }
+
+    public static void shutdownAudio() {
+        if (instance != null && instance.audioPanelController != null) {
+            instance.audioPanelController.shutdown();
+        }
     }
 
     public static void showGlobalNotification(String text, boolean isUndoOption, Runnable undoAction) {

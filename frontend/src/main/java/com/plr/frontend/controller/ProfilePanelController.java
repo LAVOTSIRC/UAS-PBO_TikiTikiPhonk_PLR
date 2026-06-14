@@ -1,14 +1,20 @@
 package com.plr.frontend.controller;
 
 import com.plr.frontend.util.ApiClient;
+import com.plr.frontend.util.SessionManager;
+import com.plr.frontend.util.ThemeManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -21,7 +27,6 @@ public class ProfilePanelController {
     @FXML private Label usernameLabel;
     @FXML private Label emailLabel;
     @FXML private Label joinedDateLabel;
-    @FXML private Button editProfileBtn;
 
     @FXML private Label totalSessionsLabel;
     @FXML private Label totalFocusMinutesLabel;
@@ -55,6 +60,7 @@ public class ProfilePanelController {
     private boolean isChangingPassword = false;
 
     private Runnable onLogoutCallback;
+    private Runnable onProfilePictureChanged;
 
     @FXML
     public void initialize() {
@@ -110,7 +116,7 @@ public class ProfilePanelController {
             }
         }
 
-        setAvatarInitial(currentUsername);
+        setAvatarImage(currentUsername);
     }
 
     public void loadUserStatistics() {
@@ -141,20 +147,85 @@ public class ProfilePanelController {
             passwordErrorLabel.setVisible(false));
     }
 
-    @FXML
-    private void handleEditProfile() {
-        isEditingPersonalInfo = !isEditingPersonalInfo;
-        if (isEditingPersonalInfo) {
-            editUsernameField.setText(currentUsername);
-            editEmailField.setText(currentEmail);
-            editUsernameField.setVisible(true);
-            editEmailField.setVisible(true);
-            usernameDisplayLabel.setVisible(false);
-            emailDisplayLabel.setVisible(false);
-            editPersonalInfoBtn.setVisible(false);
-            savePersonalInfoBtn.setVisible(true);
-            cancelPersonalInfoBtn.setVisible(true);
+    private void setAvatarImage(String username) {
+        Long userId = SessionManager.getInstance().getUserId();
+        if (userId == null) {
+            setAvatarInitial(username);
+            return;
         }
+
+        new Thread(() -> {
+            java.net.HttpURLConnection conn = null;
+            try {
+                String urlStr = "http://localhost:8080/api/users/profile-picture/file/" + userId;
+                conn = (java.net.HttpURLConnection) new java.net.URL(urlStr).openConnection();
+                conn.setRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
+
+                if (conn.getResponseCode() == 200) {
+                    byte[] bytes;
+                    try (java.io.InputStream in = conn.getInputStream();
+                         java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream()) {
+                        byte[] buf = new byte[4096];
+                        int n;
+                        while ((n = in.read(buf)) != -1) out.write(buf, 0, n);
+                        bytes = out.toByteArray();
+                    }
+                    Image img = new Image(new java.io.ByteArrayInputStream(bytes), 80, 80, true, true);
+                    Platform.runLater(() -> {
+                        if (!img.isError()) {
+                            userAvatarCircle.setFill(new javafx.scene.paint.ImagePattern(img));
+                            avatarInitialLabel.setVisible(false);
+                        } else {
+                            setAvatarInitial(username);
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> setAvatarInitial(username));
+                }
+            } catch (Exception e) {
+                System.err.println("Gagal memuat foto profil: " + e.getMessage());
+                Platform.runLater(() -> setAvatarInitial(username));
+            } finally {
+                if (conn != null) conn.disconnect();
+            }
+        }).start();
+    }
+
+    private void setAvatarInitial(String username) {
+        if (username != null && !username.isEmpty()) {
+            userAvatarCircle.setFill(Color.web("#C084FC"));
+            avatarInitialLabel.setText(username.substring(0, 1).toUpperCase());
+            avatarInitialLabel.setVisible(true);
+        }
+    }
+
+    @FXML
+    private void handleEditProfilePicture() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Pilih Foto Profil");
+        fileChooser.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("Gambar", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp")
+        );
+        File selectedFile = fileChooser.showOpenDialog(userAvatarCircle.getScene().getWindow());
+        if (selectedFile == null) return;
+
+        new Thread(() -> {
+            try {
+                byte[] imageBytes = Files.readAllBytes(selectedFile.toPath());
+                ApiClient.getInstance().uploadProfilePicture(imageBytes, selectedFile.getName());
+                Platform.runLater(() -> {
+                    loadUserProfile();
+                    if (onProfilePictureChanged != null) {
+                        onProfilePictureChanged.run();
+                    }
+                    showSuccess("Foto profil berhasil diperbarui");
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> showError("Gagal mengunggah foto: " + e.getMessage()));
+            }
+        }).start();
     }
 
     @FXML
@@ -194,7 +265,7 @@ public class ProfilePanelController {
                     cancelPersonalInfoEdit();
                     usernameLabel.setText(newUsername);
                     emailLabel.setText(newEmail);
-                    setAvatarInitial(newUsername);
+                    setAvatarImage(newUsername);
                     showSuccess("Profil berhasil diperbarui");
                 });
             } catch (Exception e) {
@@ -246,6 +317,10 @@ public class ProfilePanelController {
         }
         if (!newPassword.equals(confirmPassword)) {
             showPasswordError("Password baru dan konfirmasi tidak cocok");
+            return;
+        }
+        if (oldPassword.equals(newPassword)) {
+            showPasswordError("Password baru tidak boleh sama dengan password lama");
             return;
         }
 
@@ -308,19 +383,21 @@ public class ProfilePanelController {
             try {
                 ApiClient.getInstance().deleteAccount(pwd);
                 Platform.runLater(() -> {
+                    // Hentikan audio sebelum redirect
+                    com.plr.frontend.controller.MainLayoutController.shutdownAudio();
                     // Clear session before redirecting
                     com.plr.frontend.util.SessionManager.getInstance().clearSession();
+                    // Reset theme ke dark mode (default aplikasi)
+                    ThemeManager.getInstance().setLightMode(false);
 
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Akun Dihapus");
                     alert.setHeaderText(null);
                     alert.setContentText("Akun Anda berhasil dihapus. Anda akan diarahkan ke halaman login.");
-                    alert.showAndWait(); // Blocks until user clicks OK
+                    alert.showAndWait();
 
-                    // After alert is dismissed, redirect to login
-                    if (onLogoutCallback != null) {
-                        onLogoutCallback.run();
-                    }
+                    // Redirect to login
+                    com.plr.frontend.JavaFXApp.showScene("fxml/login.fxml", "TikiTikiPhonk - Login", 480, 580);
                 });
             } catch (Exception e) {
                 Platform.runLater(() -> showError("Gagal menghapus akun: " + e.getMessage()));
@@ -328,22 +405,8 @@ public class ProfilePanelController {
         }).start();
     }
 
-    private void setAvatarInitial(String username) {
-        try {
-            javafx.scene.image.Image img = new javafx.scene.image.Image(getClass().getResourceAsStream("/images/profil.png"));
-            userAvatarCircle.setFill(new javafx.scene.paint.ImagePattern(img));
-            if (avatarInitialLabel != null) {
-                avatarInitialLabel.setVisible(false);
-            }
-        } catch (Exception e) {
-            System.err.println("Gagal memuat profil.png: " + e.getMessage());
-            // Fallback
-            if (username != null && !username.isEmpty()) {
-                userAvatarCircle.setFill(Color.web("#C084FC"));
-                avatarInitialLabel.setText(username.substring(0, 1).toUpperCase());
-                avatarInitialLabel.setVisible(true);
-            }
-        }
+    public void setOnProfilePictureChanged(Runnable callback) {
+        this.onProfilePictureChanged = callback;
     }
 
     private String formatDate(LocalDateTime dateTime) {

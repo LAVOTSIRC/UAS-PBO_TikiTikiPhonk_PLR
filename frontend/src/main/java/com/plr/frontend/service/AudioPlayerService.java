@@ -47,6 +47,7 @@ public class AudioPlayerService {
     private LoopMode        loopMode        = LoopMode.NONE;
     private boolean         shuffle         = false;
     private Timeline        progressTimer;
+    private Long            currentlyPlayingPlaylistId = null;
 
     // ── Named Playlists ────────────────────────────────────────────────────
 
@@ -98,6 +99,10 @@ public class AudioPlayerService {
     /** Lanjut ke track berikutnya di playlist. Wrap-around ke awal jika sudah di akhir. */
     public void nextTrack() {
         if (playlist.isEmpty()) return;
+        if (loopMode == LoopMode.NONE && !shuffle && currentIndex >= playlist.size() - 1) {
+            stop();
+            return;
+        }
         int next;
         if (shuffle) {
             List<Integer> indices = java.util.stream.IntStream.range(0, playlist.size())
@@ -121,6 +126,57 @@ public class AudioPlayerService {
     /** Mengembalikan index track yang sedang diputar (-1 jika tidak ada). */
     public int getCurrentIndex() {
         return currentIndex;
+    }
+
+    /** Menghentikan pemutaran jika playlist dengan ID tertentu sedang diputar. */
+    public void stopIfCurrentlyPlaying(Long playlistId) {
+        if (currentlyPlayingPlaylistId != null && currentlyPlayingPlaylistId.equals(playlistId)) {
+            clearQueue();
+        }
+    }
+
+    /**
+     * Hapus track dari antrian pemutaran berdasarkan backendId.
+     * Jika track itu sedang diputar, hentikan pemutaran.
+     */
+    public void removeTrackFromQueue(Long trackBackendId) {
+        for (int i = 0; i < playlist.size(); i++) {
+            AudioTrack t = playlist.get(i);
+            if (t.getBackendId() != null && t.getBackendId().equals(trackBackendId)) {
+                if (i == currentIndex && isPlaying) {
+                    clearQueue();
+                } else {
+                    playlist.remove(i);
+                    if (i < currentIndex) {
+                        currentIndex--;
+                    }
+                }
+                return;
+            }
+        }
+    }
+
+    /** Bersihkan seluruh antrian dan hentikan pemutaran. */
+    public void clearQueue() {
+        stop();
+        playlist.clear();
+        currentIndex = -1;
+        currentlyPlayingPlaylistId = null;
+    }
+
+    /**
+     * Validasi state pemutaran saat ini.
+     * Panggil setelah playlist diubah dari luar (loadPlaylists, reorder, dll).
+     */
+    public void validateCurrentPlayback() {
+        if (playlist.isEmpty() || currentIndex < 0 || currentIndex >= playlist.size()) {
+            if (mediaPlayer != null) {
+                stop();
+            }
+            playlist.clear();
+            currentIndex = -1;
+            currentlyPlayingPlaylistId = null;
+        }
     }
 
     // ── Named Playlists ────────────────────────────────────────────────────
@@ -148,6 +204,7 @@ public class AudioPlayerService {
     /** Muat semua track dari playlist ke antrian dan putar track pertama. */
     public void playPlaylist(Playlist pl) {
         if (pl.getTracks().isEmpty()) return;
+        currentlyPlayingPlaylistId = pl.getBackendId();
         playlist.setAll(pl.getTracks());
         playTrackAt(0);
     }
@@ -155,6 +212,7 @@ public class AudioPlayerService {
     /** Muat semua track dan putar secara acak. */
     public void playPlaylistShuffled(Playlist pl) {
         if (pl.getTracks().isEmpty()) return;
+        currentlyPlayingPlaylistId = pl.getBackendId();
         playlist.setAll(pl.getTracks());
         java.util.List<Integer> indices = java.util.stream.IntStream.range(0, playlist.size())
             .boxed()
@@ -181,6 +239,7 @@ public class AudioPlayerService {
         activeNoiseType = type;
         isNoiseMode     = true;
         currentIndex    = -1;
+        currentlyPlayingPlaylistId = null;
 
         URL resourceUrl = getClass().getClassLoader().getResource(type.getResourcePath());
         if (resourceUrl == null) {
@@ -210,13 +269,21 @@ public class AudioPlayerService {
         return shuffle;
     }
 
-    /** Cycles: NONE → ALL → ONE → NONE */
+    /** Cycles: NONE → ONE → NONE */
     public void toggleLoopMode() {
         loopMode = switch (loopMode) {
-            case NONE -> LoopMode.ALL;
-            case ALL  -> LoopMode.ONE;
+            case NONE -> LoopMode.ONE;
             case ONE  -> LoopMode.NONE;
+            default  -> LoopMode.NONE;
         };
+        // Update MediaPlayer cycle count ketika mode berubah di tengah pemutaran
+        if (mediaPlayer != null) {
+            if (loopMode == LoopMode.ONE) {
+                mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+            } else {
+                mediaPlayer.setCycleCount(1);
+            }
+        }
         if (onModeChanged != null) onModeChanged.run();
     }
 
@@ -263,6 +330,7 @@ public class AudioPlayerService {
         isPlaying    = false;
         isNoiseMode  = false;
         activeNoiseType = null;
+        currentlyPlayingPlaylistId = null;
         notifyPlayState(false);
         notifyProgress(0, 0, 0);
         notifyTrackChanged("Tidak ada audio");
@@ -346,7 +414,7 @@ public class AudioPlayerService {
 
             // Saat track selesai (mode playlist), notifikasi controller
             mediaPlayer.setOnEndOfMedia(() -> Platform.runLater(() -> {
-                if (!loop) {
+                if (!loop && loopMode != LoopMode.ONE) {
                     isPlaying = false;
                     notifyPlayState(false);
                     if (onTrackEnded != null) onTrackEnded.run();

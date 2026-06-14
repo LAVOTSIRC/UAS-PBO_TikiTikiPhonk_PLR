@@ -31,9 +31,9 @@ public class StatServiceImpl implements IStatService {
     private UserRepository userRepository;
 
     @Override
-    public StatSummaryResponse getSummary(String username) {
-        User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User tidak ditemukan: " + username));
+    public StatSummaryResponse getSummary(Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User tidak ditemukan dengan ID: " + userId));
 
         List<PomodoroSession> allSessions = pomodoroRepository.findByUser(user);
 

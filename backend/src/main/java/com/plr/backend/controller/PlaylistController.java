@@ -2,6 +2,7 @@ package com.plr.backend.controller;
 
 import com.plr.backend.dto.PlaylistRequest;
 import com.plr.backend.dto.PlaylistResponse;
+import com.plr.backend.model.User;
 import com.plr.backend.service.IPlaylistService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ public class PlaylistController {
 
     @GetMapping
     public ResponseEntity<List<PlaylistResponse>> getAllPlaylists(Authentication authentication) {
-        List<PlaylistResponse> playlists = playlistService.getAllPlaylists(authentication.getName());
+        List<PlaylistResponse> playlists = playlistService.getAllPlaylists(getUserId(authentication));
         return ResponseEntity.ok(playlists);
     }
 
@@ -30,7 +31,7 @@ public class PlaylistController {
     public ResponseEntity<PlaylistResponse> createPlaylist(
             @Valid @RequestBody PlaylistRequest request,
             Authentication authentication) {
-        PlaylistResponse playlist = playlistService.createPlaylist(request, authentication.getName());
+        PlaylistResponse playlist = playlistService.createPlaylist(request, getUserId(authentication));
         return ResponseEntity.status(HttpStatus.CREATED).body(playlist);
     }
 
@@ -39,7 +40,7 @@ public class PlaylistController {
             @PathVariable Long id,
             Authentication authentication) {
         try {
-            PlaylistResponse playlist = playlistService.getPlaylistById(id, authentication.getName());
+            PlaylistResponse playlist = playlistService.getPlaylistById(id, getUserId(authentication));
             return ResponseEntity.ok(playlist);
         } catch (RuntimeException e) {
             String msg = e.getMessage();
@@ -56,7 +57,7 @@ public class PlaylistController {
             @Valid @RequestBody PlaylistRequest request,
             Authentication authentication) {
         try {
-            PlaylistResponse updated = playlistService.updatePlaylist(id, request, authentication.getName());
+            PlaylistResponse updated = playlistService.updatePlaylist(id, request, getUserId(authentication));
             return ResponseEntity.ok(updated);
         } catch (RuntimeException e) {
             String msg = e.getMessage();
@@ -72,7 +73,7 @@ public class PlaylistController {
             @PathVariable Long id,
             Authentication authentication) {
         try {
-            playlistService.deletePlaylist(id, authentication.getName());
+            playlistService.deletePlaylist(id, getUserId(authentication));
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
             String msg = e.getMessage();
@@ -81,5 +82,9 @@ public class PlaylistController {
             }
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    private Long getUserId(Authentication authentication) {
+        return ((User) authentication.getPrincipal()).getId();
     }
 }

@@ -5,10 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.plr.frontend.dto.TaskClientDto;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -403,6 +407,46 @@ public class ApiClient {
             Map<String, Object> err = objectMapper.readValue(response.body(),
                 new TypeReference<Map<String, Object>>() {});
             throw new Exception((String) err.getOrDefault("error", "Gagal menghapus akun"));
+        }
+    }
+
+    // ========== PROFILE PICTURE ENDPOINTS ==========
+
+    public Map<String, Object> uploadProfilePicture(byte[] imageBytes, String fileName) throws Exception {
+        String boundary = "----Boundary" + System.currentTimeMillis();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintWriter writer = new PrintWriter(new OutputStreamWriter(baos, StandardCharsets.UTF_8));
+
+        writer.append("--").append(boundary).append("\r\n");
+        writer.append("Content-Disposition: form-data; name=\"file\"; filename=\"").append(fileName).append("\"\r\n");
+        writer.append("Content-Type: image/png\r\n");
+        writer.append("\r\n");
+        writer.flush();
+        baos.write(imageBytes);
+        baos.flush();
+        writer.append("\r\n");
+        writer.append("--").append(boundary).append("--\r\n");
+        writer.flush();
+
+        byte[] body = baos.toByteArray();
+
+        HttpRequest.Builder rb = HttpRequest.newBuilder()
+            .uri(URI.create(BASE_URL + "/api/users/profile-picture"))
+            .header("Content-Type", "multipart/form-data; boundary=" + boundary);
+        rb = withAuth(rb);
+        HttpRequest request = rb.POST(HttpRequest.BodyPublishers.ofByteArray(body)).build();
+
+        HttpResponse<String> response = httpClient.send(request,
+            HttpResponse.BodyHandlers.ofString());
+
+        System.out.println("[ApiClient] uploadProfilePicture status=" + response.statusCode() + " body='" + response.body() + "'");
+
+        if (response.statusCode() == 200) {
+            return objectMapper.readValue(response.body(),
+                new TypeReference<Map<String, Object>>() {});
+        } else {
+            throw new Exception("Gagal mengunggah foto profil: " + response.body());
         }
     }
 

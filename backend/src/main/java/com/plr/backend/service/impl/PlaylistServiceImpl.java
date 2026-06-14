@@ -26,8 +26,8 @@ public class PlaylistServiceImpl implements IPlaylistService {
     private UserRepository userRepository;
 
     @Override
-    public PlaylistResponse createPlaylist(PlaylistRequest request, String username) {
-        User user = findUser(username);
+    public PlaylistResponse createPlaylist(PlaylistRequest request, Long userId) {
+        User user = findUser(userId);
         Playlist playlist = new Playlist();
         playlist.setName(request.getName());
         playlist.setDescription(request.getDescription());
@@ -38,8 +38,8 @@ public class PlaylistServiceImpl implements IPlaylistService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PlaylistResponse> getAllPlaylists(String username) {
-        User user = findUser(username);
+    public List<PlaylistResponse> getAllPlaylists(Long userId) {
+        User user = findUser(userId);
         return playlistRepository.findByUser(user)
             .stream()
             .map(this::toResponse)
@@ -48,14 +48,14 @@ public class PlaylistServiceImpl implements IPlaylistService {
 
     @Override
     @Transactional(readOnly = true)
-    public PlaylistResponse getPlaylistById(Long id, String username) {
-        Playlist playlist = findPlaylist(id, username);
+    public PlaylistResponse getPlaylistById(Long id, Long userId) {
+        Playlist playlist = findPlaylist(id, userId);
         return toResponse(playlist);
     }
 
     @Override
-    public PlaylistResponse updatePlaylist(Long id, PlaylistRequest request, String username) {
-        Playlist playlist = findPlaylist(id, username);
+    public PlaylistResponse updatePlaylist(Long id, PlaylistRequest request, Long userId) {
+        Playlist playlist = findPlaylist(id, userId);
         playlist.setName(request.getName());
         playlist.setDescription(request.getDescription());
         Playlist updated = playlistRepository.save(playlist);
@@ -63,20 +63,20 @@ public class PlaylistServiceImpl implements IPlaylistService {
     }
 
     @Override
-    public void deletePlaylist(Long id, String username) {
-        Playlist playlist = findPlaylist(id, username);
+    public void deletePlaylist(Long id, Long userId) {
+        Playlist playlist = findPlaylist(id, userId);
         playlistRepository.delete(playlist);
     }
 
-    private Playlist findPlaylist(Long id, String username) {
-        User user = findUser(username);
+    private Playlist findPlaylist(Long id, Long userId) {
+        User user = findUser(userId);
         return playlistRepository.findByIdAndUser(id, user)
             .orElseThrow(() -> new RuntimeException("Playlist tidak ditemukan dengan ID: " + id));
     }
 
-    private User findUser(String username) {
-        return userRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User tidak ditemukan: " + username));
+    private User findUser(Long userId) {
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User tidak ditemukan dengan ID: " + userId));
     }
 
     private PlaylistResponse toResponse(Playlist playlist) {
