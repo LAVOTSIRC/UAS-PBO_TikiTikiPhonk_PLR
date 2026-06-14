@@ -35,8 +35,8 @@ public class PomodoroServiceImpl implements IPomodoroService {
     private TaskRepository taskRepository;
 
     @Override
-    public PomodoroResponse logSession(PomodoroRequest request, String username) {
-        User user = findUser(username);
+    public PomodoroResponse logSession(PomodoroRequest request, Long userId) {
+        User user = findUser(userId);
         PomodoroSession session = new PomodoroSession();
         session.setDurationMinutes(request.getDurationMinutes());
         session.setSessionType(request.getSessionType());
@@ -63,8 +63,8 @@ public class PomodoroServiceImpl implements IPomodoroService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PomodoroResponse> getAllSessions(String username) {
-        User user = findUser(username);
+    public List<PomodoroResponse> getAllSessions(Long userId) {
+        User user = findUser(userId);
         return pomodoroRepository.findByUserOrderByStartTimeAsc(user)
             .stream()
             .map(this::toResponse)
@@ -73,8 +73,8 @@ public class PomodoroServiceImpl implements IPomodoroService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PomodoroResponse> getSessionsByTask(Long taskId, String username) {
-        User user = findUser(username);
+    public List<PomodoroResponse> getSessionsByTask(Long taskId, Long userId) {
+        User user = findUser(userId);
         return pomodoroRepository.findByTaskIdAndUserOrderByStartTimeAsc(taskId, user)
             .stream()
             .map(this::toResponse)
@@ -82,8 +82,8 @@ public class PomodoroServiceImpl implements IPomodoroService {
     }
 
     @Override
-    public void deleteSession(Long id, String username) {
-        User user = findUser(username);
+    public void deleteSession(Long id, Long userId) {
+        User user = findUser(userId);
         PomodoroSession session = pomodoroRepository.findByIdAndUser(id, user)
             .orElseThrow(() -> new RuntimeException("Sesi Pomodoro tidak ditemukan dengan ID: " + id));
         pomodoroRepository.delete(session);
@@ -101,9 +101,9 @@ public class PomodoroServiceImpl implements IPomodoroService {
         }
     }
 
-    private User findUser(String username) {
-        return userRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User tidak ditemukan: " + username));
+    private User findUser(Long userId) {
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User tidak ditemukan dengan ID: " + userId));
     }
 
     private PomodoroResponse toResponse(PomodoroSession session) {

@@ -2,6 +2,7 @@ package com.plr.backend.controller;
 
 import com.plr.backend.dto.SongRequest;
 import com.plr.backend.dto.SongResponse;
+import com.plr.backend.model.User;
 import com.plr.backend.service.ISongService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -29,7 +30,7 @@ public class SongController {
     public ResponseEntity<List<SongResponse>> getSongsByPlaylist(
             @PathVariable Long playlistId,
             Authentication authentication) {
-        List<SongResponse> songs = songService.getSongsByPlaylist(playlistId, authentication.getName());
+        List<SongResponse> songs = songService.getSongsByPlaylist(playlistId, getUserId(authentication));
         return ResponseEntity.ok(songs);
     }
 
@@ -38,7 +39,7 @@ public class SongController {
             @PathVariable Long playlistId,
             @Valid @RequestBody SongRequest request,
             Authentication authentication) {
-        SongResponse song = songService.addSong(playlistId, request, authentication.getName());
+        SongResponse song = songService.addSong(playlistId, request, getUserId(authentication));
         return ResponseEntity.status(HttpStatus.CREATED).body(song);
     }
 
@@ -48,7 +49,7 @@ public class SongController {
             @PathVariable Long songId,
             Authentication authentication) {
         try {
-            SongResponse song = songService.getSongById(playlistId, songId, authentication.getName());
+            SongResponse song = songService.getSongById(playlistId, songId, getUserId(authentication));
             return ResponseEntity.ok(song);
         } catch (RuntimeException e) {
             String msg = e.getMessage();
@@ -66,7 +67,7 @@ public class SongController {
             @Valid @RequestBody SongRequest request,
             Authentication authentication) {
         try {
-            SongResponse updated = songService.updateSong(playlistId, songId, request, authentication.getName());
+            SongResponse updated = songService.updateSong(playlistId, songId, request, getUserId(authentication));
             return ResponseEntity.ok(updated);
         } catch (RuntimeException e) {
             String msg = e.getMessage();
@@ -82,10 +83,10 @@ public class SongController {
             @PathVariable Long playlistId,
             @PathVariable Long songId,
             Authentication authentication) {
-        log.info("DELETE song request: playlistId={}, songId={}, user={}",
-            playlistId, songId, authentication.getName());
+        log.info("DELETE song request: playlistId={}, songId={}",
+            playlistId, songId);
         try {
-            songService.deleteSong(playlistId, songId, authentication.getName());
+            songService.deleteSong(playlistId, songId, getUserId(authentication));
             log.info("Song deleted successfully: songId={}, playlistId={}", songId, playlistId);
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
@@ -104,10 +105,14 @@ public class SongController {
             @RequestBody Map<String, List<Long>> body,
             Authentication authentication) {
         try {
-            songService.reorderSongs(playlistId, body.get("songIds"), authentication.getName());
+            songService.reorderSongs(playlistId, body.get("songIds"), getUserId(authentication));
             return ResponseEntity.ok().build();
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    private Long getUserId(Authentication authentication) {
+        return ((User) authentication.getPrincipal()).getId();
     }
 }

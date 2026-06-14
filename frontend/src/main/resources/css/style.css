@@ -195,10 +195,8 @@
 }
 
 .sidebar-avatar {
-    -fx-background-color: #C084FC;
-    -fx-text-fill: #0E0C10;
-    -fx-font-weight: bold;
-    -fx-font-size: 14px;
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
     -fx-background-radius: 50%;
     -fx-border-radius: 50%;
     -fx-pref-width: 34;
@@ -206,6 +204,19 @@
     -fx-min-width: 34;
     -fx-min-height: 34;
     -fx-alignment: center;
+}
+
+.sidebar-avatar-initial {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-min-width: 28;
+    -fx-min-height: 28;
+    -fx-alignment: center;
+    -fx-pref-width: 28;
+    -fx-pref-height: 28;
 }
 
 /* Sidebar nav buttons — disederhanakan karena ikon ada di graphic Label, bukan button text */
@@ -262,9 +273,9 @@
 
 .todo-panel {
     -fx-background-color: #0C0A10;
-    -fx-pref-width: 240;
-    -fx-min-width: 240;
-    -fx-max-width: 240;
+    -fx-pref-width: 300;
+    -fx-min-width: 300;
+    -fx-max-width: 300;
     -fx-padding: 16 14 16 14;
     -fx-spacing: 10;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 6, 0, 2, 0);
@@ -355,6 +366,13 @@
 .task-list-view .list-cell:empty {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
+}
+
+/* Pembatas Section Selesai */
+.todo-section-divider {
+    -fx-border-color: #2D2936 transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 12 0 0 0;
 }
 
 /* Sesi Hari Ini (Session History) */
@@ -681,6 +699,7 @@
     -fx-border-color: #2D2936;
     -fx-border-radius: 12;
     -fx-background-radius: 12;
+    -fx-background-insets: 0;
     -fx-text-fill: #F0EAFF;
     -fx-cursor: hand;
     -fx-alignment: center;
@@ -1549,7 +1568,7 @@
 .detail-btn {
     -fx-opacity: 0;
 }
-.todo-cell:hover .detail-btn {
+.todo-cell:hover .detail-btn, .list-cell:selected .detail-btn {
     -fx-opacity: 1;
 }
 
@@ -1690,8 +1709,7 @@
 }
 
 .light-mode .sidebar-avatar {
-    -fx-background-color: #7C3AED;
-    -fx-text-fill: #FFFFFF;
+    -fx-background-color: transparent;
 }
 
 .light-mode .sidebar-nav-btn {
@@ -1763,6 +1781,10 @@
 .light-mode .task-list-view .list-cell:selected {
     -fx-background-color: #D6CDE4;
     -fx-border-color: #B8A8D0;
+}
+
+.light-mode .todo-section-divider {
+    -fx-border-color: #C8BED8 transparent transparent transparent;
 }
 
 .light-mode .session-history {
@@ -1976,11 +1998,13 @@
 .light-mode .noise-btn {
     -fx-background-color: #F8F6FA;
     -fx-border-color: #C8BED8;
+    -fx-effect: none;
 }
 
 .light-mode .noise-btn:hover {
     -fx-background-color: #F0ECF5;
     -fx-border-color: #7C3AED;
+    -fx-effect: none;
 }
 
 .light-mode .noise-btn:pressed {
@@ -2697,4 +2721,36 @@
 
 .light-mode .stats-pie-chart .chart-pie-label {
     -fx-text-fill: #6B5E7E;
+}
+
+/* ============================================================
+   PROFILE PANEL — Avatar Edit Overlay
+   ============================================================ */
+
+.profile-avatar-edit-overlay {
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-background-radius: 0 0 40 40;
+    -fx-pref-width: 80;
+    -fx-pref-height: 30;
+    -fx-min-width: 80;
+    -fx-min-height: 30;
+    -fx-max-width: 80;
+    -fx-max-height: 30;
+    -fx-cursor: hand;
+    -fx-alignment: center;
+}
+
+.profile-avatar-edit-icon {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.light-mode .profile-avatar-edit-overlay {
+    -fx-background-color: rgba(80, 60, 120, 0.5);
+}
+
+.light-mode .profile-avatar-edit-icon {
+    -fx-text-fill: white;
 }

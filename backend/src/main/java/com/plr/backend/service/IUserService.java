@@ -6,9 +6,12 @@ import com.plr.backend.model.User;
 public interface IUserService {
     User register(RegisterRequest request);
     User findByUsername(String username);
+    User findById(Long id);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
-    void updateProfile(String currentUsername, String newUsername, String newEmail);
-    void changePassword(String username, String oldPassword, String newPassword);
-    void deleteAccount(String username, String password);
+    void updateProfile(Long userId, String newUsername, String newEmail);
+    void changePassword(Long userId, String oldPassword, String newPassword);
+    void deleteAccount(Long userId, String password);
+    String saveProfilePicture(Long userId, byte[] imageBytes, String originalFileName);
+    String getProfilePicturePath(Long userId);
 }

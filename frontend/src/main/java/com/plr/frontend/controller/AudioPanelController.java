@@ -186,6 +186,7 @@ public class AudioPanelController {
                             MenuItem hapus = new MenuItem("Hapus Playlist");
                             hapus.setOnAction(e -> {
                                 if (plId == null) return;
+                                audioService.stopIfCurrentlyPlaying(plId);
                                 Task<Void> dt = new Task<>() {
                                     @Override
                                     protected Void call() throws Exception {
@@ -336,6 +337,7 @@ public class AudioPanelController {
             if (track == null || track.getBackendId() == null || viewingPlaylist == null) return;
             Long plId = viewingPlaylist.getBackendId();
             Long trackId = track.getBackendId();
+            audioService.removeTrackFromQueue(trackId);
             Task<Void> delTask = new Task<>() {
                 @Override
                 protected Void call() throws Exception {
@@ -377,6 +379,9 @@ public class AudioPanelController {
                 return null;
             }
         };
+        reorderTask.setOnSucceeded(ev -> Platform.runLater(() -> {
+            audioService.validateCurrentPlayback();
+        }));
         new Thread(reorderTask).start();
     }
 
@@ -476,6 +481,11 @@ public class AudioPanelController {
         loadPlaylists(null);
     }
 
+    /** Dipanggil dari luar untuk memuat ulang daftar playlist (misal setelah login). */
+    public void refreshPlaylists() {
+        loadPlaylists();
+    }
+
     private void loadPlaylists(Runnable onComplete) {
         Task<List<Map<String, Object>>> fetchTask = new Task<>() {
             @Override
@@ -522,6 +532,7 @@ public class AudioPanelController {
             }
 
             Platform.runLater(() -> {
+                audioService.validateCurrentPlayback();
                 if (onComplete == null) {
                     showPlaylistList();
                 }
@@ -681,7 +692,7 @@ public class AudioPanelController {
                     return;
                 }
                 Long plId = viewingPlaylist.getBackendId();
-                System.out.println("Menghapus lagu: playlistId=" + plId + ", trackId=" + trackId);
+                audioService.removeTrackFromQueue(trackId);
                 Task<Void> dt = new Task<>() {
                     @Override
                     protected Void call() throws Exception {
@@ -774,19 +785,13 @@ public class AudioPanelController {
 
     private void updateModeButtons() {
         switch (audioService.getLoopMode()) {
-            case NONE -> {
+            case ONE -> {
+                loopBtn.setText("LP");
+                loopBtn.getStyleClass().add("active");
+            }
+            default -> {
                 loopBtn.setText("LP");
                 loopBtn.getStyleClass().remove("active");
-            }
-            case ALL -> {
-                loopBtn.setText("LP");
-                if (!loopBtn.getStyleClass().contains("active"))
-                    loopBtn.getStyleClass().add("active");
-            }
-            case ONE -> {
-                loopBtn.setText("L1");
-                if (!loopBtn.getStyleClass().contains("active"))
-                    loopBtn.getStyleClass().add("active");
             }
         }
         if (audioService.isShuffle()) {

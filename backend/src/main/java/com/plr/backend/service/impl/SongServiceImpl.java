@@ -34,8 +34,8 @@ public class SongServiceImpl implements ISongService {
     private UserRepository userRepository;
 
     @Override
-    public SongResponse addSong(Long playlistId, SongRequest request, String username) {
-        Playlist playlist = findPlaylist(playlistId, username);
+    public SongResponse addSong(Long playlistId, SongRequest request, Long userId) {
+        Playlist playlist = findPlaylist(playlistId, userId);
         int nextOrder = songRepository.findByPlaylistId(playlistId).size();
         Song song = new Song();
         song.setTitle(request.getTitle());
@@ -50,8 +50,8 @@ public class SongServiceImpl implements ISongService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<SongResponse> getSongsByPlaylist(Long playlistId, String username) {
-        findPlaylist(playlistId, username);
+    public List<SongResponse> getSongsByPlaylist(Long playlistId, Long userId) {
+        findPlaylist(playlistId, userId);
         return songRepository.findByPlaylistId(playlistId)
             .stream()
             .map(this::toResponse)
@@ -60,14 +60,14 @@ public class SongServiceImpl implements ISongService {
 
     @Override
     @Transactional(readOnly = true)
-    public SongResponse getSongById(Long playlistId, Long songId, String username) {
-        Song song = findSong(playlistId, songId, username);
+    public SongResponse getSongById(Long playlistId, Long songId, Long userId) {
+        Song song = findSong(playlistId, songId, userId);
         return toResponse(song);
     }
 
     @Override
-    public SongResponse updateSong(Long playlistId, Long songId, SongRequest request, String username) {
-        Song song = findSong(playlistId, songId, username);
+    public SongResponse updateSong(Long playlistId, Long songId, SongRequest request, Long userId) {
+        Song song = findSong(playlistId, songId, userId);
         song.setTitle(request.getTitle());
         song.setFilePath(request.getFilePath());
         song.setDurationSeconds(request.getDurationSeconds());
@@ -77,15 +77,15 @@ public class SongServiceImpl implements ISongService {
     }
 
     @Override
-    public void deleteSong(Long playlistId, Long songId, String username) {
-        Song song = findSong(playlistId, songId, username);
+    public void deleteSong(Long playlistId, Long songId, Long userId) {
+        Song song = findSong(playlistId, songId, userId);
         songRepository.delete(song);
     }
 
     @Override
-    public void reorderSongs(Long playlistId, List<Long> songIds, String username) {
+    public void reorderSongs(Long playlistId, List<Long> songIds, Long userId) {
         // Verify playlist ownership
-        findPlaylist(playlistId, username);
+        findPlaylist(playlistId, userId);
         for (int i = 0; i < songIds.size(); i++) {
             Long sid = songIds.get(i);
             Song song = songRepository.findByIdAndPlaylistId(sid, playlistId)
@@ -95,24 +95,24 @@ public class SongServiceImpl implements ISongService {
         }
     }
 
-    private Song findSong(Long playlistId, Long songId, String username) {
+    private Song findSong(Long playlistId, Long songId, Long userId) {
         // First verify the playlist belongs to this user (security check)
-        findPlaylist(playlistId, username);
-        log.debug("findSong: songId={}, playlistId={}, username={}", songId, playlistId, username);
+        findPlaylist(playlistId, userId);
+        log.debug("findSong: songId={}, playlistId={}, userId={}", songId, playlistId, userId);
         // Then find the song by id+playlistId (simpler query, ownership already verified via playlist)
         return songRepository.findByIdAndPlaylistId(songId, playlistId)
             .orElseThrow(() -> new RuntimeException("Lagu tidak ditemukan dengan ID: " + songId + " di playlist: " + playlistId));
     }
 
-    private Playlist findPlaylist(Long playlistId, String username) {
-        User user = findUser(username);
+    private Playlist findPlaylist(Long playlistId, Long userId) {
+        User user = findUser(userId);
         return playlistRepository.findByIdAndUser(playlistId, user)
             .orElseThrow(() -> new RuntimeException("Playlist tidak ditemukan dengan ID: " + playlistId));
     }
 
-    private User findUser(String username) {
-        return userRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User tidak ditemukan: " + username));
+    private User findUser(Long userId) {
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User tidak ditemukan dengan ID: " + userId));
     }
 
     private SongResponse toResponse(Song song) {

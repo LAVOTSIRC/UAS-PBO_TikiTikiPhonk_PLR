@@ -5,7 +5,9 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
 
 <!--
     Sidebar.fxml — Panel Navigasi Kiri (56px)
@@ -20,14 +22,16 @@
       prefWidth="56" minWidth="56" maxWidth="56"
       fillWidth="true">
 
-    <!-- User Avatar (initial) -->
-    <Label fx:id="usernameInitialLabel"
-           text="U"
-           styleClass="sidebar-avatar"
-            alignment="CENTER"
-            onMouseClicked="#handleProfileNav">
+    <!-- User Avatar (Image) -->
+    <Label onMouseClicked="#handleProfileNav" styleClass="sidebar-avatar">
         <VBox.margin><Insets top="8" bottom="16"/></VBox.margin>
         <tooltip><Tooltip text="Profil kamu"/></tooltip>
+        <graphic>
+            <StackPane>
+                <Circle fx:id="userAvatarCircle" radius="17" fill="#C084FC" />
+                <Label fx:id="avatarInitialLabel" text="" styleClass="sidebar-avatar-initial" visible="false" />
+            </StackPane>
+        </graphic>
     </Label>
 
     <!-- Nav: Tasks -->

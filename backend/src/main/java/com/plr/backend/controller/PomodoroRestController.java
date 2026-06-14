@@ -2,6 +2,7 @@ package com.plr.backend.controller;
 
 import com.plr.backend.dto.PomodoroRequest;
 import com.plr.backend.dto.PomodoroResponse;
+import com.plr.backend.model.User;
 import com.plr.backend.service.IPomodoroService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ public class PomodoroRestController {
 
     @GetMapping("/sessions")
     public ResponseEntity<List<PomodoroResponse>> getAllSessions(Authentication authentication) {
-        List<PomodoroResponse> sessions = pomodoroService.getAllSessions(authentication.getName());
+        List<PomodoroResponse> sessions = pomodoroService.getAllSessions(getUserId(authentication));
         return ResponseEntity.ok(sessions);
     }
 
@@ -30,7 +31,7 @@ public class PomodoroRestController {
     public ResponseEntity<List<PomodoroResponse>> getSessionsByTask(
             @PathVariable Long taskId,
             Authentication authentication) {
-        List<PomodoroResponse> sessions = pomodoroService.getSessionsByTask(taskId, authentication.getName());
+        List<PomodoroResponse> sessions = pomodoroService.getSessionsByTask(taskId, getUserId(authentication));
         return ResponseEntity.ok(sessions);
     }
 
@@ -38,7 +39,7 @@ public class PomodoroRestController {
     public ResponseEntity<PomodoroResponse> logSession(
             @Valid @RequestBody PomodoroRequest request,
             Authentication authentication) {
-        PomodoroResponse session = pomodoroService.logSession(request, authentication.getName());
+        PomodoroResponse session = pomodoroService.logSession(request, getUserId(authentication));
         return ResponseEntity.status(HttpStatus.CREATED).body(session);
     }
 
@@ -47,10 +48,14 @@ public class PomodoroRestController {
             @PathVariable Long id,
             Authentication authentication) {
         try {
-            pomodoroService.deleteSession(id, authentication.getName());
+            pomodoroService.deleteSession(id, getUserId(authentication));
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    private Long getUserId(Authentication authentication) {
+        return ((User) authentication.getPrincipal()).getId();
     }
 }

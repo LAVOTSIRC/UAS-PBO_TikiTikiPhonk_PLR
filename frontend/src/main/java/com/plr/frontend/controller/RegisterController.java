@@ -66,6 +66,8 @@ public class RegisterController {
             // BUG-04 FIX: Eksplisit Platform.runLater() untuk semua UI update pasca async
             Platform.runLater(() -> {
                 setLoading(false);
+                // Reset tema ke dark mode setiap kali user baru masuk (default aplikasi)
+                com.plr.frontend.util.ThemeManager.getInstance().setLightMode(false);
                 JavaFXApp.showScene("fxml/MainLayout.fxml", "TikiTikiPhonk - " + uname, 1100, 700);
             });
         });

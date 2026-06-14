@@ -80,10 +80,10 @@ public class StatsController {
 
         Platform.runLater(() -> {
             if (doneSlice.getNode() != null) {
-                doneSlice.getNode().setStyle("-fx-pie-color: #C084FC;");
+                doneSlice.getNode().setStyle("-fx-pie-color: #E74C3C;");
             }
             if (activeSlice.getNode() != null) {
-                activeSlice.getNode().setStyle("-fx-pie-color: #3B2E4A;");
+                activeSlice.getNode().setStyle("-fx-pie-color: #F39C12;");
             }
         });
     }

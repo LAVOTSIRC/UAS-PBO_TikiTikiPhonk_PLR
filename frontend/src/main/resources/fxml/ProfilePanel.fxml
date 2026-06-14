@@ -17,17 +17,24 @@
       fx:controller="com.plr.frontend.controller.ProfilePanelController"
       styleClass="profile-panel"
       fillWidth="true"
-      spacing="0">
+      spacing="0">    <!-- ========== SCROLLABLE SETTINGS ========== -->
+    <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true" hbarPolicy="NEVER"
+                styleClass="profile-scroll">
+        <VBox styleClass="profile-scroll-content" spacing="20">
+            <VBox.margin><Insets top="24" right="28" bottom="28" left="28"/></VBox.margin>
+
+            
+
 
     <!-- ========== HEADER CARD ========== -->
-    <VBox styleClass="profile-header-card" spacing="0">
-        <VBox.margin><Insets top="24" right="28" bottom="0" left="28"/></VBox.margin>
+    <VBox styleClass="profile-card">
+        <Label text="PROFIL UTAMA" styleClass="profile-card-title"/>
 
         <!-- User Avatar & Basic Info -->
         <HBox alignment="CENTER_LEFT" spacing="20">
 
-            <!-- Avatar Stack: Circle + Initial Letter -->
-            <StackPane prefWidth="80" prefHeight="80">
+            <!-- Avatar Stack: Circle + Initial Letter + Edit Overlay -->
+            <StackPane prefWidth="80" prefHeight="80" onMouseClicked="#handleEditProfilePicture">
                 <Circle fx:id="userAvatarCircle"
                         radius="40"
                         styleClass="profile-avatar-bg"
@@ -35,6 +42,9 @@
                 <Label fx:id="avatarInitialLabel"
                        text="U"
                        styleClass="profile-avatar-initial"/>
+                <StackPane styleClass="profile-avatar-edit-overlay" StackPane.alignment="BOTTOM_CENTER">
+                    <Label text="✎" styleClass="profile-avatar-edit-icon"/>
+                </StackPane>
             </StackPane>
 
             <!-- User Info -->
@@ -49,18 +59,10 @@
                        text="Bergabung 14 Juni 2026"
                        styleClass="profile-joined-date"/>
             </VBox>
-
-            <!-- Edit Profile Button -->
-            <Button fx:id="editProfileBtn"
-                    text="Edit Profil"
-                    styleClass="button, button-primary"
-                    onAction="#handleEditProfile"
-                    prefWidth="120"/>
         </HBox>
 
         <!-- Quick Stats Row under header -->
         <HBox styleClass="profile-quick-stats" spacing="12">
-            <VBox.margin><Insets top="20" bottom="0"/></VBox.margin>
 
             <VBox styleClass="quick-stat-item" HBox.hgrow="ALWAYS">
                 <Label fx:id="totalSessionsLabel" text="0" styleClass="quick-stat-value"/>
@@ -89,14 +91,7 @@
             </VBox>
         </HBox>
     </VBox>
-
-    <!-- ========== SCROLLABLE SETTINGS ========== -->
-    <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true" hbarPolicy="NEVER"
-                styleClass="profile-scroll">
-        <VBox styleClass="profile-scroll-content" spacing="20">
-            <VBox.margin><Insets top="24" right="28" bottom="28" left="28"/></VBox.margin>
-
-            <!-- ========== PERSONAL INFO CARD ========== -->
+<!-- ========== PERSONAL INFO CARD ========== -->
             <VBox styleClass="profile-card">
                 <Label text="INFORMASI PRIBADI" styleClass="profile-card-title"/>
 
@@ -188,23 +183,9 @@
                 </VBox>
             </VBox>
 
-            <!-- ========== PREFERENSI CARD ========== -->
-            <VBox styleClass="profile-card">
-                <Label text="PREFERENSI" styleClass="profile-card-title"/>
-
-                <VBox spacing="6" styleClass="profile-field">
-                    <Label text="Notifikasi Default Audio" styleClass="profile-field-label"/>
-                    <Label text="Ambient noise akan otomatis diputar saat sesi fokus dimulai (dapat diubah kapan saja)."
-                           styleClass="profile-field-desc" wrapText="true"/>
-                </VBox>
-
-                <Button text="Informasi Lebih Lanjut"
-                        styleClass="link-button"/>
-            </VBox>
-
-            <!-- ========== DANGER ZONE CARD ========== -->
+            <!-- ========== HAPUS AKUN CARD ========== -->
             <VBox styleClass="profile-danger-zone">
-                <Label text="ZONA BAHAYA" styleClass="profile-card-title-danger"/>
+                <Label text="HAPUS AKUN" styleClass="profile-card-title-danger"/>
 
                 <Label text="Menghapus akun akan menghilangkan semua data Anda secara permanen. Tindakan ini tidak dapat dibatalkan."
                        styleClass="profile-field-desc" wrapText="true"/>

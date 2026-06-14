@@ -86,4 +86,4 @@ Setelah proses instalasi dan *dependencies* beres, aplikasi bisa dinyalakan meng
 ## 🎥 Video Presentasi
 
 Penjelasan lebih lanjut mengenai alur kerja dan demonstrasi aplikasi TikiTikiPhonk dapat dilihat pada video YouTube berikut:
-https://youtu.be/UQ32RS8JYck?si=68GmkwXsXU1VDUCU
+https://youtu.be/gzqxVwapaZ4

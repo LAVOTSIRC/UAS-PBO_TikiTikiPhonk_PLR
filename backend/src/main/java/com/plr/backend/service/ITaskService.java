@@ -6,9 +6,9 @@ import com.plr.backend.dto.TaskResponse;
 import java.util.List;
 
 public interface ITaskService {
-    TaskResponse createTask(TaskRequest request, String username);
-    List<TaskResponse> getAllTasks(String username);
-    TaskResponse updateTask(Long id, TaskRequest request, String username);
-    void deleteTask(Long id, String username);
-    TaskResponse getTaskById(Long id, String username);
+    TaskResponse createTask(TaskRequest request, Long userId);
+    List<TaskResponse> getAllTasks(Long userId);
+    TaskResponse updateTask(Long id, TaskRequest request, Long userId);
+    void deleteTask(Long id, Long userId);
+    TaskResponse getTaskById(Long id, Long userId);
 }

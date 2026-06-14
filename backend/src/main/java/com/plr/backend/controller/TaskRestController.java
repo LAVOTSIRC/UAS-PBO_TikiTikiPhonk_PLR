@@ -2,6 +2,7 @@ package com.plr.backend.controller;
 
 import com.plr.backend.dto.TaskRequest;
 import com.plr.backend.dto.TaskResponse;
+import com.plr.backend.model.User;
 import com.plr.backend.service.ITaskService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ public class TaskRestController {
 
     @GetMapping
     public ResponseEntity<List<TaskResponse>> getAllTasks(Authentication authentication) {
-        List<TaskResponse> tasks = taskService.getAllTasks(authentication.getName());
+        List<TaskResponse> tasks = taskService.getAllTasks(getUserId(authentication));
         return ResponseEntity.ok(tasks);
     }
 
@@ -30,7 +31,7 @@ public class TaskRestController {
     public ResponseEntity<TaskResponse> createTask(
             @Valid @RequestBody TaskRequest request,
             Authentication authentication) {
-        TaskResponse task = taskService.createTask(request, authentication.getName());
+        TaskResponse task = taskService.createTask(request, getUserId(authentication));
         return ResponseEntity.status(HttpStatus.CREATED).body(task);
     }
 
@@ -40,7 +41,7 @@ public class TaskRestController {
             @Valid @RequestBody TaskRequest request,
             Authentication authentication) {
         try {
-            TaskResponse updated = taskService.updateTask(id, request, authentication.getName());
+            TaskResponse updated = taskService.updateTask(id, request, getUserId(authentication));
             return ResponseEntity.ok(updated);
         } catch (RuntimeException e) {
             // BUG-05 FIX: Bedakan 404 (task not found) dari 500 (error lain)
@@ -57,7 +58,7 @@ public class TaskRestController {
             @PathVariable Long id,
             Authentication authentication) {
         try {
-            taskService.deleteTask(id, authentication.getName());
+            taskService.deleteTask(id, getUserId(authentication));
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
             // BUG-05 FIX: Bedakan 404 (task not found) dari 500 (error lain)
@@ -74,7 +75,7 @@ public class TaskRestController {
             @PathVariable Long id,
             Authentication authentication) {
         try {
-            TaskResponse task = taskService.getTaskById(id, authentication.getName());
+            TaskResponse task = taskService.getTaskById(id, getUserId(authentication));
             return ResponseEntity.ok(task);
         } catch (RuntimeException e) {
             // BUG-05 FIX: Bedakan 404 (task not found) dari 500 (error lain)
@@ -84,5 +85,9 @@ public class TaskRestController {
             }
             return ResponseEntity.internalServerError().body(msg);
         }
+    }
+
+    private Long getUserId(Authentication authentication) {
+        return ((User) authentication.getPrincipal()).getId();
     }
 }

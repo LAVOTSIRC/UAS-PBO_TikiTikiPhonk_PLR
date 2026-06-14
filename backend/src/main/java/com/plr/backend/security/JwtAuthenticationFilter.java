@@ -1,5 +1,7 @@
 package com.plr.backend.security;
 
+import com.plr.backend.model.User;
+import com.plr.backend.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -28,7 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private JwtTokenProvider tokenProvider;
 
     @Autowired
-    private CustomUserDetailsService customUserDetailsService;
+    private UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -41,19 +42,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (StringUtils.hasText(jwt)) {
                 if (tokenProvider.validateToken(jwt)) {
-                    String username = tokenProvider.getUsernameFromToken(jwt);
-                    logger.debug("[JWT] Token valid for user: {}", username);
+                    Long userId = tokenProvider.getUserIdFromToken(jwt);
+                    User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new RuntimeException("User tidak ditemukan dengan ID: " + userId));
+                    logger.debug("[JWT] Token valid for user: {} (ID: {})", user.getUsername(), userId);
 
-                    UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
                     UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities()
+                            user, null, user.getAuthorities()
                         );
                     authentication.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request)
                     );
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                    logger.debug("[JWT] Authentication set for user: {}", username);
+                    logger.debug("[JWT] Authentication set for user: {} (ID: {})", user.getUsername(), userId);
                 } else {
                     logger.warn("[JWT] Token validation failed for URI: {}", request.getRequestURI());
                 }
