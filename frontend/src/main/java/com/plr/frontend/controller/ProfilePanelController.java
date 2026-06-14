@@ -58,6 +58,21 @@ public class ProfilePanelController {
 
     @FXML
     public void initialize() {
+        editUsernameField.managedProperty().bind(editUsernameField.visibleProperty());
+        usernameDisplayLabel.managedProperty().bind(usernameDisplayLabel.visibleProperty());
+        editEmailField.managedProperty().bind(editEmailField.visibleProperty());
+        emailDisplayLabel.managedProperty().bind(emailDisplayLabel.visibleProperty());
+        
+        editPersonalInfoBtn.managedProperty().bind(editPersonalInfoBtn.visibleProperty());
+        savePersonalInfoBtn.managedProperty().bind(savePersonalInfoBtn.visibleProperty());
+        cancelPersonalInfoBtn.managedProperty().bind(cancelPersonalInfoBtn.visibleProperty());
+        
+        passwordInputsBox.managedProperty().bind(passwordInputsBox.visibleProperty());
+        changePasswordBtn.managedProperty().bind(changePasswordBtn.visibleProperty());
+        savePasswordBtn.managedProperty().bind(savePasswordBtn.visibleProperty());
+        cancelPasswordBtn.managedProperty().bind(cancelPasswordBtn.visibleProperty());
+        passwordErrorLabel.managedProperty().bind(passwordErrorLabel.visibleProperty());
+
         loadUserProfile();
         loadUserStatistics();
         setupListeners();

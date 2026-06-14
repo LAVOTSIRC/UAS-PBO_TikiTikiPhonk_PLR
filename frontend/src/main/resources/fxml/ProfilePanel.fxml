@@ -17,11 +17,18 @@
       fx:controller="com.plr.frontend.controller.ProfilePanelController"
       styleClass="profile-panel"
       fillWidth="true"
-      spacing="0">
+      spacing="0">    <!-- ========== SCROLLABLE SETTINGS ========== -->
+    <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true" hbarPolicy="NEVER"
+                styleClass="profile-scroll">
+        <VBox styleClass="profile-scroll-content" spacing="20">
+            <VBox.margin><Insets top="24" right="28" bottom="28" left="28"/></VBox.margin>
+
+            
+
 
     <!-- ========== HEADER CARD ========== -->
-    <VBox styleClass="profile-header-card" spacing="0">
-        <VBox.margin><Insets top="24" right="28" bottom="0" left="28"/></VBox.margin>
+    <VBox styleClass="profile-card">
+        <Label text="PROFIL UTAMA" styleClass="profile-card-title"/>
 
         <!-- User Avatar & Basic Info -->
         <HBox alignment="CENTER_LEFT" spacing="20">
@@ -60,7 +67,6 @@
 
         <!-- Quick Stats Row under header -->
         <HBox styleClass="profile-quick-stats" spacing="12">
-            <VBox.margin><Insets top="20" bottom="0"/></VBox.margin>
 
             <VBox styleClass="quick-stat-item" HBox.hgrow="ALWAYS">
                 <Label fx:id="totalSessionsLabel" text="0" styleClass="quick-stat-value"/>
@@ -89,14 +95,7 @@
             </VBox>
         </HBox>
     </VBox>
-
-    <!-- ========== SCROLLABLE SETTINGS ========== -->
-    <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true" hbarPolicy="NEVER"
-                styleClass="profile-scroll">
-        <VBox styleClass="profile-scroll-content" spacing="20">
-            <VBox.margin><Insets top="24" right="28" bottom="28" left="28"/></VBox.margin>
-
-            <!-- ========== PERSONAL INFO CARD ========== -->
+<!-- ========== PERSONAL INFO CARD ========== -->
             <VBox styleClass="profile-card">
                 <Label text="INFORMASI PRIBADI" styleClass="profile-card-title"/>
 
