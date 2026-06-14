@@ -308,15 +308,19 @@ public class ProfilePanelController {
             try {
                 ApiClient.getInstance().deleteAccount(pwd);
                 Platform.runLater(() -> {
-                    showSuccess("Akun berhasil dihapus. Anda akan dikembalikan ke login page...");
-                    javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(
-                        javafx.util.Duration.seconds(2));
-                    pause.setOnFinished(e -> {
-                        if (onLogoutCallback != null) {
-                            onLogoutCallback.run();
-                        }
-                    });
-                    pause.play();
+                    // Clear session before redirecting
+                    com.plr.frontend.util.SessionManager.getInstance().clearSession();
+
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Akun Dihapus");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Akun Anda berhasil dihapus. Anda akan diarahkan ke halaman login.");
+                    alert.showAndWait(); // Blocks until user clicks OK
+
+                    // After alert is dismissed, redirect to login
+                    if (onLogoutCallback != null) {
+                        onLogoutCallback.run();
+                    }
                 });
             } catch (Exception e) {
                 Platform.runLater(() -> showError("Gagal menghapus akun: " + e.getMessage()));
@@ -348,7 +352,13 @@ public class ProfilePanelController {
     }
 
     private void showSuccess(String message) {
-        System.out.println("[SUCCESS] " + message);
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Berhasil");
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+        });
     }
 
     private void showError(String message) {

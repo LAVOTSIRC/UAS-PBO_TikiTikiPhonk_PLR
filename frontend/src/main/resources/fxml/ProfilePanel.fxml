@@ -187,23 +187,9 @@
                 </VBox>
             </VBox>
 
-            <!-- ========== PREFERENSI CARD ========== -->
-            <VBox styleClass="profile-card">
-                <Label text="PREFERENSI" styleClass="profile-card-title"/>
-
-                <VBox spacing="6" styleClass="profile-field">
-                    <Label text="Notifikasi Default Audio" styleClass="profile-field-label"/>
-                    <Label text="Ambient noise akan otomatis diputar saat sesi fokus dimulai (dapat diubah kapan saja)."
-                           styleClass="profile-field-desc" wrapText="true"/>
-                </VBox>
-
-                <Button text="Informasi Lebih Lanjut"
-                        styleClass="link-button"/>
-            </VBox>
-
-            <!-- ========== DANGER ZONE CARD ========== -->
+            <!-- ========== HAPUS AKUN CARD ========== -->
             <VBox styleClass="profile-danger-zone">
-                <Label text="ZONA BAHAYA" styleClass="profile-card-title-danger"/>
+                <Label text="HAPUS AKUN" styleClass="profile-card-title-danger"/>
 
                 <Label text="Menghapus akun akan menghilangkan semua data Anda secara permanen. Tindakan ini tidak dapat dibatalkan."
                        styleClass="profile-field-desc" wrapText="true"/>

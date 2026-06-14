@@ -364,13 +364,22 @@ public class ApiClient {
         HttpResponse<String> response = httpClient.send(request,
             HttpResponse.BodyHandlers.ofString());
 
+        System.out.println("[ApiClient] changePassword status=" + response.statusCode() + " body='" + response.body() + "'");
+
         if (response.statusCode() == 200) {
             return objectMapper.readValue(response.body(),
                 new TypeReference<Map<String, Object>>() {});
+        } else if (response.statusCode() == 403) {
+            throw new Exception("Akses ditolak (403). Sesi Anda mungkin sudah berakhir, silakan login ulang.");
         } else {
-            Map<String, Object> err = objectMapper.readValue(response.body(),
-                new TypeReference<Map<String, Object>>() {});
-            throw new Exception((String) err.getOrDefault("error", "Gagal mengubah password"));
+            // Try to parse JSON error body; fall back to raw text if it's not JSON
+            try {
+                Map<String, Object> err = objectMapper.readValue(response.body(),
+                    new TypeReference<Map<String, Object>>() {});
+                throw new Exception((String) err.getOrDefault("error", "Gagal mengubah password"));
+            } catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+                throw new Exception("Gagal mengubah password (" + response.statusCode() + "): " + response.body());
+            }
         }
     }
 
